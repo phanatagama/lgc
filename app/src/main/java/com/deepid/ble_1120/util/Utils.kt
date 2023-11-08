@@ -1,7 +1,7 @@
-package com.regula.ble_1120.util
+package com.deepid.ble_1120.util
 
 import android.content.Context
-import com.regula.ble_1120.R
+import com.deepid.ble_1120.R
 import java.io.IOException
 
 object Utils {

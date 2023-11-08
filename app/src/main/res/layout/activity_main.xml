@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_device"
         android:layout_marginTop="10dp"
-        android:hint="Regula 0123" />
+        android:hint="Deep ID 0123" />
 
     <Button
         android:id="@+id/btn_connect"

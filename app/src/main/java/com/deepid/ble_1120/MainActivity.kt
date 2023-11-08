@@ -1,4 +1,4 @@
-package com.regula.ble_1120
+package com.deepid.ble_1120
 
 import android.content.ComponentName
 import android.content.Intent
@@ -8,15 +8,16 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.regula.ble_1120.util.BluetoothUtil
-import com.regula.ble_1120.util.PermissionUtil
-import com.regula.ble_1120.util.PermissionUtil.Companion.respondToPermissionRequest
-import com.regula.ble_1120.util.Utils
+import com.deepid.ble_1120.util.BluetoothUtil
+import com.deepid.ble_1120.util.PermissionUtil
+import com.deepid.ble_1120.util.PermissionUtil.Companion.respondToPermissionRequest
+import com.deepid.ble_1120.util.Utils
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initViews()
         prepareDatabase()
+        DocumentReader.Instance().functionality().edit().setBtDeviceName("Deep ID 0001").apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
             if (etDeviceName?.text != null) {
@@ -51,6 +53,7 @@ class MainActivity : AppCompatActivity() {
                 DocumentReader.Instance().functionality().edit()
                     .setUseAuthenticator(true)
                     .setBtDeviceName(etDeviceName?.text.toString()).apply()
+                Log.d("MainActivity", "[DEBUGX] btnClicked " )
                 startBluetoothService()
             }
         }
@@ -104,6 +107,7 @@ class MainActivity : AppCompatActivity() {
             if (result) {
                 btnConnect?.isEnabled = true
             } else {
+                Log.e("MainActivity", "[DEBUG] INIT failed: $error ", )
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
@@ -113,6 +117,7 @@ class MainActivity : AppCompatActivity() {
         if (!bluetoothUtil.isBluetoothSettingsReady(this) || isBleServiceConnected) {
             return
         }
+        Log.d("MainActivity", "[DEBUGX] startBluetoothService" )
         val bleIntent = Intent(this, RegulaBleService::class.java)
         startService(bleIntent)
         bindService(bleIntent, mBleConnection, 0)
@@ -123,11 +128,13 @@ class MainActivity : AppCompatActivity() {
             isBleServiceConnected = true
             val bleService = (service as RegulaBleService.LocalBinder).service
             bleManager = bleService.bleManager
+            Log.d("MainActivity", "[DEBUGX] onServiceConnected" )
 
             if (bleManager?.isConnected == true) {
                 startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
                 return
             }
+            Log.d("MainActivity", "[DEBUGX] onServiceConnected 2" )
 
             showDialog("Searching devices")
             handler.sendEmptyMessageDelayed(0, 7000)
@@ -148,6 +155,7 @@ class MainActivity : AppCompatActivity() {
 
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {
         override fun onDeviceReady() {
+            Log.d("MainActivity", "[DEBUGX] onDeviceReady" )
             handler.removeMessages(0)
             bleManager!!.removeCallback(this)
             startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
