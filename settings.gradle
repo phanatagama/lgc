@@ -15,5 +15,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "lgc"
+rootProject.name = "ble_1120"
 include ':app'
