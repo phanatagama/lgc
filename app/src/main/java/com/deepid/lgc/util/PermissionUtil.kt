@@ -1,4 +1,4 @@
-package com.deepid.ble_1120.util
+package com.deepid.lgc.util
 
 import android.app.Activity
 import android.app.AlertDialog

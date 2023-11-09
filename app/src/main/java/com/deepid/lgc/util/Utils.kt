@@ -1,7 +1,7 @@
-package com.deepid.ble_1120.util
+package com.deepid.lgc.util
 
 import android.content.Context
-import com.deepid.ble_1120.R
+import com.deepid.lgc.R
 import java.io.IOException
 
 object Utils {

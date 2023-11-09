@@ -1,4 +1,4 @@
-package com.deepid.ble_1120
+package com.deepid.lgc
 
 import android.graphics.Bitmap
 import android.os.Bundle

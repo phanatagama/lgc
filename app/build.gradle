@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace "com.deepid.ble_1120"
+    namespace "com.deepid.lgc"
     compileSdk 32
 
     defaultConfig {
@@ -42,4 +42,8 @@ dependencies {
     implementation('com.regula.documentreader:api:6.9.+@aar') {
         transitive = true;
     }
+
+    //Splashscreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
 }

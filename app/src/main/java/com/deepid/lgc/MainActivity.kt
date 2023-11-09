@@ -1,4 +1,4 @@
-package com.deepid.ble_1120
+package com.deepid.lgc
 
 import android.content.ComponentName
 import android.content.Intent
@@ -14,10 +14,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.deepid.ble_1120.util.BluetoothUtil
-import com.deepid.ble_1120.util.PermissionUtil
-import com.deepid.ble_1120.util.PermissionUtil.Companion.respondToPermissionRequest
-import com.deepid.ble_1120.util.Utils
+import com.deepid.lgc.util.BluetoothUtil
+import com.deepid.lgc.util.PermissionUtil
+import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
+import com.deepid.lgc.util.Utils
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -25,8 +25,8 @@ import com.regula.documentreader.api.ble.RegulaBleService
 import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
-import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.regula.documentreader.api.params.DocReaderConfig
 
 class MainActivity : AppCompatActivity() {
@@ -40,11 +40,12 @@ class MainActivity : AppCompatActivity() {
     private val bluetoothUtil = BluetoothUtil()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
         prepareDatabase()
-        DocumentReader.Instance().functionality().edit().setBtDeviceName("Deep ID 0001").apply()
+        DocumentReader.Instance().functionality().edit().setBtDeviceName("Regula 0326").apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
             if (etDeviceName?.text != null) {
