@@ -8,7 +8,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.deepid.documentreader"
+        applicationId "com.deepid.lgc"
         minSdk 21
         targetSdk 32
         versionCode 1

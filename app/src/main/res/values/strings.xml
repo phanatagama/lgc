@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LGC</string>
+    <string name="upload_file">Upload File</string>
 </resources>
