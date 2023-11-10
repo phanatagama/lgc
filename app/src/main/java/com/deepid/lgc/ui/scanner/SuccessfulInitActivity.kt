@@ -1,4 +1,4 @@
-package com.deepid.lgc
+package com.deepid.lgc.ui.scanner
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -7,25 +7,36 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.deepid.lgc.R
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.config.ScannerConfig
-import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
+import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SuccessfulInitActivity : AppCompatActivity() {
     private var uvImage: ImageView? = null
     private var rfidImage: ImageView? = null
     private var showScannerBtn: Button? = null
+
+    // TODO: add view model and upload image when scan is successfull
+    private val scannerViewModel: ScannerViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.sucessfull_init_activity)
         initViews()
+        observe()
 
         if (!DocumentReader.Instance().isReady)
             showScannerBtn!!.isEnabled = false
@@ -39,18 +50,20 @@ class SuccessfulInitActivity : AppCompatActivity() {
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
                         //starting chip reading
-                        DocumentReader.Instance().startRFIDReader(this@SuccessfulInitActivity, object : IRfidReaderCompletion() {
-                            override fun onCompleted(
-                                rfidAction: Int,
-                                results: DocumentReaderResults?,
-                                error: DocumentReaderException?
-                            ) {
-                                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                    showGraphicFieldImage(results)
+                        DocumentReader.Instance().startRFIDReader(
+                            this@SuccessfulInitActivity,
+                            object : IRfidReaderCompletion() {
+                                override fun onCompleted(
+                                    rfidAction: Int,
+                                    results: DocumentReaderResults?,
+                                    error: DocumentReaderException?
+                                ) {
+                                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                                        showGraphicFieldImage(results)
+                                    }
                                 }
-                            }
 
-                        })
+                            })
                     }
                     Log.d(
                         this@SuccessfulInitActivity.localClassName,
@@ -75,6 +88,26 @@ class SuccessfulInitActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun observe() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                scannerViewModel.state.collect { uiState ->
+                    handleStateChange(uiState)
+                }
+            }
+        }
+    }
+
+    private fun handleStateChange(uiState: ScannerUiState) {
+        when (uiState) {
+            is ScannerUiState.Init -> Unit
+            is ScannerUiState.Loading -> Unit
+            is ScannerUiState.Error -> Unit
+            is ScannerUiState.Success -> Unit
+        }
+
     }
 
 

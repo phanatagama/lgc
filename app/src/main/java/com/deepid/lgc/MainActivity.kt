@@ -3,7 +3,9 @@ package com.deepid.lgc
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -12,12 +14,25 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.deepid.lgc.data.model.FileUploadRequest
+import com.deepid.lgc.ui.scanner.ScannerUiState
+import com.deepid.lgc.ui.scanner.ScannerViewModel
+import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepid.lgc.util.Utils
+import com.deepid.lgc.util.getImageFile
+import com.deepid.lgc.util.mimeType
+import com.deepid.lgc.util.readAsRequestBody
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -26,8 +41,10 @@ import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.errors.DocumentReaderException
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.regula.documentreader.api.params.DocReaderConfig
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
@@ -36,6 +53,10 @@ class MainActivity : AppCompatActivity() {
 
     var etDeviceName: EditText? = null
     var btnConnect: Button? = null
+    var btnUpload: Button? = null
+    var ivTest: ImageView? = null
+
+    private val scannerViewModel: ScannerViewModel by viewModel()
 
     private val bluetoothUtil = BluetoothUtil()
 
@@ -44,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
+        observe()
         prepareDatabase()
         DocumentReader.Instance().functionality().edit().setBtDeviceName("Regula 0326").apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
@@ -54,10 +76,46 @@ class MainActivity : AppCompatActivity() {
                 DocumentReader.Instance().functionality().edit()
                     .setUseAuthenticator(true)
                     .setBtDeviceName(etDeviceName?.text.toString()).apply()
-                Log.d("MainActivity", "[DEBUGX] btnClicked " )
+                Log.d("MainActivity", "[DEBUGX] btnClicked ")
                 startBluetoothService()
             }
         }
+    }
+
+    private fun observe() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                scannerViewModel.state.collect { uiState ->
+                    handleStateChange(uiState)
+                }
+            }
+        }
+    }
+
+    private fun getBitmap(): Bitmap {
+        return assets
+            .open("filename.png")
+            .use(BitmapFactory::decodeStream)
+    }
+
+    private fun handleStateChange(uiState: ScannerUiState) {
+        when (uiState) {
+            is ScannerUiState.Init -> Unit
+            is ScannerUiState.Loading -> Toast.makeText(
+                this,
+                "Loading: ${uiState.isLoading}",
+                Toast.LENGTH_LONG
+            ).show()
+
+            is ScannerUiState.Error -> Toast.makeText(
+                this,
+                "Error ${uiState.message}",
+                Toast.LENGTH_LONG
+            ).show()
+
+            is ScannerUiState.Success -> Toast.makeText(this, "Success", Toast.LENGTH_LONG).show()
+        }
+
     }
 
     private fun prepareDatabase() {
@@ -93,13 +151,25 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         etDeviceName = findViewById(R.id.ed_device)
         btnConnect = findViewById(R.id.btn_connect)
+        ivTest = findViewById(R.id.iv_test)
+        ivTest?.setImageBitmap(getBitmap())
+        btnUpload = findViewById(R.id.btn_upload)
+        btnUpload?.setOnClickListener {
+            val file: File = getImageFile(this, getBitmap())
+
+            Log.d(TAG, "initViews: mimeType ${file.mimeType()}")
+            val fileUploadRequest = FileUploadRequest(mimeType = file.mimeType().toString(),fileLength = file.length())
+            val fileRequestBody = this.contentResolver.readAsRequestBody(Uri.fromFile(file))
+            scannerViewModel.uploadFile(fileUploadRequest, fileRequestBody)
+        }
     }
 
     fun initializeReader() {
         val license = Utils.getLicense(this) ?: return
         showDialog("Initializing")
 
-        DocumentReader.Instance().initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
+        DocumentReader.Instance()
+            .initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
     }
 
     private val initCompletion =
@@ -108,7 +178,7 @@ class MainActivity : AppCompatActivity() {
             if (result) {
                 btnConnect?.isEnabled = true
             } else {
-                Log.e("MainActivity", "[DEBUG] INIT failed: $error ", )
+                Log.e("MainActivity", "[DEBUG] INIT failed: $error ")
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
@@ -118,7 +188,7 @@ class MainActivity : AppCompatActivity() {
         if (!bluetoothUtil.isBluetoothSettingsReady(this) || isBleServiceConnected) {
             return
         }
-        Log.d("MainActivity", "[DEBUGX] startBluetoothService" )
+        Log.d("MainActivity", "[DEBUGX] startBluetoothService")
         val bleIntent = Intent(this, RegulaBleService::class.java)
         startService(bleIntent)
         bindService(bleIntent, mBleConnection, 0)
@@ -129,13 +199,13 @@ class MainActivity : AppCompatActivity() {
             isBleServiceConnected = true
             val bleService = (service as RegulaBleService.LocalBinder).service
             bleManager = bleService.bleManager
-            Log.d("MainActivity", "[DEBUGX] onServiceConnected" )
+            Log.d("MainActivity", "[DEBUGX] onServiceConnected")
 
             if (bleManager?.isConnected == true) {
                 startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
                 return
             }
-            Log.d("MainActivity", "[DEBUGX] onServiceConnected 2" )
+            Log.d("MainActivity", "[DEBUGX] onServiceConnected 2")
 
             showDialog("Searching devices")
             handler.sendEmptyMessageDelayed(0, 7000)
@@ -156,7 +226,7 @@ class MainActivity : AppCompatActivity() {
 
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {
         override fun onDeviceReady() {
-            Log.d("MainActivity", "[DEBUGX] onDeviceReady" )
+            Log.d("MainActivity", "[DEBUGX] onDeviceReady")
             handler.removeMessages(0)
             bleManager!!.removeCallback(this)
             startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
@@ -171,7 +241,7 @@ class MainActivity : AppCompatActivity() {
             isBleServiceConnected = false
         }
     }
-    
+
     private fun dismissDialog() {
         if (loadingDialog != null) {
             loadingDialog!!.dismiss()
@@ -196,7 +266,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PermissionUtil.PERMISSIONS_BLE_ACCESS) {
 
-            if(permissions.isEmpty())
+            if (permissions.isEmpty())
                 return
 
             respondToPermissionRequest(this,
@@ -223,5 +293,9 @@ class MainActivity : AppCompatActivity() {
                 if (bluetoothUtil.isBluetoothSettingsReady(this))
                     initializeReader()
             }
+    }
+
+    companion object {
+        val TAG: String = this.javaClass.name
     }
 }

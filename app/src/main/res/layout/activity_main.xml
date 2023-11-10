@@ -54,6 +54,22 @@
             android:layout_marginTop="20dp"
             android:enabled="false"
             android:text="Connect" />
+        <ImageView
+            android:id="@+id/iv_test"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_below="@+id/btn_connect"
+            tools:src="@tools:sample/backgrounds/scenic"
+            />
+        <Button
+            android:id="@+id/btn_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_test"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:enabled="true"
+            android:text="Upload" />
     </LinearLayout>
 
 

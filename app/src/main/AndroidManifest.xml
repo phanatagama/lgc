@@ -4,10 +4,12 @@
     >
 
     <!-- used for DocumentReader.Instance().prepareDatabase method-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
 
     <application
+        android:name=".LGCApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -29,7 +31,7 @@
         </activity>
 
         <activity
-            android:name=".SuccessfulInitActivity"
+            android:name=".ui.scanner.SuccessfulInitActivity"
             android:screenOrientation="portrait" />
 
     </application>
