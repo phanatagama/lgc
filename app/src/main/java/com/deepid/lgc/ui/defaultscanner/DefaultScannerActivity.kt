@@ -5,21 +5,27 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.deepid.lgc.data.model.TextFieldAttribute
 import com.deepid.lgc.databinding.ActivityDefaultScannerBinding
+import com.deepid.lgc.ui.FaceCameraFragment
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
+import com.regula.documentreader.api.enums.eCheckResult
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.documentreader.api.results.DocumentReaderValidity
 import com.regula.facesdk.FaceSDK
 import com.regula.facesdk.configuration.FaceCaptureConfiguration
 import com.regula.facesdk.enums.ImageType
@@ -33,7 +39,10 @@ import com.regula.facesdk.request.MatchFacesRequest
 
 class DefaultScannerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDefaultScannerBinding
-    private var currentScenario = Scenario.SCENARIO_FULL_AUTH
+    private var currentScenario = Scenario.SCENARIO_OCR
+    private val rvAdapter: DocumentFieldAdapter by lazy {
+        DocumentFieldAdapter()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDefaultScannerBinding.inflate(layoutInflater)
@@ -72,14 +81,49 @@ class DefaultScannerActivity : AppCompatActivity() {
             liveIv.setImageBitmap(liveImage)
         }
     }
+    private fun updateRecyclerViews(results: DocumentReaderResults){
+        val attributes = mutableListOf<TextFieldAttribute>()
+        results.textResult?.fields?.forEach {
+            val name = it.getFieldName(this)
+            for (value in it.values) {
+                val valid = getValidity(value.field.validityList, value.sourceType)
+                val item = TextFieldAttribute(
+                    name!!,
+                    value.value,
+                    it.lcid,
+                    value.pageIndex,
+                    valid,
+                    value.sourceType
+                )
+                attributes.add(item)
+            }
+        }
+        if(attributes.isNotEmpty()){
+            rvAdapter.submitList(attributes as MutableList<TextFieldAttribute>)
+            hideRecyclerView(false)
+        }
+    }
+    private fun hideRecyclerView(isHide: Boolean){
+        binding.recyclerView.visibility = if(isHide) View.GONE else View.VISIBLE
+    }
+
+    private fun getValidity(
+        list: List<DocumentReaderValidity>,
+        type: Int?
+    ): Int {
+        for (validity in list) {
+            if (validity.sourceType == type)
+                return validity.status
+        }
+
+        return eCheckResult.CH_CHECK_WAS_NOT_DONE;
+    }
 
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE
             || action == DocReaderAction.TIMEOUT
         ) {
-//            hideDialog()
-//            cancelAnimation()
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
                 Log.d("MainActivity", "DEBUGX MULTIPAGEMODE: ")
                 if (results?.morePagesAvailable != 0) {
@@ -132,12 +176,8 @@ class DefaultScannerActivity : AppCompatActivity() {
                         .apply()
 
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
-//                hideDialog()
-//                cancelAnimation()
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
-//                hideDialog()
-//                cancelAnimation()
             }
     }
 
@@ -174,8 +214,9 @@ class DefaultScannerActivity : AppCompatActivity() {
     private fun captureFace(results: DocumentReaderResults) {
         val faceCaptureConfiguration: FaceCaptureConfiguration =
             FaceCaptureConfiguration.Builder()
+                .registerUiFragmentClass(FaceCameraFragment::class.java)
                 .setCloseButtonEnabled(true)
-                .setTorchButtonEnabled(true)
+                .setCameraSwitchEnabled(false)
                 .build()
         FaceSDK.Instance()
             .presentFaceCaptureActivity(
@@ -202,6 +243,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                     }
                     displayResults(results)
                 }
+                updateRecyclerViews(results)
             }
     }
 
@@ -256,10 +298,13 @@ class DefaultScannerActivity : AppCompatActivity() {
             documentIv.setImageBitmap(null)
             liveIv.setImageBitmap(null)
         }
+        hideRecyclerView(true)
     }
 
     private fun initViews() {
         with(binding) {
+            recyclerView.layoutManager = LinearLayoutManager(this@DefaultScannerActivity)
+            recyclerView.adapter = rvAdapter
             btnScan.setOnClickListener {
                 resetViews()
                 btnUpload.isEnabled = false
