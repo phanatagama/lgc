@@ -7,16 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
-
-    <TextView
-        android:id="@+id/tv_device"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Device name" />
-
-    <EditText
-        android:id="@+id/ed_device"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="4dp"
@@ -62,13 +54,13 @@
             android:layout_marginTop="20dp"
             android:enabled="false"
             android:text="Connect" />
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_test"-->
-<!--            android:layout_width="100dp"-->
-<!--            android:layout_height="100dp"-->
-<!--            android:layout_below="@+id/btn_connect"-->
-<!--            tools:src="@tools:sample/backgrounds/scenic"-->
-<!--            />-->
+        <!--        <ImageView-->
+        <!--            android:id="@+id/iv_test"-->
+        <!--            android:layout_width="100dp"-->
+        <!--            android:layout_height="100dp"-->
+        <!--            android:layout_below="@+id/btn_connect"-->
+        <!--            tools:src="@tools:sample/backgrounds/scenic"-->
+        <!--            />-->
         <Button
             android:id="@+id/btn_scan"
             android:layout_width="wrap_content"
@@ -81,15 +73,5 @@
     </LinearLayout>
 
 
-    <Button
-        android:id="@+id/btn_connect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ed_device"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:enabled="false"
-        android:text="Connect" />
 
 </LinearLayout>

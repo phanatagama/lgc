@@ -1,4 +1,4 @@
-package com.deepid.ble_1120
+package com.deepid.lgc
 
 import android.content.ComponentName
 import android.content.Intent
@@ -36,7 +36,6 @@ import com.regula.documentreader.api.ble.RegulaBleService
 import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
-import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.facesdk.FaceSDK
@@ -59,13 +58,14 @@ class MainActivity : AppCompatActivity() {
     private val bluetoothUtil = BluetoothUtil()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
         //observe()
         initFaceSDK()
         prepareDatabase()
-        DocumentReader.Instance().functionality().edit().setBtDeviceName("Deep ID 0001").apply()
+        DocumentReader.Instance().functionality().edit().setBtDeviceName("Regula 0326").apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
             if (etDeviceName?.text != null) {

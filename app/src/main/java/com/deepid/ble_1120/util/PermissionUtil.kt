@@ -1,4 +1,4 @@
-package com.deepid.ble_1120.util
+package com.deepid.lgc.util
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -20,11 +20,11 @@ class PermissionUtil {
                                        permissionRejectedFunc: (() -> Unit)?) {
 
             if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 permissionGrantedFunc()
                 return
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                    !context.shouldShowRequestPermissionRationale(permission)) {
+                !context.shouldShowRequestPermissionRationale(permission)) {
                 AlertDialog.Builder(context)
                     .setTitle("Permissions denied")
                     .setMessage("Permissions denied for app. Open settings to provide permissions.")

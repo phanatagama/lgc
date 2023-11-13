@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/com/deepid/ble_1120/SuccessfulInitActivity.kt
-package com.deepid.ble_1120
-========
 package com.deepid.lgc.ui.scanner
->>>>>>>> development:app/src/main/java/com/deepid/ble_1120/ui/scanner/SuccessfulInitActivity.kt
 
 import android.graphics.Bitmap
 import android.net.Uri

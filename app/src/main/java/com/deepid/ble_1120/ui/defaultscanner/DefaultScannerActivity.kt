@@ -120,9 +120,9 @@ class DefaultScannerActivity : AppCompatActivity() {
             } else {
                 Log.d("MainActivity", "DEBUGX NO RFID PERFORMED ")
                 /**
-                * perform [livenessFace] or [captureface] then check similarity
-                */
-              //  livenessFace(results)
+                 * perform [livenessFace] or [captureface] then check similarity
+                 */
+                //  livenessFace(results)
                 captureFace(results)
             }
         } else

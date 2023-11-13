@@ -1,4 +1,4 @@
-package com.deepid.ble_1120.util
+package com.deepid.lgc.util
 
 import android.Manifest
 import android.annotation.SuppressLint
