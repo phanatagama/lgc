@@ -25,6 +25,9 @@ android {
             buildConfigField("String", 'BASE_URL', "\"$API_DEV\"")
         }
     }
+    buildFeatures{
+        viewBinding true
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -53,6 +56,12 @@ dependencies {
         transitive = true;
     }
 
+    // Regula Face SDK
+    implementation ("com.regula.face:api:5.2.+@aar") {
+        transitive = true
+    }
+    implementation ("com.regula.face:core:5.2.+@aar")
+
     // Splashscreen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
@@ -64,6 +73,10 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
     implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
     implementation("com.squareup.okhttp3:logging-interceptor:$okhttp_logging_version")
+    // Chucker
+    debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+
 
     // Dependency Injection
     implementation("io.insert-koin:koin-core:$koin_version")
