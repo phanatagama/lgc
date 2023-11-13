@@ -1,6 +1,7 @@
 package com.deepid.lgc.di
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.deepid.lgc.BuildConfig
 import com.deepid.lgc.data.common.NetworkInterceptor
 import com.google.gson.GsonBuilder
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 val networkModule = module {
     single { provideInterceptor(androidContext()) }
-    single { provideHttpClient(get()) }
+    single { provideHttpClient(get(), androidContext()) }
     single { provideRetrofit(get()) }
 }
 
@@ -27,9 +28,10 @@ fun provideRetrofit(client: OkHttpClient): Retrofit {
     }.build()
 }
 
-fun provideHttpClient(networkInterceptor: NetworkInterceptor): OkHttpClient {
+fun provideHttpClient(networkInterceptor: NetworkInterceptor, applicationContext: Context): OkHttpClient {
     return OkHttpClient.Builder().apply {
         addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        addInterceptor(ChuckerInterceptor(applicationContext))
         readTimeout(60, TimeUnit.SECONDS)
         writeTimeout(60, TimeUnit.SECONDS)
         connectTimeout(60, TimeUnit.SECONDS)
