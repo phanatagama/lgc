@@ -19,7 +19,14 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", 'BASE_URL', "\"$API_PROD\"")
         }
+        debug {
+            buildConfigField("String", 'BASE_URL', "\"$API_DEV\"")
+        }
+    }
+    buildFeatures{
+        viewBinding true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -30,18 +37,49 @@ android {
     }
 }
 
-
 dependencies {
+    def coroutine_version = "1.6.4"
+    def retrofit_version = "2.9.0"
+    def okhttp_logging_version = "4.10.0"
+    def koin_version = "3.2.2"
+    def koin_android_version= "3.3.0"
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
+    implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("com.google.android.material:material:1.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    implementation 'com.regula.btdevice:api:1.0.+@aar'
-    implementation 'com.regula.documentreader.core:fullauthrfid:6.9.+@aar'
-    implementation('com.regula.documentreader:api:6.9.+@aar') {
+    // Regula Document Reader SDK
+    implementation("com.regula.btdevice:api:1.0.+@aar")
+    implementation("com.regula.documentreader.core:fullauthrfid:6.9.+@aar")
+    implementation("com.regula.documentreader:api:6.9.+@aar") {
         transitive = true;
     }
+
+    // Regula Face SDK
+    implementation ("com.regula.face:api:5.2.+@aar") {
+        transitive = true
+    }
+    implementation ("com.regula.face:core:5.2.+@aar")
+
+    // Splashscreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // Coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version")
+
+    // Networking
+    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okhttp_logging_version")
+    // Chucker
+    debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+
+
+    // Dependency Injection
+    implementation("io.insert-koin:koin-core:$koin_version")
+    implementation("io.insert-koin:koin-android:$koin_android_version")
+    implementation("io.insert-koin:koin-androidx-navigation:$koin_android_version")
 }
