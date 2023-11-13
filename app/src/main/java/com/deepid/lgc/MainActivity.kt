@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -22,7 +21,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.deepid.lgc.data.model.FileUploadRequest
+import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
 import com.deepid.lgc.ui.scanner.ScannerViewModel
 import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
@@ -30,9 +29,6 @@ import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepid.lgc.util.Utils
-import com.deepid.lgc.util.getImageFile
-import com.deepid.lgc.util.mimeType
-import com.deepid.lgc.util.readAsRequestBody
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -42,9 +38,10 @@ import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.facesdk.FaceSDK
+import com.regula.facesdk.exception.InitException
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
@@ -53,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     var etDeviceName: EditText? = null
     var btnConnect: Button? = null
-    var btnUpload: Button? = null
+    var btnScan: Button? = null
     var ivTest: ImageView? = null
 
     private val scannerViewModel: ScannerViewModel by viewModel()
@@ -65,7 +62,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
-        observe()
+        //observe()
+        initFaceSDK()
         prepareDatabase()
         DocumentReader.Instance().functionality().edit().setBtDeviceName("Regula 0326").apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
@@ -79,6 +77,20 @@ class MainActivity : AppCompatActivity() {
                 Log.d("MainActivity", "[DEBUGX] btnClicked ")
                 startBluetoothService()
             }
+        }
+    }
+
+    private fun initFaceSDK() {
+        FaceSDK.Instance().init(this) { status: Boolean, e: InitException? ->
+            if (!status) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Init FaceSDK finished with error: " + if (e != null) e.message else "",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@init
+            }
+            Log.d("MainActivity", "FaceSDK init completed successfully")
         }
     }
 
@@ -151,16 +163,11 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         etDeviceName = findViewById(R.id.ed_device)
         btnConnect = findViewById(R.id.btn_connect)
-        ivTest = findViewById(R.id.iv_test)
-        ivTest?.setImageBitmap(getBitmap())
-        btnUpload = findViewById(R.id.btn_upload)
-        btnUpload?.setOnClickListener {
-            val file: File = getImageFile(this, getBitmap())
-
-            Log.d(TAG, "initViews: mimeType ${file.mimeType()}")
-            val fileUploadRequest = FileUploadRequest(mimeType = file.mimeType().toString(),fileLength = file.length())
-            val fileRequestBody = this.contentResolver.readAsRequestBody(Uri.fromFile(file))
-            scannerViewModel.uploadFile(fileUploadRequest, fileRequestBody)
+//        ivTest = findViewById(R.id.iv_test)
+//        ivTest?.setImageBitmap(getBitmap())
+        btnScan = findViewById(R.id.btn_scan)
+        btnScan?.setOnClickListener {
+            startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
         }
     }
 
