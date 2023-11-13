@@ -44,6 +44,7 @@ class MainRepository(
                         }
                         BaseResult.Success(FileUploadResponse(response.body()))
                     } else {
+                        Log.e(TAG, "getUploadUrls: ${response.code()},${response.body()},${response}")
                         BaseResult.Error(Failure(response.code(), response.message()))
                     }
                 } catch (e: Exception) {
