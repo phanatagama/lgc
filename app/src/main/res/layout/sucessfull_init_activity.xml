@@ -42,14 +42,15 @@
         android:layout_gravity="center_horizontal"
         android:text="show scanner"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/uploadButton"
+        app:layout_constraintEnd_toStartOf="@id/uploadBtn"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/uploadButton"
+        android:id="@+id/uploadBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/upload_file"
+        android:enabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/showScannerBtn" />
