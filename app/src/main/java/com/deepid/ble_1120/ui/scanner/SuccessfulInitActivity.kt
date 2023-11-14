@@ -54,7 +54,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
         if (!DocumentReader.Instance().isReady)
             showScannerBtn!!.isEnabled = false
         showScannerBtn!!.setOnClickListener {
-            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_OCR).build()
             DocumentReader.Instance().showScanner(
                 this, scannerConfig
             ) { action, results, error ->
