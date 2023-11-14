@@ -24,7 +24,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
 import com.deepid.lgc.ui.scanner.ScannerViewModel
-import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
@@ -209,7 +208,8 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "[DEBUGX] onServiceConnected")
 
             if (bleManager?.isConnected == true) {
-                startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+//                startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+                Toast.makeText(this@MainActivity, "Bluetooth is connected", Toast.LENGTH_SHORT).show()
                 return
             }
             Log.d("MainActivity", "[DEBUGX] onServiceConnected 2")
@@ -236,7 +236,8 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "[DEBUGX] onDeviceReady")
             handler.removeMessages(0)
             bleManager!!.removeCallback(this)
-            startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+//            startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+            Toast.makeText(this@MainActivity, "Bluetooth is connected", Toast.LENGTH_SHORT).show()
             dismissDialog()
         }
     }
