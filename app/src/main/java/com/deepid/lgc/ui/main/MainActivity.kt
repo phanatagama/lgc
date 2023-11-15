@@ -53,7 +53,6 @@ import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletio
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.RecognizeConfig
 import com.regula.documentreader.api.config.ScannerConfig
-import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
@@ -231,11 +230,14 @@ class MainActivity : AppCompatActivity() {
         //observe()
         initFaceSDK()
         prepareDatabase()
+        DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
         DocumentReader.Instance().functionality().edit()
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
-            .setCaptureMode(CaptureMode.CAPTURE_FRAME)
+//            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
             .apply()
         binding.contentMain.edDevice.setText(DocumentReader.Instance().functionality().btDeviceName)
         binding.contentMain.btnConnect.setOnClickListener { view: View? ->
@@ -368,29 +370,30 @@ class MainActivity : AppCompatActivity() {
             }
             menuRv.layoutManager = LinearLayoutManager(this@MainActivity)
             menuRv.adapter = rvAdapter
-            bottomNavigation.setOnItemReselectedListener { item ->
+            bottomNavigation.setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.image -> {
                         // Respond to navigation item 1 click
                         recognizeImage()
-
+                        true
                     }
 
                     R.id.camera -> {
                         // Respond to navigation item 2 click
                         showScanner()
+                        true
                     }
 
                     R.id.setting -> {
                         Toast.makeText(
                             this@MainActivity,
-                            "",
+                            "This feature will available soon",
                             Toast.LENGTH_LONG
                         ).show()
-
+                        true
                     }
 
-                    else -> Unit
+                    else -> false
                 }
             }
         }
