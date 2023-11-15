@@ -196,4 +196,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
             }
         }
     }
+    companion object{
+        const val TAG = "SuccessfullInitActivity"
+    }
 }
