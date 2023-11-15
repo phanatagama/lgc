@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.FragmentManager
 import com.deepid.lgc.databinding.LayoutResultBottomsheetBinding
+import com.deepid.lgc.util.Helpers.Companion.drawable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_OK
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
@@ -44,11 +46,15 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "raw result ${results.rawResult}")
+        val statusDrawable = drawable(
+            if(results.status.overallStatus == CH_CHECK_OK) com.regula.documentreader.api.R.drawable.reg_ok else com.regula.documentreader.api.R.drawable.reg_fail, requireActivity())
         val name = results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
         val gender = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
         val age = results.getTextFieldValueByType(eVisualFieldType.FT_AGE)
+        val ageFieldName = results.getTextFieldByType(eVisualFieldType.FT_AGE)?.getFieldName(requireActivity())
         val birth = results.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
-        val address = results.getTextFieldValueByType(eVisualFieldType.FT_ADDRESS)
+        val address = results.getTextFieldValueByType(eVisualFieldType.FT_ISSUING_STATE_NAME)
         val expiry = results.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_EXPIRY)
         val image = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
@@ -65,13 +71,14 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
         }
         with(binding) {
             titleTv.text = name
-            detailTv.text = "$gender, AGE: $age"
+            detailTv.text = if(ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
             birthDateTv.text = birth
             addressTv.text = address
             issueTv.text = expiry
             documentTv.text = documentName
             faceIv.setImageBitmap(image)
             rawImageIv.setImageBitmap(rawImage)
+            checkResultIv.setImageDrawable(statusDrawable)
         }
     }
 

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     style="?attr/bottomSheetStyle"
-    android:paddingHorizontal="16dp">
+    >
 
 
     <TextView
@@ -14,8 +14,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
+        android:layout_marginHorizontal="16dp"
         android:text="TextView"
-        android:maxLines="1"
+        android:maxLines="2"
         android:ellipsize="end"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -39,12 +40,13 @@
         android:id="@+id/face_iv"
         android:layout_width="67dp"
         android:layout_height="78dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/title_tv"
         app:srcCompat="@drawable/ic_face_android" />
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/check_result_iv"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginTop="8dp"
@@ -57,11 +59,13 @@
         android:id="@+id/imageView3"
         android:layout_marginTop="16dp"
         android:layout_width="0dp"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="16dp"
         android:background="@color/background_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView4" />
+        app:layout_constraintTop_toBottomOf="@id/check_result_iv" />
+
 
 <!--    <androidx.constraintlayout.widget.Guideline-->
 <!--        android:id="@+id/guideline2"-->
@@ -75,6 +79,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
         android:stretchColumns="*"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -151,4 +156,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/document_tv"
         tools:src="@drawable/reg_nfc_full_id_big" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/check_result_iv" />
+    <View
+        android:id="@+id/bottom_container"
+        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="95dp"
+        android:background="@color/white"
+        android:alpha="0.25"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/face_detection"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_marginEnd="36dp"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_container"
+        app:layout_constraintEnd_toEndOf="@id/bottom_container"
+        app:layout_constraintTop_toTopOf="@id/bottom_container"
+        app:srcCompat="@drawable/ic_face_recognize" />
 </androidx.constraintlayout.widget.ConstraintLayout>

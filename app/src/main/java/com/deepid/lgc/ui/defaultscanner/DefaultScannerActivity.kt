@@ -88,6 +88,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             Log.d("DefaultScanner", "debugx fieldname ${it.getFieldName(this)} ")
             for (value in it.values) {
                 Log.d("DefaultScanner", "debugx fieldtype ${value.field.fieldType} ")
+                Log.d("DefaultScanner", "debugx source ${value.sourceType} ")
                 Log.d("DefaultScanner", "debugx value ${value.value} ")
                 val valid = getValidity(value.field.validityList, value.sourceType)
                 val item = TextFieldAttribute(
