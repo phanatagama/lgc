@@ -54,11 +54,15 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
         val rawImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT,  eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_WHITE_FULL)
             ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE, eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,)
-        val documentName = results.documentType.first().name
-        Log.d(TAG, "debugx document name ${results.documentType.first().name}")
-        Log.d(TAG, "debugx document documentid ${results.documentType.first().documentID}")
-        Log.d(TAG, "debugx document dtypr ${results.documentType.first().dType}")
-        Log.d(TAG, "debugx document countty ${results.documentType.first().dCountryName}")
+        val documentName = if(results.documentType.isNotEmpty()) {
+            Log.d(TAG, "debugx document name ${results.documentType.first().name}")
+            Log.d(TAG, "debugx document documentid ${results.documentType.first().documentID}")
+            Log.d(TAG, "debugx document dtypr ${results.documentType.first().dType}")
+            Log.d(TAG, "debugx document countty ${results.documentType.first().dCountryName}")
+            results.documentType.first().name
+        }else{
+            "-"
+        }
         with(binding) {
             titleTv.text = name
             detailTv.text = "$gender, AGE: $age"

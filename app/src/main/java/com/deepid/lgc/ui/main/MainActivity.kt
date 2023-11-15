@@ -53,6 +53,7 @@ import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletio
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.RecognizeConfig
 import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
@@ -234,7 +235,7 @@ class MainActivity : AppCompatActivity() {
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
-            .setShowCaptureButtonDelayFromDetect(0)
+            .setCaptureMode(CaptureMode.CAPTURE_FRAME)
             .apply()
         binding.contentMain.edDevice.setText(DocumentReader.Instance().functionality().btDeviceName)
         binding.contentMain.btnConnect.setOnClickListener { view: View? ->
