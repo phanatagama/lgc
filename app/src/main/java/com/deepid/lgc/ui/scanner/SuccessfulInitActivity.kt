@@ -1,23 +1,13 @@
 package com.deepid.lgc.ui.scanner
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.deepid.lgc.R
-import com.deepid.lgc.data.model.FileUploadRequest
-import com.deepid.lgc.databinding.SucessfullInitActivityBinding
-import com.deepid.lgc.util.getImageFile
-import com.deepid.lgc.util.mimeType
-import com.deepid.lgc.util.readAsRequestBody
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -28,56 +18,51 @@ import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
-import com.regula.facesdk.FaceSDK
-import com.regula.facesdk.enums.LivenessStatus
-import com.regula.facesdk.model.results.LivenessResponse
-import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 class SuccessfulInitActivity : AppCompatActivity() {
     private var uvImage: ImageView? = null
     private var rfidImage: ImageView? = null
     private var showScannerBtn: Button? = null
-    private lateinit var binding: SucessfullInitActivityBinding
+//    private lateinit var binding: SucessfullInitActivityBinding
 
     // TODO: add view model and upload image when scan is successfull
-    private val scannerViewModel: ScannerViewModel by viewModel()
+//    private val scannerViewModel: ScannerViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = SucessfullInitActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+//        binding = SucessfullInitActivityBinding.inflate(layoutInflater)
+//        setContentView(binding.root)
+        setContentView(R.layout.sucessfull_init_activity)
         initViews()
-        observe()
+        //observe()
 
         if (!DocumentReader.Instance().isReady)
             showScannerBtn!!.isEnabled = false
         showScannerBtn!!.setOnClickListener {
-            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_OCR).build()
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
             DocumentReader.Instance().showScanner(
                 this, scannerConfig
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
-                    FaceSDK.Instance().startLiveness(this) { livenessResponse: LivenessResponse? ->
-                        livenessResponse?.liveness?.let {
-                            if (it == LivenessStatus.PASSED) {
-                                binding.uploadBtn.isEnabled = true
-                                Toast.makeText(
-                                    this@SuccessfulInitActivity,
-                                    "Liveness check is Passed",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            } else {
-                                binding.uploadBtn.isEnabled = false
-                                Toast.makeText(
-                                    this@SuccessfulInitActivity,
-                                    "Liveness check is Failed",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
-                    }
+//                    FaceSDK.Instance().startLiveness(this) { livenessResponse: LivenessResponse? ->
+//                        livenessResponse?.liveness?.let {
+//                            if (it == LivenessStatus.PASSED) {
+//                                binding.uploadBtn.isEnabled = true
+//                                Toast.makeText(
+//                                    this@SuccessfulInitActivity,
+//                                    "Liveness check is Passed",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                            } else {
+//                                binding.uploadBtn.isEnabled = false
+//                                Toast.makeText(
+//                                    this@SuccessfulInitActivity,
+//                                    "Liveness check is Failed",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                            }
+//                        }
+//                    }
                     showUvImage(results)
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
@@ -122,24 +107,24 @@ class SuccessfulInitActivity : AppCompatActivity() {
         }
     }
 
-    private fun observe() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                scannerViewModel.state.collect { uiState ->
-                    handleStateChange(uiState)
-                }
-            }
-        }
-    }
-
-    private fun handleStateChange(uiState: ScannerUiState) {
-        when (uiState) {
-            is ScannerUiState.Init -> Unit
-            is ScannerUiState.Loading -> Unit
-            is ScannerUiState.Error -> Unit
-            is ScannerUiState.Success -> Unit
-        }
-    }
+//    private fun observe() {
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                scannerViewModel.state.collect { uiState ->
+//                    handleStateChange(uiState)
+//                }
+//            }
+//        }
+//    }
+//
+//    private fun handleStateChange(uiState: ScannerUiState) {
+//        when (uiState) {
+//            is ScannerUiState.Init -> Unit
+//            is ScannerUiState.Loading -> Unit
+//            is ScannerUiState.Error -> Unit
+//            is ScannerUiState.Success -> Unit
+//        }
+//    }
 
     override fun onPause() {
         super.onPause()
@@ -183,17 +168,21 @@ class SuccessfulInitActivity : AppCompatActivity() {
         showScannerBtn = findViewById(R.id.showScannerBtn)
         uvImage = findViewById(R.id.uvImageView)
         rfidImage = findViewById(R.id.documentImageIv)
-        binding.uploadBtn.setOnClickListener {
-            uvImage?.drawable?.toBitmap()?.let { bitmap ->
-                val file: File = getImageFile(this, bitmap)
-                val fileUploadRequest =
-                    FileUploadRequest(
-                        mimeType = file.mimeType().toString(),
-                        fileLength = file.length()
-                    )
-                val fileRequestBody = contentResolver.readAsRequestBody(Uri.fromFile(file))
-                scannerViewModel.uploadFile(fileUploadRequest, fileRequestBody)
-            }
-        }
+//        binding.uploadBtn.setOnClickListener {
+//            uvImage?.drawable?.toBitmap()?.let { bitmap ->
+//                val file: File = getImageFile(this, bitmap)
+//                val fileUploadRequest =
+//                    FileUploadRequest(
+//                        mimeType = file.mimeType().toString(),
+//                        fileLength = file.length()
+//                    )
+//                val fileRequestBody = contentResolver.readAsRequestBody(Uri.fromFile(file))
+//                scannerViewModel.uploadFile(fileUploadRequest, fileRequestBody)
+//            }
+//        }
+    }
+
+    companion object {
+        const val TAG = "SuccessfullInitActivity"
     }
 }

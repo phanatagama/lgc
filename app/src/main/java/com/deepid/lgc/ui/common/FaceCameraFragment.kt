@@ -1,4 +1,4 @@
-package com.deepid.lgc.ui
+package com.deepid.lgc.ui.common
 
 import android.view.View
 import android.widget.TextView

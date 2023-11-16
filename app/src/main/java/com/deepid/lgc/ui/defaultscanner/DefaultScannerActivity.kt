@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.deepid.lgc.data.model.TextFieldAttribute
 import com.deepid.lgc.databinding.ActivityDefaultScannerBinding
-import com.deepid.lgc.ui.FaceCameraFragment
+import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
@@ -51,7 +51,7 @@ class DefaultScannerActivity : AppCompatActivity() {
     }
 
     private fun showScanner() {
-        Log.d("MainActivity", "DEBUGX showScanner: currentscenario $currentScenario")
+        Log.d("DefaultScanner", "DEBUGX showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this@DefaultScannerActivity, scannerConfig, completion)
@@ -85,7 +85,11 @@ class DefaultScannerActivity : AppCompatActivity() {
         val attributes = mutableListOf<TextFieldAttribute>()
         results.textResult?.fields?.forEach {
             val name = it.getFieldName(this)
+            Log.d("DefaultScanner", "debugx fieldname ${it.getFieldName(this)} ")
             for (value in it.values) {
+                Log.d("DefaultScanner", "debugx fieldtype ${value.field.fieldType} ")
+                Log.d("DefaultScanner", "debugx source ${value.sourceType} ")
+                Log.d("DefaultScanner", "debugx value ${value.value} ")
                 val valid = getValidity(value.field.validityList, value.sourceType)
                 val item = TextFieldAttribute(
                     name!!,
