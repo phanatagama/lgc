@@ -15,6 +15,8 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -69,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
     private var isBleServiceConnected = false
     private var loadingDialog: AlertDialog? = null
-    private var currentScenario: String = Scenario.SCENARIO_OCR
+    private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityMainBinding
     private val rvAdapter: RecyclerAdapter by lazy {
         RecyclerAdapter(getRvData())
@@ -77,12 +79,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun getRvData(): List<Base> {
         val rvData = mutableListOf<Base>()
-        rvData.add(
-            ItemMenu(
-                "Chip",
-                drawable(R.drawable.image_menu_chip, this),
-                onClick = { setUpBluetoothConnection() })
-        )
+//        rvData.add(
+//            ItemMenu(
+//                "Chip",
+//                drawable(R.drawable.image_menu_chip, this),
+//                onClick = { setUpBluetoothConnection() })
+//        )
         rvData.add(ItemMenu("Manual", drawable(R.drawable.image_menu_manual, this), onClick = {
             startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
         }))
@@ -102,9 +104,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    var etDeviceName: EditText? = null
-//    var btnConnect: Button? = null
-//    var btnScan: Button? = null
+    var etDeviceName: EditText? = null
+    var btnConnect: Button? = null
 
     private val scannerViewModel: ScannerViewModel by viewModel()
     private val bluetoothUtil = BluetoothUtil()
@@ -239,15 +240,15 @@ class MainActivity : AppCompatActivity() {
             .setShowCaptureButtonDelayFromStart(0)
 //            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
             .apply()
-        binding.contentMain.edDevice.setText(DocumentReader.Instance().functionality().btDeviceName)
-        binding.contentMain.btnConnect.setOnClickListener { view: View? ->
-            if (binding.contentMain.edDevice.text != null) {
+        etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
+        btnConnect?.setOnClickListener { view: View? ->
+            if (etDeviceName?.text != null) {
                 showDialog("Searching devices")
                 handler.sendEmptyMessageDelayed(0, 7000)
                 DocumentReader.Instance().functionality().edit()
                     .setUseAuthenticator(true)
-                    .setBtDeviceName(binding.contentMain.edDevice.text.toString()).apply()
-                Log.d(TAG, "[DEBUGX] btnClicked ")
+                    .setBtDeviceName(etDeviceName?.text.toString()).apply()
+                Log.d(TAG, "[DEBUGX] btnConnect is clicked")
                 startBluetoothService()
             }
         }
@@ -314,6 +315,7 @@ class MainActivity : AppCompatActivity() {
                         error: DocumentReaderException?
                     ) {
                         if (status) {
+                            Log.d(TAG, "[DEBUGX] database onPreparedComplete then initializeReader")
                             initializeReader()
                         } else {
                             dismissDialog()
@@ -361,13 +363,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-//        etDeviceName = findViewById(R.id.ed_device)
-//        btnConnect = findViewById(R.id.btn_connect)
+        etDeviceName = findViewById(R.id.ed_device)
+        btnConnect = findViewById(R.id.btn_connect)
 //        btnScan = findViewById(R.id.btn_scan)
         with(binding.contentMain) {
-            btnScan.setOnClickListener {
-                startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
-            }
             menuRv.layoutManager = LinearLayoutManager(this@MainActivity)
             menuRv.adapter = rvAdapter
             bottomNavigation.setOnItemSelectedListener { item ->
@@ -401,6 +400,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun initializeReader() {
+        Log.d(TAG, "[DEBUGX] initializeReader")
         val license = Utils.getLicense(this) ?: return
         showDialog("Initializing")
 
@@ -414,6 +414,7 @@ class MainActivity : AppCompatActivity() {
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
+                Log.d(TAG, "[DEBUGX] init reader DocumentSDK is complete")
                 binding.contentMain.btnConnect.isEnabled = true
             } else {
                 Log.e(TAG, "[DEBUG] INIT failed: $error ")
@@ -434,18 +435,19 @@ class MainActivity : AppCompatActivity() {
 
     private val mBleConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.d(TAG, "[DEBUGX] onServiceConnected")
             isBleServiceConnected = true
             val bleService = (service as RegulaBleService.LocalBinder).service
             bleManager = bleService.bleManager
-            Log.d(TAG, "[DEBUGX] onServiceConnected")
 
             if (bleManager?.isConnected == true) {
+                Log.d(TAG, "[DEBUGX] bleManager is connected, then intent to SuccessfulInitActivity")
                 startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
 //                Toast.makeText(this@MainActivity, "Bluetooth is connected", Toast.LENGTH_SHORT)
 //                    .show()
                 return
             }
-            Log.d(TAG, "[DEBUGX] onServiceConnected 2")
+            Log.d(TAG, "[DEBUGX] bleManager is not connected")
 
             showDialog("Searching devices")
             handler.sendEmptyMessageDelayed(0, 7000)
@@ -466,7 +468,7 @@ class MainActivity : AppCompatActivity() {
 
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {
         override fun onDeviceReady() {
-            Log.d(TAG, "[DEBUGX] onDeviceReady")
+            Log.d(TAG, "[DEBUGX] bleManagerCallbacks onDeviceReady, then intent to SuccessfulInitActivity")
             handler.removeMessages(0)
             bleManager!!.removeCallback(this)
             startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
@@ -514,8 +516,11 @@ class MainActivity : AppCompatActivity() {
                 permissions[0],
                 grantResults,
                 permissionGrantedFunc = {
-                    if (bluetoothUtil.isBluetoothSettingsReady(this))
+                    if (bluetoothUtil.isBluetoothSettingsReady(this)){
+                        Log.d(TAG, "[DEBUGX] respondToPermissionRequest is Granted & BluetoothSettingReady")
                         binding.contentMain.btnConnect.callOnClick()
+                    }
+
                 },
                 permissionRejectedFunc = {
 
@@ -531,8 +536,10 @@ class MainActivity : AppCompatActivity() {
             else requestCode
         if (requestCode == BluetoothUtil.INTENT_REQUEST_ENABLE_BLUETOOTH or BluetoothUtil.INTENT_REQUEST_ENABLE_LOCATION)
             if (resultCode == RESULT_OK) {
-                if (bluetoothUtil.isBluetoothSettingsReady(this))
+                if (bluetoothUtil.isBluetoothSettingsReady(this)){
+                    Log.d(TAG, "[DEBUGX] onActivityResult BluetoothSettingReady is True, then initializeReader")
                     initializeReader()
+                }
             }
     }
 
