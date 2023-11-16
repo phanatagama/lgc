@@ -17,6 +17,7 @@ import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eCheckResult
@@ -48,10 +49,23 @@ class DefaultScannerActivity : AppCompatActivity() {
         binding = ActivityDefaultScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViews()
+        setUpFunctionality()
+    }
+    private fun setUpFunctionality() {
+        DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
+        DocumentReader.Instance().functionality().edit()
+            .setShowCaptureButton(true)
+            .setShowCaptureButtonDelayFromStart(0)
+            .setShowCaptureButtonDelayFromDetect(0)
+            .setCaptureMode(CaptureMode.AUTO)
+            .setDisplayMetadata(true)
+            .apply()
     }
 
     private fun showScanner() {
-        Log.d("DefaultScanner", "DEBUGX showScanner: currentscenario $currentScenario")
+        Log.d(TAG, "[DEBUGX] showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this@DefaultScannerActivity, scannerConfig, completion)
@@ -62,7 +76,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
                 ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
         if (documentImage != null) {
-            Log.d("DefaultScanner", "DEBUGX documentImage is not null")
+            Log.d(TAG, "[DEBUGX] documentImage is not null")
             binding.documentIv.setImageBitmap(documentImage)
             return
         }
@@ -71,7 +85,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             binding.titleTv.text = name
             val image = it.bitmap
             binding.documentIv.setImageBitmap(image)
-            Log.d("DefaultScanner", "DEBUGX initResults: name = ${name} ")
+            Log.d(TAG, "[DEBUGX] initResults: name = ${name} ")
         }
     }
 
@@ -85,11 +99,11 @@ class DefaultScannerActivity : AppCompatActivity() {
         val attributes = mutableListOf<TextFieldAttribute>()
         results.textResult?.fields?.forEach {
             val name = it.getFieldName(this)
-            Log.d("DefaultScanner", "debugx fieldname ${it.getFieldName(this)} ")
+            Log.d(TAG, "[DEBUGX] fieldname ${it.getFieldName(this)} ")
             for (value in it.values) {
-                Log.d("DefaultScanner", "debugx fieldtype ${value.field.fieldType} ")
-                Log.d("DefaultScanner", "debugx source ${value.sourceType} ")
-                Log.d("DefaultScanner", "debugx value ${value.value} ")
+                Log.d(TAG, "[DEBUGX] fieldtype ${value.field.fieldType} ")
+                Log.d(TAG, "[DEBUGX] source ${value.sourceType} ")
+                Log.d(TAG, "[DEBUGX] value ${value.value} ")
                 val valid = getValidity(value.field.validityList, value.sourceType)
                 val item = TextFieldAttribute(
                     name!!,
@@ -102,7 +116,9 @@ class DefaultScannerActivity : AppCompatActivity() {
                 attributes.add(item)
             }
         }
+        Log.d(TAG, "[DEBUGX] updateRecyclerViews")
         if(attributes.isNotEmpty()){
+            Log.d(TAG, "[DEBUGX] attribut is not empty")
             rvAdapter.submitList(attributes as MutableList<TextFieldAttribute>)
             hideRecyclerView(false)
         }
@@ -129,7 +145,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             || action == DocReaderAction.TIMEOUT
         ) {
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                Log.d("MainActivity", "DEBUGX MULTIPAGEMODE: ")
+                Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
                 if (results?.morePagesAvailable != 0) {
                     DocumentReader.Instance().startNewPage()
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -142,7 +158,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                 }
             }
             if (results?.chipPage != 0) {
-                Log.d("MainActivity", "DEBUGX RFID IS PERFORMED: ")
+                Log.d(TAG, "[DEBUGX] RFID IS PERFORMED: ")
                 DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                     override fun onChipDetected() {
                         Log.d("Rfid", "Chip detected")
@@ -166,7 +182,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                     }
                 })
             } else {
-                Log.d("MainActivity", "DEBUGX NO RFID PERFORMED ")
+                Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
                 /**
                 * perform [livenessFace] or [captureface] then check similarity
                 */
@@ -323,5 +339,9 @@ class DefaultScannerActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    }
+
+    companion object{
+        const val TAG = "DefaultScannerActivity"
     }
 }

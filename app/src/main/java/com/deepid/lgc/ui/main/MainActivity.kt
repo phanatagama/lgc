@@ -34,7 +34,6 @@ import com.deepid.lgc.ui.common.RecyclerAdapter
 import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
 import com.deepid.lgc.ui.scanner.ScannerViewModel
-import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
 import com.deepid.lgc.util.Base
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.Helpers.Companion.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
@@ -55,6 +54,7 @@ import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletio
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.RecognizeConfig
 import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
@@ -238,7 +238,8 @@ class MainActivity : AppCompatActivity() {
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
-//            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
+            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
+            .setDisplayMetadata(true)
             .apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
@@ -406,8 +407,6 @@ class MainActivity : AppCompatActivity() {
 
         DocumentReader.Instance()
             .initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
-//        DocumentReader.Instance()
-//            .initializeReader(this@MainActivity, BleDeviceConfig(bleManager), initCompletion)
     }
 
     private val initCompletion =
@@ -441,10 +440,13 @@ class MainActivity : AppCompatActivity() {
             bleManager = bleService.bleManager
 
             if (bleManager?.isConnected == true) {
-                Log.d(TAG, "[DEBUGX] bleManager is connected, then intent to SuccessfulInitActivity")
-                startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
-//                Toast.makeText(this@MainActivity, "Bluetooth is connected", Toast.LENGTH_SHORT)
-//                    .show()
+//                Log.d(TAG, "[DEBUGX] bleManager is connected, then intent to SuccessfulInitActivity")
+                Log.d(
+                    TAG,
+                    "[DEBUGX] bleManager is connected, then intent to DefaultScannerActivity"
+                )
+//                startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+                startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
                 return
             }
             Log.d(TAG, "[DEBUGX] bleManager is not connected")
@@ -468,11 +470,18 @@ class MainActivity : AppCompatActivity() {
 
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {
         override fun onDeviceReady() {
-            Log.d(TAG, "[DEBUGX] bleManagerCallbacks onDeviceReady, then intent to SuccessfulInitActivity")
+//            Log.d(
+//                TAG,
+//                "[DEBUGX] bleManagerCallbacks onDeviceReady, then intent to SuccessfulInitActivity"
+//            )
+            Log.d(
+                TAG,
+                "[DEBUGX] bleManagerCallbacks onDeviceReady, then intent to DefaultScannerActivity"
+            )
             handler.removeMessages(0)
             bleManager!!.removeCallback(this)
-            startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
-//            Toast.makeText(this@MainActivity, "Bluetooth is connected", Toast.LENGTH_SHORT).show()
+//            startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+            startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
             dismissDialog()
         }
     }
@@ -516,8 +525,11 @@ class MainActivity : AppCompatActivity() {
                 permissions[0],
                 grantResults,
                 permissionGrantedFunc = {
-                    if (bluetoothUtil.isBluetoothSettingsReady(this)){
-                        Log.d(TAG, "[DEBUGX] respondToPermissionRequest is Granted & BluetoothSettingReady")
+                    if (bluetoothUtil.isBluetoothSettingsReady(this)) {
+                        Log.d(
+                            TAG,
+                            "[DEBUGX] respondToPermissionRequest is Granted & BluetoothSettingReady"
+                        )
                         binding.contentMain.btnConnect.callOnClick()
                     }
 
@@ -536,8 +548,11 @@ class MainActivity : AppCompatActivity() {
             else requestCode
         if (requestCode == BluetoothUtil.INTENT_REQUEST_ENABLE_BLUETOOTH or BluetoothUtil.INTENT_REQUEST_ENABLE_LOCATION)
             if (resultCode == RESULT_OK) {
-                if (bluetoothUtil.isBluetoothSettingsReady(this)){
-                    Log.d(TAG, "[DEBUGX] onActivityResult BluetoothSettingReady is True, then initializeReader")
+                if (bluetoothUtil.isBluetoothSettingsReady(this)) {
+                    Log.d(
+                        TAG,
+                        "[DEBUGX] onActivityResult BluetoothSettingReady is True, then initializeReader"
+                    )
                     initializeReader()
                 }
             }
