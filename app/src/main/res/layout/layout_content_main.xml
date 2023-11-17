@@ -35,10 +35,11 @@
         android:layout_marginHorizontal="48dp"
         android:layout_marginTop="52dp"
         android:layout_marginBottom="4dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bluetooth_layout"
+        app:layout_constraintTop_toBottomOf="@id/btn_connect"
         tools:listitem="@layout/rv_item_menu" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -46,62 +47,142 @@
         style="@style/Widget.App.BottomNavigationView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:itemIconTint="@color/background_color"
         app:elevation="0dp"
+        app:itemIconTint="@color/background_color"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_navigation_menu" />
 
-    <LinearLayout
-        android:id="@+id/bluetooth_layout"
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/bluetooth_layout"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:gravity="center"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/imageView"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        android:visibility="visible">-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_device"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginTop="10dp"-->
+    <!--            android:text="Device name" />-->
+
+    <!--        <EditText-->
+    <!--            android:id="@+id/ed_device"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_below="@+id/tv_device"-->
+    <!--            android:layout_marginTop="10dp"-->
+    <!--            android:gravity="center"-->
+    <!--            android:hint="Regula ID 0326" />-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_connect"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_below="@+id/ed_device"-->
+    <!--            android:layout_alignParentEnd="true"-->
+    <!--            android:layout_marginTop="20dp"-->
+    <!--            android:enabled="false"-->
+    <!--            android:text="Connect" />-->
+
+    <!--    </LinearLayout>-->
+    <Button
+        android:enabled="false"
+        android:id="@+id/btn_ocr"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/imageView"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginHorizontal="48dp"
+        android:layout_marginTop="36dp"
+        android:drawableEnd="@drawable/image_menu_chip"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="14dp"
+        android:text="@string/menu_ocr"
+        android:textAlignment="textStart"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="visible">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageView" />
 
-        <TextView
-            android:id="@+id/tv_device"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Device name" />
+    <Button
+        android:enabled="false"
+        android:id="@+id/btn_facial"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_facial"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="14dp"
+        android:text="@string/menu_facial"
+        android:textAlignment="textStart"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_ocr" />
 
-        <EditText
-            android:id="@+id/ed_device"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_device"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:hint="Regula ID 0326" />
+    <Button
+        android:enabled="false"
+        android:id="@+id/btn_chip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_chip"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="14dp"
+        android:text="@string/menu_chip"
+        android:textAlignment="textStart"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_facial" />
 
-        <Button
-            android:id="@+id/btn_connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ed_device"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp"
-            android:enabled="false"
-            android:text="Connect" />
+    <Button
+        android:enabled="false"
+        android:id="@+id/btn_connect"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_image"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="14dp"
+        android:text="@string/menu_image"
+        android:textAlignment="textStart"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_chip" />
 
-<!--        <Button-->
-<!--            android:id="@+id/btn_scan"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_below="@id/btn_connect"-->
-<!--            android:layout_alignParentEnd="true"-->
-<!--            android:layout_marginTop="20dp"-->
-<!--            android:enabled="true"-->
-<!--            android:text="Scan without device" />-->
-
-    </LinearLayout>
+    <Button
+        android:enabled="false"
+        android:id="@+id/btn_certificate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_certificate"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="14dp"
+        android:text="@string/menu_certificate"
+        android:textAlignment="textStart"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_connect" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
