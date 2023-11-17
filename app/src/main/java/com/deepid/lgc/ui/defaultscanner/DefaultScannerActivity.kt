@@ -286,7 +286,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                                 com.regula.common.R.color.dark_green
                             )
                         )
-                        btnUpload.isEnabled = true
+
                     } else {
                         statusTv.text = "(Not Valid)"
                         statusTv.setTextColor(
@@ -327,16 +327,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             recyclerView.adapter = rvAdapter
             btnScan.setOnClickListener {
                 resetViews()
-                btnUpload.isEnabled = false
                 showScanner()
-            }
-            btnUpload.setOnClickListener {
-                // TODO: PERFORM UPLOAD IMAGE/FILE HERE
-                Toast.makeText(
-                    this@DefaultScannerActivity,
-                    "This feature will be available soon",
-                    Toast.LENGTH_LONG
-                ).show()
             }
         }
     }

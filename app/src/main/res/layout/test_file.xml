@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#06172D"
+    android:padding="16dp">
+
+    <!-- 상단 툴바 -->
+
+    <!-- 사용자 이름 -->
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="24dp"
+        android:text="DJJJDJKJS"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textColor="#FFFFFF"/>
+
+    <!-- 사용자 사진 -->
+    <ImageView
+        android:id="@+id/userPhoto"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignTop="@+id/userName"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="24dp"
+        android:background="#FFFFFF"/>
+
+    <!-- 중간 섹션 -->
+
+    <!-- 하단 텍스트 -->
+    <LinearLayout
+        android:id="@+id/midSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/userName"
+        android:layout_marginTop="64dp"
+        android:background="#0A2942"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 사용자 정보 -->
+        <TextView
+            android:id="@+id/userInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MALE, AGE: 20\n\nBIRTH DATE\nADDRESS\nADDRESS ADDRESSADDRESS\nADDRESSADDRESS\nISSUE DATE\n0000. 00. 00"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="#FFFFFF" />
+
+        <!-- 아이콘들 -->
+        <LinearLayout
+            android:id="@+id/iconLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <!-- 아이콘들은 실제 프로젝트에서 사용할 아이콘으로 교체 필요 -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:src="@android:drawable/ic_menu_call" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:src="@android:drawable/ic_menu_camera" />
+            <!-- 추가 아이콘 -->
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/countryIdType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Korea, Republic of - ID-Card (1999)"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="#FFFFFF"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="32dp"
+        android:layout_centerHorizontal="true"/>
+
+    <!-- QR 코드 이미지 -->
+    <ImageView
+        android:id="@+id/qrCode"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_above="@id/countryIdType"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:background="#FFFFFF"/>
+
+</RelativeLayout>
