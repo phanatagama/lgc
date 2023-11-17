@@ -12,10 +12,10 @@ import com.deepid.lgc.data.model.TextFieldAttribute
 
 class DocumentFieldAdapter :
     ListAdapter<TextFieldAttribute, DocumentFieldAdapter.DocumentFieldViewHolder>(DiffCallback) {
-    inner class DocumentFieldViewHolder(itemview: View) :
-        RecyclerView.ViewHolder(itemview) {
-        private val title: TextView = itemview.findViewById(R.id.title_tv)
-        private val content: TextView = itemview.findViewById(R.id.content_tv)
+    inner class DocumentFieldViewHolder(itemView: View) :
+        RecyclerView.ViewHolder(itemView) {
+        private val title: TextView = itemView.findViewById(R.id.title_tv)
+        private val content: TextView = itemView.findViewById(R.id.content_tv)
         fun bind(item: TextFieldAttribute) {
             title.text = item.name
             content.text = item.value

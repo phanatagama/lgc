@@ -1,6 +1,8 @@
 package com.deepid.lgc.ui.scanner
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deepid.lgc.data.common.BaseResult
@@ -8,6 +10,8 @@ import com.deepid.lgc.data.common.BaseResult
 import com.deepid.lgc.data.model.FileUploadRequest
 import com.deepid.lgc.data.model.FileUploadResponse
 import com.deepid.lgc.data.repository.MainRepository
+import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.facesdk.model.results.FaceCaptureResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +21,22 @@ import kotlinx.coroutines.launch
 import okhttp3.RequestBody
 
 class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel() {
-    private val _state = MutableStateFlow<ScannerUiState>(ScannerUiState.Init)
+    private val _documentReaderResultLiveData = MutableLiveData<DocumentReaderResults?>()
+    val documentReaderResultLiveData : LiveData<DocumentReaderResults?> = _documentReaderResultLiveData
+
+    private val _faceCaptureResponseLiveData = MutableLiveData<FaceCaptureResponse?>()
+    val faceCaptureResponse: LiveData<FaceCaptureResponse?> = _faceCaptureResponseLiveData
+
+    fun setDocumentReaderResults(results: DocumentReaderResults?){
+        Log.d(TAG, "[DEBUGX] setDocumentReaderResults: performed ")
+        _documentReaderResultLiveData.value = results
+    }
+
+    fun setFaceCaptureResponse(results: FaceCaptureResponse?){
+        _faceCaptureResponseLiveData.value = results
+    }
+
+    val _state = MutableStateFlow<ScannerUiState>(ScannerUiState.Init)
     val state: StateFlow<ScannerUiState> get() = _state.asStateFlow()
 
     private fun showLoading() {

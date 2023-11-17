@@ -1,6 +1,7 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -44,10 +45,12 @@ dependencies {
     def koin_version = "3.2.2"
     def koin_android_version= "3.3.0"
 
+    // View
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("com.google.android.material:material:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     // Regula Document Reader SDK
     implementation("com.regula.btdevice:api:1.0.+@aar")
@@ -76,7 +79,6 @@ dependencies {
     // Chucker
     debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
     releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
-
 
     // Dependency Injection
     implementation("io.insert-koin:koin-core:$koin_version")

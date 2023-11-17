@@ -2,22 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="?attr/bottomSheetStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    style="?attr/bottomSheetStyle"
-    >
+    android:orientation="vertical">
 
 
     <TextView
         android:id="@+id/title_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
         android:layout_marginHorizontal="16dp"
-        android:text="TextView"
-        android:maxLines="2"
+        android:layout_marginTop="36dp"
         android:ellipsize="end"
+        android:maxLines="2"
+        android:text="TextView"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/face_iv"
@@ -28,10 +27,10 @@
         android:id="@+id/detail_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textSize="16sp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:text="TextView"
+        android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/face_iv"
         app:layout_constraintStart_toStartOf="@+id/title_tv"
         app:layout_constraintTop_toBottomOf="@+id/title_tv" />
@@ -57,126 +56,77 @@
 
     <View
         android:id="@+id/imageView3"
-        android:layout_marginTop="16dp"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
         android:background="@color/background_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/check_result_iv" />
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabs" />
 
-<!--    <androidx.constraintlayout.widget.Guideline-->
-<!--        android:id="@+id/guideline2"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal"-->
-<!--        app:layout_constraintGuide_end="600dp" />-->
-
-    <TableLayout
-        android:id="@+id/tableLayout"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        app:tabMode="scrollable"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toTopOf="@id/imageView3"
+        android:backgroundTint="?attr/colorPrimaryVariant"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginHorizontal="16dp"
-        android:stretchColumns="*"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView3">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:padding="3dip"
-                android:text="BIRTH DATE"
-                android:textSize="12sp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/birth_date_tv"
-                android:padding="3dip"
-                android:text="11/11/23"
-                android:textSize="12sp" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:padding="3dip"
-                android:text="ADDRESS"
-                android:textSize="12sp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:padding="3dip"
-                android:text="English"
-                android:id="@+id/address_tv"
-                android:textSize="12sp" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:padding="3dip"
-                android:text="ISSUE DATE"
-                android:textSize="12sp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:padding="3dip"
-                android:id="@+id/issue_tv"
-                android:text="11/11/23"
-                android:textSize="12sp" />
-        </TableRow>
+         />
 
 
-    </TableLayout>
-
-    <TextView
-        android:id="@+id/document_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
-        android:text="TextView"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
-
-    <ImageView
-        android:id="@+id/rawImage_iv"
-        android:layout_width="327dp"
-        android:layout_height="243dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/document_tv"
-        tools:src="@drawable/reg_nfc_full_id_big" />
 
     <View
         android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/check_result_iv" />
+    <View
+        android:id="@+id/divider_top"
+        android:layout_width="100dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <View
+        android:id="@+id/divider_bottom"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:layout_marginHorizontal="16dp"
         android:background="@color/background_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/check_result_iv" />
+        app:layout_constraintTop_toTopOf="@id/bottom_container" />
+
     <View
         android:id="@+id/bottom_container"
-        android:layout_marginTop="16dp"
         android:layout_width="0dp"
         android:layout_height="95dp"
-        android:background="@color/white"
+        android:layout_marginTop="16dp"
         android:alpha="0.25"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/face_detection"

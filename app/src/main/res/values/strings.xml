@@ -3,6 +3,11 @@
     <string name="upload_file">Upload File</string>
     <string name="menu_title">Title of Menu</string>
     <string name="menu_chip">Chip</string>
-    <string name="menu_manual">Manual</string>
+    <string name="menu_ocr">OCR</string>
+    <string name="menu_facial">Facial</string>
     <string name="menu_image">Image</string>
+    <string name="menu_certificate">Certificate</string>
+    <string name="tabs_overall">Overall Result</string>
+    <string name="tabs_text">Data Text</string>
+    <string name="tabs_image">Images</string>
 </resources>
