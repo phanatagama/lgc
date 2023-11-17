@@ -14,7 +14,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -79,9 +79,7 @@ class MainActivity : AppCompatActivity() {
         RecyclerAdapter(getRvData())
     }
 
-    init {
-        Log.d(TAG, "[DEBUGX] MAIN INIT IS RUNNING 1337 ")
-    }
+    var btnConnect: Button? = null
 
     private fun getRvData(): List<Base> {
         val rvData = mutableListOf<Base>()
@@ -89,11 +87,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpBluetoothConnection() {
-        Log.d(TAG, "[DEBUGX] Button Image Clicked, then startBluetoothService ")
+        Log.d(TAG, "[DEBUGX] Button Image Clicked, then startBluetoothService for ${DocumentReader.Instance().functionality().btDeviceName} ")
         showDialog("Searching devices")
         handler.sendEmptyMessageDelayed(0, 7000)
         DocumentReader.Instance().functionality().edit()
             .setUseAuthenticator(true)
+            .setBtDeviceName("Regula 0326")
             .apply()
         startBluetoothService()
 
@@ -169,7 +168,7 @@ class MainActivity : AppCompatActivity() {
                         .apply()
                 }
             }
-            if (results?.chipPage != 0) {
+            if (isChipReader) {
                 Log.d(TAG, "[DEBUGX] RFID IS PERFORMED: ")
                 DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                     override fun onChipDetected() {
@@ -190,9 +189,9 @@ class MainActivity : AppCompatActivity() {
                         error: DocumentReaderException?
                     ) {
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                            scannerViewModel.setDocumentReaderResults(results_RFIDReader!!)
+                            scannerViewModel.setDocumentReaderResults(results_RFIDReader ?: results)
                             if (isChipReader) {
-                                captureFace(results_RFIDReader)
+                                captureFace(results_RFIDReader ?: results)
                             } else {
                                 displayResults()
                             }
@@ -211,7 +210,9 @@ class MainActivity : AppCompatActivity() {
                  */
                 //  livenessFace(results)
                 if (isChipReader) {
-                    captureFace(results)
+                    if (results != null) {
+                        captureFace(results)
+                    }
                 } else {
                     displayResults()
                 }
@@ -256,6 +257,10 @@ class MainActivity : AppCompatActivity() {
             .setCaptureMode(CaptureMode.AUTO)
             .setDisplayMetadata(true)
             .apply()
+
+        btnConnect?.setOnClickListener {
+            setUpBluetoothConnection()
+        }
     }
 
     private fun initFaceSDK() {
@@ -274,7 +279,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observe() {
-        scannerViewModel.documentReaderResultLiveData.observe(this){
+        scannerViewModel.documentReaderResultLiveData.observe(this) {
             ocrDocumentReaderResults = it
         }
         lifecycleScope.launch {
@@ -345,11 +350,12 @@ class MainActivity : AppCompatActivity() {
             .showScanner(this@MainActivity, scannerConfig, completion)
     }
 
-    private fun resetScannerResult(){
+    private fun resetScannerResult() {
         scannerViewModel.setDocumentReaderResults(null)
         scannerViewModel.setFaceCaptureResponse(null)
     }
-    fun captureFace(results: DocumentReaderResults) {
+
+    fun captureFace(results: DocumentReaderResults?) {
         val faceCaptureConfiguration: FaceCaptureConfiguration =
             FaceCaptureConfiguration.Builder()
                 .registerUiFragmentClass(FaceCameraFragment::class.java)
@@ -365,8 +371,8 @@ class MainActivity : AppCompatActivity() {
                 // ... check response.image for capture result
                 response.image?.bitmap?.let { bitmap ->
                     val documentImage: Bitmap? =
-                        results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
-                            ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
+                        results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
+                            ?: results?.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
                     val liveImage: Bitmap = bitmap
                     documentImage?.let {
 //                        matchFaces(documentImage, liveImage)
@@ -427,6 +433,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        btnConnect = findViewById(R.id.btn_connect)
         with(binding.contentMain) {
             menuRv.layoutManager = LinearLayoutManager(this@MainActivity)
             menuRv.adapter = rvAdapter
@@ -449,15 +456,16 @@ class MainActivity : AppCompatActivity() {
             btnChip.setOnClickListener {
                 showFullScanner()
             }
-            btnConnect.setOnClickListener { _: View? ->
-                setUpBluetoothConnection()
-            }
+//            btnConnect.setOnClickListener { _: View? ->
+//                setUpBluetoothConnection()
+//            }
             btnCertificate.setOnClickListener {
-                val image = ocrDocumentReaderResults?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
-                    ?: ocrDocumentReaderResults?.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
+                val image =
+                    ocrDocumentReaderResults?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
+                        ?: ocrDocumentReaderResults?.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
                 image?.let {
                     Utils.saveToGallery(this@MainActivity, it)
-                } ?: run{
+                } ?: run {
                     Toast.makeText(
                         this@MainActivity,
                         "Please OCR first",
@@ -518,22 +526,28 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun setButtonEnable() {
-        with(binding.contentMain) {
-            if (FaceSDK.Instance().isInitialized && DocumentReader.Instance().isReady) {
+
+        if (FaceSDK.Instance().isInitialized && DocumentReader.Instance().isReady) {
+            btnConnect?.isEnabled = true
+            with(binding.contentMain) {
                 btnOcr.isEnabled = true
-                btnFacial.isEnabled = true
+//                btnFacial.isEnabled = true
                 btnChip.isEnabled = true
-                btnConnect.isEnabled = true
+//                    btnConnect.isEnabled = true
                 btnCertificate.isEnabled = true
-            } else {
+            }
+        } else {
+            btnConnect?.isEnabled = false
+            with(binding.contentMain) {
                 btnOcr.isEnabled = false
                 btnFacial.isEnabled = false
                 btnChip.isEnabled = false
-                btnConnect.isEnabled = false
+//                    btnConnect.isEnabled = false
                 btnCertificate.isEnabled = false
             }
         }
     }
+
 
     private fun startBluetoothService() {
         if (!bluetoothUtil.isBluetoothSettingsReady(this) || isBleServiceConnected) {
@@ -643,7 +657,7 @@ class MainActivity : AppCompatActivity() {
                             TAG,
                             "[DEBUGX] respondToPermissionRequest is Granted & BluetoothSettingReady"
                         )
-                        binding.contentMain.btnConnect.callOnClick()
+                        btnConnect?.callOnClick()
                     }
 
                 },

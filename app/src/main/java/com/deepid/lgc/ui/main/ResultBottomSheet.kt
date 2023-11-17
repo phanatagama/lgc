@@ -10,19 +10,17 @@ import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.viewpager2.widget.ViewPager2
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.LayoutResultBottomsheetBinding
 import com.deepid.lgc.ui.scanner.ScannerViewModel
 import com.deepid.lgc.util.Helpers
-import com.deepid.lgc.util.toParcelable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.regula.documentreader.api.enums.eCheckResult
 import com.regula.documentreader.api.enums.eGraphicFieldType
+import com.regula.documentreader.api.enums.eRPRM_Lights
+import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.results.DocumentReaderResults
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -65,7 +63,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun observe() {
-        scannerViewModel.documentReaderResultLiveData.observe(viewLifecycleOwner){
+        scannerViewModel.documentReaderResultLiveData.observe(viewLifecycleOwner) {
             initViews(it)
             Log.d(TAG, "[DEBUGX] observe: ${it == null}")
             Log.d(TAG, "[DEBUGX] IT RAW RES: ${it?.rawResult}")
@@ -73,14 +71,14 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun initViews(results: DocumentReaderResults?) {
-        val sectionsPagerAdapter = SectionsPagerAdapter(this)
-        sectionsPagerAdapter.documentReaderResults = results?.toParcelable(requireActivity())
-        val viewPager: ViewPager2 = binding.viewPager
-        viewPager.adapter = sectionsPagerAdapter
-        val tabs: TabLayout = binding.tabs
-        TabLayoutMediator(tabs, viewPager) { tab, position ->
-            tab.text = resources.getString(TAB_TITLES[position])
-        }.attach()
+//        val sectionsPagerAdapter = SectionsPagerAdapter(this)
+//        sectionsPagerAdapter.documentReaderResults = results?.toParcelable(requireActivity())
+//        val viewPager: ViewPager2 = binding.viewPager
+//        viewPager.adapter = sectionsPagerAdapter
+//        val tabs: TabLayout = binding.tabs
+//        TabLayoutMediator(tabs, viewPager) { tab, position ->
+//            tab.text = resources.getString(TAB_TITLES[position])
+//        }.attach()
 
         Log.d(TAG, "raw result ${results?.rawResult}")
         val statusDrawable = Helpers.drawable(
@@ -95,16 +93,38 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             results?.getTextFieldByType(eVisualFieldType.FT_AGE)?.getFieldName(requireActivity())
         val image = results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             ?: results?.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
+        val birth = results?.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
+        val address = results?.getTextFieldValueByType(eVisualFieldType.FT_ISSUING_STATE_NAME)
+        val expiry = results?.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_EXPIRY)
+        val rawImage = results?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_PORTRAIT,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            0,
+            eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
+        )
+            ?: results?.getGraphicFieldImageByType(
+                eGraphicFieldType.GF_DOCUMENT_IMAGE,
+                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            )
+        val documentName = if (results?.documentType?.isNotEmpty() == true) {
+            Log.d(TAG, "debugx document name ${results.documentType.first().name}")
+            Log.d(TAG, "debugx document documentid ${results.documentType.first().documentID}")
+            Log.d(TAG, "debugx document dtypr ${results.documentType.first().dType}")
+            Log.d(TAG, "debugx document countty ${results.documentType.first().dCountryName}")
+            results.documentType.first().name
+        } else {
+            "-"
+        }
         with(binding) {
             titleTv.text = name
             detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
+            birthDateTv.text = birth
+            addressTv.text = address
+            issueTv.text = expiry
+            documentTv.text = documentName
+            rawImageIv.setImageBitmap(rawImage)
             faceIv.setImageBitmap(image)
             checkResultIv.setImageDrawable(statusDrawable)
-            faceDetection.setOnClickListener {
-                results?.let {
-                    (activity as MainActivity).captureFace(it)
-                }
-            }
         }
     }
 
