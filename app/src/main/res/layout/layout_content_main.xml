@@ -65,27 +65,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="visible">
 
-        <TextView
-            android:id="@+id/tv_device"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Device name" />
+<!--        <TextView-->
+<!--            android:id="@+id/tv_device"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:text="Device name" />-->
 
-        <EditText
-            android:id="@+id/ed_device"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_device"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:hint="Regula ID 0326" />
+<!--        <EditText-->
+<!--            android:id="@+id/ed_device"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@+id/tv_device"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:gravity="center"-->
+<!--            android:hint="Regula ID 0326" />-->
 
         <Button
             android:id="@+id/btn_connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/ed_device"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
             android:enabled="false"

@@ -16,7 +16,6 @@ import android.os.Message
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -93,18 +92,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpBluetoothConnection() {
-        if (binding.contentMain.edDevice.text != null) {
+//        if (binding.contentMain.edDevice.text != null) {
             showDialog("Searching devices")
             handler.sendEmptyMessageDelayed(0, 7000)
             DocumentReader.Instance().functionality().edit()
                 .setUseAuthenticator(true)
-                .setBtDeviceName(binding.contentMain.edDevice.text.toString()).apply()
+                .setBtDeviceName(
+//                    binding.contentMain.edDevice.text.toString()
+                    DocumentReader.Instance().functionality().btDeviceName
+                ).apply()
             Log.d(TAG, "[DEBUGX] btnClicked ")
             startBluetoothService()
-        }
+//        }
     }
 
-    var etDeviceName: EditText? = null
+//    var etDeviceName: EditText? = null
     var btnConnect: Button? = null
 
     private val scannerViewModel: ScannerViewModel by viewModel()
@@ -241,17 +243,21 @@ class MainActivity : AppCompatActivity() {
             .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
             .setDisplayMetadata(true)
             .apply()
-        etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
+//        etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
-            if (etDeviceName?.text != null) {
+//            if (etDeviceName?.text != null) {
                 showDialog("Searching devices")
                 handler.sendEmptyMessageDelayed(0, 7000)
                 DocumentReader.Instance().functionality().edit()
                     .setUseAuthenticator(true)
-                    .setBtDeviceName(etDeviceName?.text.toString()).apply()
+                    .setBtDeviceName(
+                        DocumentReader.Instance().functionality().btDeviceName
+//                        etDeviceName?.text.toString()
+
+                    ).apply()
                 Log.d(TAG, "[DEBUGX] btnConnect is clicked")
                 startBluetoothService()
-            }
+//            }
         }
     }
 
@@ -364,7 +370,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        etDeviceName = findViewById(R.id.ed_device)
+//        etDeviceName = findViewById(R.id.ed_device)
         btnConnect = findViewById(R.id.btn_connect)
 //        btnScan = findViewById(R.id.btn_scan)
         with(binding.contentMain) {
