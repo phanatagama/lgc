@@ -8,6 +8,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.deepid.lgc.R
+import com.deepid.lgc.ui.common.FaceCameraFragment
+import com.deepid.lgc.ui.main.MainActivity
+import com.deepid.lgc.ui.main.ResultBottomSheet
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -18,51 +21,47 @@ import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.facesdk.FaceSDK
+import com.regula.facesdk.configuration.FaceCaptureConfiguration
+import com.regula.facesdk.model.results.FaceCaptureResponse
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SuccessfulInitActivity : AppCompatActivity() {
     private var uvImage: ImageView? = null
     private var rfidImage: ImageView? = null
     private var showScannerBtn: Button? = null
-//    private lateinit var binding: SucessfullInitActivityBinding
+
+    //    private lateinit var binding: SucessfullInitActivityBinding
+    private var currentScenario: String = Scenario.SCENARIO_OCR
+    private var isShowFaceRecognition = false
+    private var isShowRfid = false
 
     // TODO: add view model and upload image when scan is successfull
-//    private val scannerViewModel: ScannerViewModel by viewModel()
+    private val scannerViewModel: ScannerViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        binding = SucessfullInitActivityBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
         setContentView(R.layout.sucessfull_init_activity)
         initViews()
-        //observe()
 
-        if (!DocumentReader.Instance().isReady)
+        if (!DocumentReader.Instance().isReady) {
             showScannerBtn!!.isEnabled = false
+        }
         showScannerBtn!!.setOnClickListener {
-            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
+            isShowRfid = true
+            isShowFaceRecognition = true
+            val scannerConfig = ScannerConfig.Builder(currentScenario).build()
             DocumentReader.Instance().showScanner(
                 this, scannerConfig
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
-//                    FaceSDK.Instance().startLiveness(this) { livenessResponse: LivenessResponse? ->
-//                        livenessResponse?.liveness?.let {
-//                            if (it == LivenessStatus.PASSED) {
-//                                binding.uploadBtn.isEnabled = true
-//                                Toast.makeText(
-//                                    this@SuccessfulInitActivity,
-//                                    "Liveness check is Passed",
-//                                    Toast.LENGTH_LONG
-//                                ).show()
-//                            } else {
-//                                binding.uploadBtn.isEnabled = false
-//                                Toast.makeText(
-//                                    this@SuccessfulInitActivity,
-//                                    "Liveness check is Failed",
-//                                    Toast.LENGTH_LONG
-//                                ).show()
-//                            }
-//                        }
-//                    }
+                    if (results != null) {
+                        Log.d(
+                            MainActivity.TAG,
+                            "[DEBUGX] DocReaderAction is Timeout: ${action == DocReaderAction.TIMEOUT} "
+                        )
+                        scannerViewModel.setDocumentReaderResults(results)
+                    }
                     showUvImage(results)
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
@@ -72,12 +71,19 @@ class SuccessfulInitActivity : AppCompatActivity() {
                             object : IRfidReaderCompletion() {
                                 override fun onCompleted(
                                     rfidAction: Int,
-                                    results: DocumentReaderResults?,
+                                    results_RFIDReader: DocumentReaderResults?,
                                     error: DocumentReaderException?
                                 ) {
                                     if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                                        scannerViewModel.setDocumentReaderResults(
+                                            results_RFIDReader ?: results
+                                        )
                                         showGraphicFieldImage(results)
+                                        if (isShowFaceRecognition) {
+                                            captureFace()
+                                        }
                                     }
+
                                 }
 
                             })
@@ -86,6 +92,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
                         this@SuccessfulInitActivity.localClassName,
                         "completion raw result: " + results.rawResult
                     )
+                    displayResults()
                 } else {
                     //something happened before all results were ready
                     if (action == DocReaderAction.CANCEL) {
@@ -102,29 +109,46 @@ class SuccessfulInitActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+                    isShowFaceRecognition = false
+                    isShowRfid = false
                 }
             }
         }
     }
 
-//    private fun observe() {
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                scannerViewModel.state.collect { uiState ->
-//                    handleStateChange(uiState)
-//                }
-//            }
-//        }
-//    }
-//
-//    private fun handleStateChange(uiState: ScannerUiState) {
-//        when (uiState) {
-//            is ScannerUiState.Init -> Unit
-//            is ScannerUiState.Loading -> Unit
-//            is ScannerUiState.Error -> Unit
-//            is ScannerUiState.Success -> Unit
-//        }
-//    }
+    private fun displayResults() {
+        val dialog = ResultBottomSheet.newInstance()
+        dialog.show(supportFragmentManager, ResultBottomSheet.TAG)
+    }
+
+    fun captureFace() {
+        val faceCaptureConfiguration: FaceCaptureConfiguration =
+            FaceCaptureConfiguration.Builder()
+                .registerUiFragmentClass(FaceCameraFragment::class.java)
+                .setCloseButtonEnabled(true)
+                .setCameraSwitchEnabled(false)
+                .build()
+        FaceSDK.Instance()
+            .presentFaceCaptureActivity(
+                this@SuccessfulInitActivity,
+                faceCaptureConfiguration
+            ) { response: FaceCaptureResponse ->
+                scannerViewModel.setFaceCaptureResponse(response)
+                // ... check response.image for capture result
+                if (response.image?.bitmap == null) {
+                    response.exception?.message?.let {
+                        Toast.makeText(
+                            this@SuccessfulInitActivity,
+                            "Error: $it",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                displayResults()
+                isShowFaceRecognition = false
+                isShowRfid = false
+            }
+    }
 
     override fun onPause() {
         super.onPause()
@@ -168,18 +192,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
         showScannerBtn = findViewById(R.id.showScannerBtn)
         uvImage = findViewById(R.id.uvImageView)
         rfidImage = findViewById(R.id.documentImageIv)
-//        binding.uploadBtn.setOnClickListener {
-//            uvImage?.drawable?.toBitmap()?.let { bitmap ->
-//                val file: File = getImageFile(this, bitmap)
-//                val fileUploadRequest =
-//                    FileUploadRequest(
-//                        mimeType = file.mimeType().toString(),
-//                        fileLength = file.length()
-//                    )
-//                val fileRequestBody = contentResolver.readAsRequestBody(Uri.fromFile(file))
-//                scannerViewModel.uploadFile(fileUploadRequest, fileRequestBody)
-//            }
-//        }
     }
 
     companion object {
