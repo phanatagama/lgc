@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.deepid.lgc.R
 import com.deepid.lgc.ui.common.FaceCameraFragment
-import com.deepid.lgc.ui.main.MainActivity
 import com.deepid.lgc.ui.main.ResultBottomSheet
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
@@ -30,11 +29,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
     private var uvImage: ImageView? = null
     private var rfidImage: ImageView? = null
     private var showScannerBtn: Button? = null
-
-    //    private lateinit var binding: SucessfullInitActivityBinding
     private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
-    private var isShowFaceRecognition = false
-    private var isShowRfid = false
 
     // TODO: add view model and upload image when scan is successfull
     private val scannerViewModel: ScannerViewModel by viewModel()
@@ -48,8 +43,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
             showScannerBtn!!.isEnabled = false
         }
         showScannerBtn!!.setOnClickListener {
-            isShowRfid = true
-            isShowFaceRecognition = true
             val scannerConfig = ScannerConfig.Builder(currentScenario).build()
             DocumentReader.Instance().showScanner(
                 this, scannerConfig
@@ -57,12 +50,11 @@ class SuccessfulInitActivity : AppCompatActivity() {
                 if (action == DocReaderAction.COMPLETE) {
                     if (results != null) {
                         Log.d(
-                            MainActivity.TAG,
+                            TAG,
                             "[DEBUGX] DocReaderAction is Timeout: ${action == DocReaderAction.TIMEOUT} "
                         )
                         scannerViewModel.setDocumentReaderResults(results)
                     }
-                    showUvImage(results)
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
                         //starting chip reading
@@ -79,20 +71,19 @@ class SuccessfulInitActivity : AppCompatActivity() {
                                             results_RFIDReader ?: results
                                         )
                                         showGraphicFieldImage(results)
-                                        if (isShowFaceRecognition) {
-                                            captureFace()
-                                        }
+                                        captureFace()
                                     }
 
                                 }
 
                             })
+                    } else {
+                        captureFace()
                     }
                     Log.d(
                         this@SuccessfulInitActivity.localClassName,
                         "completion raw result: " + results.rawResult
                     )
-                    displayResults()
                 } else {
                     //something happened before all results were ready
                     if (action == DocReaderAction.CANCEL) {
@@ -109,8 +100,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
-                    isShowFaceRecognition = false
-                    isShowRfid = false
                 }
             }
         }
@@ -145,8 +134,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
                     }
                 }
                 displayResults()
-                isShowFaceRecognition = false
-                isShowRfid = false
             }
     }
 
