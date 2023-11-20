@@ -22,7 +22,7 @@ import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepid.lgc.util.Utils
-import com.regula.common.utils.RegulaLog
+import com.deepid.lgc.util.Utils.setFunctionality
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -43,7 +43,6 @@ import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.FaceSDK
 import com.regula.facesdk.exception.InitException
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class InputDeviceActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
@@ -52,44 +51,10 @@ class InputDeviceActivity : AppCompatActivity() {
     private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityInputDeviceBinding
 
-    private fun setFunctionality(from: Functionality) {
-        val to = DocumentReader.Instance().functionality().edit()
-        to.setShowChangeFrameButton(from.isShowChangeFrameButton)
-        to.setBtDeviceName(from.btDeviceName)
-        to.setCameraFrame(from.cameraFrame)
-        to.setDatabaseAutoupdate(from.isDatabaseAutoupdate)
-        to.setOrientation(from.orientation)
-        to.setPictureOnBoundsReady(from.isPictureOnBoundsReady)
-        to.setShowCameraSwitchButton(from.isShowCameraSwitchButton)
-        to.setShowCaptureButton(from.isShowCaptureButton)
-        to.setShowCaptureButtonDelayFromDetect(from.showCaptureButtonDelayFromDetect)
-        to.setShowCaptureButtonDelayFromStart(from.showCaptureButtonDelayFromStart)
-        to.setShowCloseButton(from.isShowCloseButton)
-        to.setShowSkipNextPageButton(from.isShowSkipNextPageButton)
-        to.setShowTorchButton(from.isShowTorchButton)
-        to.setSkipFocusingFrames(from.isSkipFocusingFrames)
-        to.setStartDocReaderForResult(from.startDocReaderForResult)
-        try {
-            to.setUseAuthenticator(from.isUseAuthenticator)
-        } catch (var4: Exception) {
-            RegulaLog.e(var4)
-        }
-        to.setVideoCaptureMotionControl(from.isVideoCaptureMotionControl)
-        to.setCaptureMode(from.captureMode)
-        to.setDisplayMetadata(from.isDisplayMetaData)
-        to.setCameraSize(from.cameraWidth, from.cameraHeight)
-        to.setZoomEnabled(from.isZoomEnabled)
-        to.setZoomFactor(from.zoomFactor)
-        to.setCameraMode(from.cameraMode)
-        to.setExcludedCamera2Models(from.excludedCamera2Models)
-        to.setIsCameraTorchCheckDisabled(from.isCameraTorchCheckDisabled)
-        to.apply()
-    }
+
 
     private var etDeviceName: EditText? = null
     private var btnConnect: Button? = null
-
-    private val scannerViewModel: ScannerViewModel by viewModel()
     private val bluetoothUtil = BluetoothUtil()
 
     @Transient
@@ -132,7 +97,6 @@ class InputDeviceActivity : AppCompatActivity() {
                         error: DocumentReaderException?
                     ) {
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL){
-
                             displayResults()
                         }
 //                            ResultBottomSheet.results = results_RFIDReader!!
@@ -144,18 +108,8 @@ class InputDeviceActivity : AppCompatActivity() {
                 /**
                  * perform [livenessFace] or [captureface] then check similarity
                  */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
                 //  livenessFace(results)
                 // captureFace(results)
-//                ResultBottomSheet.results = results
                 displayResults()
             }
         } else {
@@ -180,8 +134,8 @@ class InputDeviceActivity : AppCompatActivity() {
         * Reset all configuration from main
         * */
         setFunctionality(Functionality())
-        FaceSDK.Instance().deinit()
-        DocumentReader.Instance().deinitializeReader()
+//        FaceSDK.Instance().deinit()
+//        DocumentReader.Instance().deinitializeReader()
 
         initViews()
         //observe()
@@ -194,7 +148,6 @@ class InputDeviceActivity : AppCompatActivity() {
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
-//            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
             .apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->

@@ -16,7 +16,10 @@ import android.widget.Toast
 import com.deepid.lgc.R
 import com.deepid.lgc.data.model.TextFieldAttribute
 import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
+import com.regula.common.utils.RegulaLog
+import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.eCheckResult
+import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValidity
 import kotlinx.parcelize.Parcelize
@@ -48,6 +51,39 @@ object Utils {
             return null
         }
         return license
+    }
+    fun setFunctionality(from: Functionality) {
+        val to = DocumentReader.Instance().functionality().edit()
+        to.setShowChangeFrameButton(from.isShowChangeFrameButton)
+        to.setBtDeviceName(from.btDeviceName)
+        to.setCameraFrame(from.cameraFrame)
+        to.setDatabaseAutoupdate(from.isDatabaseAutoupdate)
+        to.setOrientation(from.orientation)
+        to.setPictureOnBoundsReady(from.isPictureOnBoundsReady)
+        to.setShowCameraSwitchButton(from.isShowCameraSwitchButton)
+        to.setShowCaptureButton(from.isShowCaptureButton)
+        to.setShowCaptureButtonDelayFromDetect(from.showCaptureButtonDelayFromDetect)
+        to.setShowCaptureButtonDelayFromStart(from.showCaptureButtonDelayFromStart)
+        to.setShowCloseButton(from.isShowCloseButton)
+        to.setShowSkipNextPageButton(from.isShowSkipNextPageButton)
+        to.setShowTorchButton(from.isShowTorchButton)
+        to.setSkipFocusingFrames(from.isSkipFocusingFrames)
+        to.setStartDocReaderForResult(from.startDocReaderForResult)
+        try {
+            to.setUseAuthenticator(from.isUseAuthenticator)
+        } catch (var4: Exception) {
+            RegulaLog.e(var4)
+        }
+        to.setVideoCaptureMotionControl(from.isVideoCaptureMotionControl)
+        to.setCaptureMode(from.captureMode)
+        to.setDisplayMetadata(from.isDisplayMetaData)
+        to.setCameraSize(from.cameraWidth, from.cameraHeight)
+        to.setZoomEnabled(from.isZoomEnabled)
+        to.setZoomFactor(from.zoomFactor)
+        to.setCameraMode(from.cameraMode)
+        to.setExcludedCamera2Models(from.excludedCamera2Models)
+        to.setIsCameraTorchCheckDisabled(from.isCameraTorchCheckDisabled)
+        to.apply()
     }
 
     fun saveToGallery(context: Context?, bitmap: Bitmap) {

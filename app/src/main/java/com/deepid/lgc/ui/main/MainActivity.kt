@@ -41,6 +41,7 @@ import com.deepid.lgc.util.Helpers.Companion.getBitmap
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepid.lgc.util.Utils
+import com.deepid.lgc.util.Utils.setFunctionality
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -60,6 +61,7 @@ import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.FaceSDK
@@ -74,6 +76,7 @@ class MainActivity : AppCompatActivity() {
     private var isBleServiceConnected = false
     private var isShowFaceRecognition = false
     private var isShowRfid = false
+    private var isFirst = true
     private var loadingDialog: AlertDialog? = null
     private var currentScenario: String = Scenario.SCENARIO_OCR
     private var ocrDocumentReaderResults: DocumentReaderResults? = null
@@ -83,6 +86,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     var btnConnect: Button? = null
+
+    override fun onResume() {
+        super.onResume()
+        setFunctionality(Functionality())
+        setupFunctionality()
+    }
 
     private fun getRvData(): List<Base> {
         val rvData = mutableListOf<Base>()
@@ -103,7 +112,6 @@ class MainActivity : AppCompatActivity() {
             .setBtDeviceName("Regula 0326")
             .apply()
         startBluetoothService()
-
     }
 
     private val scannerViewModel: ScannerViewModel by viewModel()
@@ -235,6 +243,7 @@ class MainActivity : AppCompatActivity() {
                 isShowRfid = false
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
+                Log.e(TAG, "DEBUGX: $error")
                 isShowFaceRecognition = false
                 isShowRfid = false
             }
@@ -510,6 +519,7 @@ class MainActivity : AppCompatActivity() {
     private val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
+            isFirst = false
             if (result) {
                 Log.d(TAG, "[DEBUGX] init DocumentReaderSDK is complete")
                 setButtonEnable()
