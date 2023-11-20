@@ -32,7 +32,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
     private var showScannerBtn: Button? = null
 
     //    private lateinit var binding: SucessfullInitActivityBinding
-    private var currentScenario: String = Scenario.SCENARIO_OCR
+    private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private var isShowFaceRecognition = false
     private var isShowRfid = false
 
