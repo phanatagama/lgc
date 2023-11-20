@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -203,6 +204,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             // add recyclerview
             recyclerView.layoutManager = LinearLayoutManager(requireActivity())
             recyclerView.adapter = rvAdapter
+
             recyclerView.addItemDecoration(
                 DividerItemDecoration(
                     requireActivity(),
@@ -213,6 +215,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
                 rvAdapter.submitList(parcelableTextField.textField)
                 hideRecyclerView(false)
             }
+            ViewCompat.setNestedScrollingEnabled(recyclerView,false)
         }
     }
 
