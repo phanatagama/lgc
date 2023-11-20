@@ -78,6 +78,27 @@
             app:layout_constraintStart_toStartOf="@+id/title_tv"
             app:layout_constraintTop_toBottomOf="@+id/title_tv" />
 
+        <TextView
+            android:id="@+id/similarity_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/detail_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Similarity: 0%" />
+
+        <TextView
+            android:id="@+id/status_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/light_green"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/detail_tv"
+            app:layout_constraintStart_toEndOf="@id/similarity_tv"
+            tools:text="(Valid)" />
+
         <ImageView
             android:id="@+id/face_iv"
             android:layout_width="67dp"
@@ -151,7 +172,7 @@
             android:background="@color/background_color"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/face_iv" />
+            app:layout_constraintTop_toBottomOf="@id/similarity_tv" />
 
         <TableLayout
             android:id="@+id/tableLayout"
@@ -254,7 +275,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/similarity_tv"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rawImage_iv"
@@ -283,26 +304,7 @@
         <!--         />-->
 
 
-        <TextView
-            android:id="@+id/similarity_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="Similarity: 0%" />
 
-        <TextView
-            android:id="@+id/status_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textColor="@color/light_green"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/similarity_tv"
-            tools:text="(Valid)" />
 
         <!--    <com.google.android.material.textview.MaterialTextView-->
         <!--        android:id="@+id/similarity_tv"-->
