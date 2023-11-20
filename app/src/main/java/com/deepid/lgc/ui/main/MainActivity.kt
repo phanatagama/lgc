@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +31,7 @@ import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityMainBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.common.RecyclerAdapter
+import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
 import com.deepid.lgc.ui.scanner.ScannerViewModel
 import com.deepid.lgc.util.Base
@@ -71,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
     private var isBleServiceConnected = false
     private var isShowFaceRecognition = false
+    private var isShowRfid = false
     private var loadingDialog: AlertDialog? = null
     private var currentScenario: String = Scenario.SCENARIO_OCR
     private var ocrDocumentReaderResults: DocumentReaderResults? = null
@@ -173,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                         .apply()
                 }
             }
-            if (results?.chipPage != 0 && isShowFaceRecognition) {
+            if (results?.chipPage != 0 && isShowRfid) {
                 Log.d(TAG, "[DEBUGX] RFID IS PERFORMED: ")
                 DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                     override fun onChipDetected() {
@@ -197,8 +200,6 @@ class MainActivity : AppCompatActivity() {
                             scannerViewModel.setDocumentReaderResults(results_RFIDReader ?: results)
                             if (isShowFaceRecognition) {
                                 captureFace(results_RFIDReader ?: results)
-                            } else {
-                                displayResults()
                             }
                         }
                         displayResults()
@@ -231,9 +232,11 @@ class MainActivity : AppCompatActivity() {
 
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
                 isShowFaceRecognition = false
+                isShowRfid = false
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
                 isShowFaceRecognition = false
+                isShowRfid = false
             }
         }
     }
@@ -262,10 +265,6 @@ class MainActivity : AppCompatActivity() {
             .setCaptureMode(CaptureMode.AUTO)
             .setDisplayMetadata(true)
             .apply()
-
-        btnConnect?.setOnClickListener {
-            setUpBluetoothConnection()
-        }
     }
 
     private fun initFaceSDK() {
@@ -398,6 +397,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 isShowFaceRecognition = false
+                isShowRfid = false
 //                updateRecyclerViews(results)
             }
     }
@@ -446,14 +446,14 @@ class MainActivity : AppCompatActivity() {
                 showScanner()
             }
             btnFacial.setOnClickListener {
-                showFullScanner()
+                showFullScanner(faceRecognition = true, rfid = false)
             }
             btnChip.setOnClickListener {
-                showFullScanner()
+                showFullScanner(faceRecognition = true, rfid = true)
             }
-//            btnConnect.setOnClickListener { _: View? ->
-//                setUpBluetoothConnection()
-//            }
+            btnConnect.setOnClickListener { _: View? ->
+                startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))
+            }
             btnCertificate.setOnClickListener {
                 val image =
                     ocrDocumentReaderResults?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
@@ -554,8 +554,9 @@ class MainActivity : AppCompatActivity() {
         bindService(bleIntent, mBleConnection, 0)
     }
 
-    private fun showFullScanner() {
-        isShowFaceRecognition = true
+    private fun showFullScanner(faceRecognition: Boolean, rfid: Boolean) {
+        isShowFaceRecognition = faceRecognition
+        isShowRfid = rfid
         showScanner()
     }
 
@@ -572,7 +573,7 @@ class MainActivity : AppCompatActivity() {
                     "[DEBUGX] bleManager is connected, then intent to DefaultScannerActivity"
                 )
 //                startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
-                showFullScanner()
+                showFullScanner(true, true)
                 return
             }
             Log.d(TAG, "[DEBUGX] bleManager is not connected")
@@ -603,7 +604,7 @@ class MainActivity : AppCompatActivity() {
             handler.removeMessages(0)
             bleManager!!.removeCallback(this)
 //            startActivity(Intent(this@MainActivity, DefaultScannerActivity::class.java))
-            showFullScanner()
+            showFullScanner(true, true)
             dismissDialog()
         }
     }

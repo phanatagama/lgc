@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".LGCApplication"
@@ -20,9 +20,13 @@
         android:theme="@style/Theme.App.Starting"
         tools:targetApi="31">
         <activity
-            android:name=".ui.defaultscanner.DefaultScannerActivity"
+            android:name=".ui.scanner.InputDeviceActivity"
             android:theme="@style/Theme.lgc"
             android:exported="false" />
+        <activity
+            android:name=".ui.defaultscanner.DefaultScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.lgc" />
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"
@@ -35,8 +39,8 @@
         </activity>
         <activity
             android:name=".ui.scanner.SuccessfulInitActivity"
-            android:theme="@style/Theme.lgc"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.lgc" />
     </application>
 
 </manifest>
