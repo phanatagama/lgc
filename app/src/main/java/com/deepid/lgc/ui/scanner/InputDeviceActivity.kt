@@ -248,8 +248,6 @@ class InputDeviceActivity : AppCompatActivity() {
 
         DocumentReader.Instance()
             .initializeReader(this@InputDeviceActivity, DocReaderConfig(license), initCompletion)
-//        DocumentReader.Instance()
-//            .initializeReader(this@InputDeviceActivity, BleDeviceConfig(bleManager), initCompletion)
     }
 
     private val initCompletion =
