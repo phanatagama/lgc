@@ -1,6 +1,7 @@
 package com.deepid.lgc.ui.main
 
 import android.app.Dialog
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.LayoutResultBottomsheetBinding
 import com.deepid.lgc.ui.defaultscanner.DocumentFieldAdapter
+import com.deepid.lgc.ui.main.fragment.GraphicfieldFragment
 import com.deepid.lgc.ui.scanner.ScannerViewModel
 import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Helpers
@@ -28,6 +31,12 @@ import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.facesdk.FaceSDK
+import com.regula.facesdk.enums.ImageType
+import com.regula.facesdk.model.MatchFacesImage
+import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
+import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
+import com.regula.facesdk.request.MatchFacesRequest
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class ResultBottomSheet : BottomSheetDialogFragment() {
@@ -37,6 +46,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
     private val rvAdapter: DocumentFieldAdapter by lazy {
         DocumentFieldAdapter()
     }
+    var documentImage: Bitmap? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,7 +77,6 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observe()
-
     }
 
     private fun observe() {
@@ -75,6 +84,59 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             initViews(it)
             Log.d(TAG, "[DEBUGX] observe: ${it == null}")
             Log.d(TAG, "[DEBUGX] IT RAW RES: ${it?.rawResult}")
+        }
+        scannerViewModel.faceCaptureResponse.observe(viewLifecycleOwner) {
+            if (documentImage != null && it?.image?.bitmap != null) {
+                matchFaces(documentImage!!, it.image!!.bitmap)
+            }
+            Log.d(TAG, "[DEBUGX] observe faceCaptureResponse: ${it == null}")
+        }
+    }
+
+    private fun matchFaces(first: Bitmap, second: Bitmap) {
+        val firstImage = MatchFacesImage(first, ImageType.DOCUMENT_WITH_LIVE, true)
+        val secondImage = MatchFacesImage(second, ImageType.LIVE, true)
+        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage));
+        FaceSDK.Instance().matchFaces(matchFacesRequest) { matchFacesResponse: MatchFacesResponse ->
+            val split = MatchFacesSimilarityThresholdSplit(matchFacesResponse.results, 0.75)
+            with(binding) {
+                try {
+                    if (split.matchedFaces.size > 0) {
+                        val similarity = split.matchedFaces[0].similarity
+                        similarityTv.text =
+                            "Similarity: " + String.format("%.2f", similarity * 100) + "%"
+                        if (similarity > 0.8) {
+                            statusTv.text = "(Valid)"
+                            statusTv.setTextColor(
+                                ContextCompat.getColor(
+                                    requireActivity(),
+                                    com.regula.common.R.color.dark_green
+                                )
+                            )
+                        } else {
+                            statusTv.text = "(Not Valid)"
+                            statusTv.setTextColor(
+                                ContextCompat.getColor(
+                                    requireActivity(),
+                                    com.regula.common.R.color.red
+                                )
+                            )
+                        }
+                    } else {
+                        similarityTv.text = "Similarity: 0%"
+                        statusTv.text = "(Not Valid)"
+                        statusTv.setTextColor(
+                            ContextCompat.getColor(
+                                requireActivity(),
+                                com.regula.common.R.color.red
+                            )
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.e(GraphicfieldFragment.TAG, "[DEBUGX] matchFaces: $e")
+                }
+//                btnScan.isEnabled = true
+            }
         }
     }
 
@@ -101,6 +163,8 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             results?.getTextFieldByType(eVisualFieldType.FT_AGE)?.getFieldName(requireActivity())
         val image = results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             ?: results?.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
+
+        documentImage = image
         val birth = results?.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
         val address = results?.getTextFieldValueByType(eVisualFieldType.FT_ISSUING_STATE_NAME)
         val expiry = results?.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_EXPIRY)
@@ -123,7 +187,8 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
         } else {
             "-"
         }
-        val parcelableTextField = results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
+        val parcelableTextField =
+            results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
         with(binding) {
             titleTv.text = name
             detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
@@ -138,13 +203,19 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             // add recyclerview
             recyclerView.layoutManager = LinearLayoutManager(requireActivity())
             recyclerView.adapter = rvAdapter
-            recyclerView.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
-            if(parcelableTextField?.textField?.isNotEmpty() == true){
+            recyclerView.addItemDecoration(
+                DividerItemDecoration(
+                    requireActivity(),
+                    DividerItemDecoration.VERTICAL
+                )
+            )
+            if (parcelableTextField?.textField?.isNotEmpty() == true) {
                 rvAdapter.submitList(parcelableTextField.textField)
                 hideRecyclerView(false)
             }
         }
     }
+
     private fun hideRecyclerView(isHide: Boolean) {
         binding.recyclerView.visibility = if (isHide) View.GONE else View.VISIBLE
     }

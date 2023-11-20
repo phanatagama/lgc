@@ -531,7 +531,7 @@ class MainActivity : AppCompatActivity() {
             btnConnect?.isEnabled = true
             with(binding.contentMain) {
                 btnOcr.isEnabled = true
-//                btnFacial.isEnabled = true
+                btnFacial.isEnabled = true
                 btnChip.isEnabled = true
 //                    btnConnect.isEnabled = true
                 btnCertificate.isEnabled = true

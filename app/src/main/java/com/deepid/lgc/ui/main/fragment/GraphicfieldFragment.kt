@@ -92,8 +92,6 @@ class GraphicfieldFragment : Fragment() {
             val split = MatchFacesSimilarityThresholdSplit(matchFacesResponse.results, 0.75)
             with(binding) {
                 try {
-
-
                     if (split.matchedFaces.size > 0) {
                         val similarity = split.matchedFaces[0].similarity
                         similarityTv.text =

@@ -3,17 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_marginHorizontal="16dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp"
+    android:background="@color/primary_color">
 
     <TextView
         android:id="@+id/title_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/white"
         android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@id/icon_iv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/icon_iv"
         tools:text="Title" />
 
 
@@ -23,18 +25,19 @@
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:textColor="@color/white"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/title_tv"
         app:layout_constraintEnd_toStartOf="@id/icon_iv"
+        app:layout_constraintTop_toBottomOf="@+id/title_tv"
         tools:text="Content" />
+
     <ImageView
         android:id="@+id/icon_iv"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        tools:src="@drawable/reg_ok"
-        app:layout_constraintTop_toTopOf="@id/title_tv"
         app:layout_constraintBottom_toBottomOf="@id/content_tv"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        tools:src="@drawable/reg_ok" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
