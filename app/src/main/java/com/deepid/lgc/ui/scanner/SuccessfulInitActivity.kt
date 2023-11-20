@@ -41,7 +41,8 @@ class SuccessfulInitActivity : AppCompatActivity() {
         if (!DocumentReader.Instance().isReady)
             showScannerBtn!!.isEnabled = false
         showScannerBtn!!.setOnClickListener {
-            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_OCR).build()
+            setUpFunctionality()
             DocumentReader.Instance().showScanner(
                 this, scannerConfig
             ) { action, results, error ->
@@ -104,8 +105,8 @@ class SuccessfulInitActivity : AppCompatActivity() {
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
             .setShowCaptureButtonDelayFromDetect(0)
-            .setVideoCaptureMotionControl(false)
-            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
+            .setCaptureMode(CaptureMode.AUTO)
+            .setDisplayMetadata(true)
             .apply()
     }
 

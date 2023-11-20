@@ -161,6 +161,7 @@ class InputDeviceActivity : AppCompatActivity() {
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
+            .setShowCaptureButtonDelayFromDetect(0)
             .apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
