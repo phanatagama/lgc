@@ -10,10 +10,15 @@ import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.LayoutResultBottomsheetBinding
+import com.deepid.lgc.ui.defaultscanner.DocumentFieldAdapter
 import com.deepid.lgc.ui.scanner.ScannerViewModel
+import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Helpers
+import com.deepid.lgc.util.toParcelable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -29,6 +34,9 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
     private var _binding: LayoutResultBottomsheetBinding? = null
     private val binding get() = _binding!!
     private val scannerViewModel: ScannerViewModel by activityViewModel()
+    private val rvAdapter: DocumentFieldAdapter by lazy {
+        DocumentFieldAdapter()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -115,6 +123,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
         } else {
             "-"
         }
+        val parcelableTextField = results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
         with(binding) {
             titleTv.text = name
             detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
@@ -125,7 +134,19 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             rawImageIv.setImageBitmap(rawImage)
             faceIv.setImageBitmap(image)
             checkResultIv.setImageDrawable(statusDrawable)
+
+            // add recyclerview
+            recyclerView.layoutManager = LinearLayoutManager(requireActivity())
+            recyclerView.adapter = rvAdapter
+            recyclerView.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
+            if(parcelableTextField?.textField?.isNotEmpty() == true){
+                rvAdapter.submitList(parcelableTextField.textField)
+                hideRecyclerView(false)
+            }
         }
+    }
+    private fun hideRecyclerView(isHide: Boolean) {
+        binding.recyclerView.visibility = if (isHide) View.GONE else View.VISIBLE
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
