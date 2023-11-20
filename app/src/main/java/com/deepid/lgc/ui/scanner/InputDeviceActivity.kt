@@ -22,6 +22,7 @@ import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepid.lgc.util.Utils
+import com.regula.common.utils.RegulaLog
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -37,6 +38,7 @@ import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.FaceSDK
@@ -50,16 +52,38 @@ class InputDeviceActivity : AppCompatActivity() {
     private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityInputDeviceBinding
 
-    private fun setUpBluetoothConnection() {
-        if (etDeviceName?.text != null) {
-            showDialog("Searching devices")
-            handler.sendEmptyMessageDelayed(0, 7000)
-            DocumentReader.Instance().functionality().edit()
-                .setUseAuthenticator(true)
-                .setBtDeviceName(etDeviceName?.text.toString()).apply()
-            Log.d(TAG, "[DEBUGX] btnClicked ")
-            startBluetoothService()
+    private fun setFunctionality(from: Functionality) {
+        val to = DocumentReader.Instance().functionality().edit()
+        to.setShowChangeFrameButton(from.isShowChangeFrameButton)
+        to.setBtDeviceName(from.btDeviceName)
+        to.setCameraFrame(from.cameraFrame)
+        to.setDatabaseAutoupdate(from.isDatabaseAutoupdate)
+        to.setOrientation(from.orientation)
+        to.setPictureOnBoundsReady(from.isPictureOnBoundsReady)
+        to.setShowCameraSwitchButton(from.isShowCameraSwitchButton)
+        to.setShowCaptureButton(from.isShowCaptureButton)
+        to.setShowCaptureButtonDelayFromDetect(from.showCaptureButtonDelayFromDetect)
+        to.setShowCaptureButtonDelayFromStart(from.showCaptureButtonDelayFromStart)
+        to.setShowCloseButton(from.isShowCloseButton)
+        to.setShowSkipNextPageButton(from.isShowSkipNextPageButton)
+        to.setShowTorchButton(from.isShowTorchButton)
+        to.setSkipFocusingFrames(from.isSkipFocusingFrames)
+        to.setStartDocReaderForResult(from.startDocReaderForResult)
+        try {
+            to.setUseAuthenticator(from.isUseAuthenticator)
+        } catch (var4: Exception) {
+            RegulaLog.e(var4)
         }
+        to.setVideoCaptureMotionControl(from.isVideoCaptureMotionControl)
+        to.setCaptureMode(from.captureMode)
+        to.setDisplayMetadata(from.isDisplayMetaData)
+        to.setCameraSize(from.cameraWidth, from.cameraHeight)
+        to.setZoomEnabled(from.isZoomEnabled)
+        to.setZoomFactor(from.zoomFactor)
+        to.setCameraMode(from.cameraMode)
+        to.setExcludedCamera2Models(from.excludedCamera2Models)
+        to.setIsCameraTorchCheckDisabled(from.isCameraTorchCheckDisabled)
+        to.apply()
     }
 
     private var etDeviceName: EditText? = null
@@ -79,7 +103,7 @@ class InputDeviceActivity : AppCompatActivity() {
                 if (results?.morePagesAvailable != 0) {
                     DocumentReader.Instance().startNewPage()
                     Handler(Looper.getMainLooper()).postDelayed({
-                        showScanner()
+//                        showScanner()
                     }, 100)
                     return@IDocumentReaderCompletion
                 } else {
@@ -107,9 +131,11 @@ class InputDeviceActivity : AppCompatActivity() {
                         results_RFIDReader: DocumentReaderResults?,
                         error: DocumentReaderException?
                     ) {
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
+                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL){
+
+                            displayResults()
+                        }
 //                            ResultBottomSheet.results = results_RFIDReader!!
-                        displayResults()
                         //captureFace(results_RFIDReader!!)
                     }
                 })
@@ -150,6 +176,13 @@ class InputDeviceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityInputDeviceBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        /**
+        * Reset all configuration from main
+        * */
+        setFunctionality(Functionality())
+        FaceSDK.Instance().deinit()
+        DocumentReader.Instance().deinitializeReader()
+
         initViews()
         //observe()
         initFaceSDK()
@@ -161,6 +194,7 @@ class InputDeviceActivity : AppCompatActivity() {
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
             .setShowCaptureButtonDelayFromStart(0)
+//            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
             .apply()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
@@ -374,6 +408,7 @@ class InputDeviceActivity : AppCompatActivity() {
                             "[DEBUGX] respondToPermissionRequest is Granted & BluetoothSettingReady"
                         )
                         btnConnect?.callOnClick()
+                        binding.btnConnect.callOnClick()
                     }
 
                 },

@@ -11,7 +11,6 @@ import com.deepid.lgc.R
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
-import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -35,7 +34,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
 //        setContentView(binding.root)
         setContentView(R.layout.sucessfull_init_activity)
         initViews()
-        setUpFunctionality()
         //observe()
 
         if (!DocumentReader.Instance().isReady)
@@ -46,6 +44,25 @@ class SuccessfulInitActivity : AppCompatActivity() {
                 this, scannerConfig
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
+//                    FaceSDK.Instance().startLiveness(this) { livenessResponse: LivenessResponse? ->
+//                        livenessResponse?.liveness?.let {
+//                            if (it == LivenessStatus.PASSED) {
+//                                binding.uploadBtn.isEnabled = true
+//                                Toast.makeText(
+//                                    this@SuccessfulInitActivity,
+//                                    "Liveness check is Passed",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                            } else {
+//                                binding.uploadBtn.isEnabled = false
+//                                Toast.makeText(
+//                                    this@SuccessfulInitActivity,
+//                                    "Liveness check is Failed",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                            }
+//                        }
+//                    }
                     showUvImage(results)
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
@@ -67,7 +84,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
                     }
                     Log.d(
                         this@SuccessfulInitActivity.localClassName,
-                        "[DEBUGX] completion raw result: " + results.rawResult
+                        "completion raw result: " + results.rawResult
                     )
                 } else {
                     //something happened before all results were ready
@@ -84,29 +101,10 @@ class SuccessfulInitActivity : AppCompatActivity() {
                             "Error:$error",
                             Toast.LENGTH_LONG
                         ).show()
-                    } else{
-                        Toast.makeText(
-                            this@SuccessfulInitActivity,
-                            "Something wrong:$error",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
                 }
             }
         }
-    }
-
-    private fun setUpFunctionality() {
-        DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
-        DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
-        DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
-        DocumentReader.Instance().functionality().edit()
-            .setShowCaptureButton(true)
-            .setShowCaptureButtonDelayFromStart(0)
-            .setShowCaptureButtonDelayFromDetect(0)
-            .setVideoCaptureMotionControl(false)
-            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
-            .apply()
     }
 
 //    private fun observe() {
