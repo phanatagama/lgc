@@ -70,7 +70,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
     private var isBleServiceConnected = false
-    private var isChipReader = false
+    private var isShowFaceRecognition = false
     private var loadingDialog: AlertDialog? = null
     private var currentScenario: String = Scenario.SCENARIO_OCR
     private var ocrDocumentReaderResults: DocumentReaderResults? = null
@@ -87,7 +87,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpBluetoothConnection() {
-        Log.d(TAG, "[DEBUGX] Button Image Clicked, then startBluetoothService for ${DocumentReader.Instance().functionality().btDeviceName} ")
+        Log.d(
+            TAG,
+            "[DEBUGX] Button Image Clicked, then startBluetoothService for ${
+                DocumentReader.Instance().functionality().btDeviceName
+            } "
+        )
         showDialog("Searching devices")
         handler.sendEmptyMessageDelayed(0, 7000)
         DocumentReader.Instance().functionality().edit()
@@ -168,7 +173,7 @@ class MainActivity : AppCompatActivity() {
                         .apply()
                 }
             }
-            if (isChipReader) {
+            if (results?.chipPage != 0 && isShowFaceRecognition) {
                 Log.d(TAG, "[DEBUGX] RFID IS PERFORMED: ")
                 DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                     override fun onChipDetected() {
@@ -190,7 +195,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                             scannerViewModel.setDocumentReaderResults(results_RFIDReader ?: results)
-                            if (isChipReader) {
+                            if (isShowFaceRecognition) {
                                 captureFace(results_RFIDReader ?: results)
                             } else {
                                 displayResults()
@@ -209,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                  * perform [livenessFace] or [captureface] then check similarity
                  */
                 //  livenessFace(results)
-                if (isChipReader) {
+                if (isShowFaceRecognition) {
                     if (results != null) {
                         captureFace(results)
                     }
@@ -225,10 +230,10 @@ class MainActivity : AppCompatActivity() {
                         .apply()
 
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
-                isChipReader = false
+                isShowFaceRecognition = false
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
-                isChipReader = false
+                isShowFaceRecognition = false
             }
         }
     }
@@ -388,11 +393,11 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                     }
 //                    displayResults(results)
-                    if (isChipReader) {
+                    if (isShowFaceRecognition) {
                         displayResults()
                     }
                 }
-                isChipReader = false
+                isShowFaceRecognition = false
 //                updateRecyclerViews(results)
             }
     }
@@ -441,17 +446,7 @@ class MainActivity : AppCompatActivity() {
                 showScanner()
             }
             btnFacial.setOnClickListener {
-                val name =
-                    ocrDocumentReaderResults?.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
-                if (ocrDocumentReaderResults == null || name == null) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "You need OCR first to perform similarity",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    captureFace(ocrDocumentReaderResults!!)
-                }
+                showFullScanner()
             }
             btnChip.setOnClickListener {
                 showFullScanner()
@@ -560,7 +555,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showFullScanner() {
-        isChipReader = true
+        isShowFaceRecognition = true
         showScanner()
     }
 
