@@ -57,7 +57,6 @@ import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
-import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
@@ -96,22 +95,6 @@ class MainActivity : AppCompatActivity() {
     private fun getRvData(): List<Base> {
         val rvData = mutableListOf<Base>()
         return rvData
-    }
-
-    private fun setUpBluetoothConnection() {
-        Log.d(
-            TAG,
-            "[DEBUGX] Button Image Clicked, then startBluetoothService for ${
-                DocumentReader.Instance().functionality().btDeviceName
-            } "
-        )
-        showDialog("Searching devices")
-        handler.sendEmptyMessageDelayed(0, 7000)
-        DocumentReader.Instance().functionality().edit()
-            .setUseAuthenticator(true)
-            .setBtDeviceName("Regula 0326")
-            .apply()
-        startBluetoothService()
     }
 
     private val scannerViewModel: ScannerViewModel by viewModel()
@@ -407,20 +390,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 isShowFaceRecognition = false
                 isShowRfid = false
-//                updateRecyclerViews(results)
             }
     }
 
     private fun displayResults() {
-//        ResultBottomSheet.results = ocrDocumentReaderResults
-//        ResultBottomSheet.faceCaptureResponse = faceCaptureResponse
-//        val name =
-//            ResultBottomSheet.results?.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
-        val nameMain =
-            ocrDocumentReaderResults?.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
-//        Log.d(ResultBottomSheet.TAG, "debugx name from bottom sheet in main $name ")
-        Log.d(ResultBottomSheet.TAG, "debugx name from ocr in main $nameMain ")
-        Log.d(ResultBottomSheet.TAG, "debugx name from result $ocrDocumentReaderResults ")
         val dialog = ResultBottomSheet.newInstance()
         dialog.show(supportFragmentManager, ResultBottomSheet.TAG)
     }
@@ -475,32 +448,6 @@ class MainActivity : AppCompatActivity() {
                         "Please OCR first",
                         Toast.LENGTH_LONG
                     ).show()
-                }
-            }
-            bottomNavigation.setOnItemSelectedListener { item ->
-                when (item.itemId) {
-                    R.id.image -> {
-                        // Respond to navigation item 1 click
-                        recognizeImage()
-                        true
-                    }
-
-                    R.id.camera -> {
-                        // Respond to navigation item 2 click
-                        showScanner()
-                        true
-                    }
-
-                    R.id.setting -> {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "This feature will available soon",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        true
-                    }
-
-                    else -> false
                 }
             }
         }
