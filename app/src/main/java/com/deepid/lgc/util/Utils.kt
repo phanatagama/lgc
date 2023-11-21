@@ -31,6 +31,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.util.UUID
 
+
 object Utils {
 
     fun getLicense(context: Context?): ByteArray? {
@@ -111,6 +112,38 @@ object Utils {
         }
         return null
     }
+
+    fun getRealPathFromURI(uri: Uri, context: Context): String {
+        val returnCursor = context.contentResolver.query(uri, null, null, null, null)
+        val nameIndex = returnCursor!!.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        val sizeIndex = returnCursor!!.getColumnIndex(OpenableColumns.SIZE)
+        returnCursor!!.moveToFirst()
+        val name = returnCursor!!.getString(nameIndex)
+        val size = java.lang.Long.toString(returnCursor!!.getLong(sizeIndex))
+        val file = File(context.filesDir, name)
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val outputStream = FileOutputStream(file)
+            var read = 0
+            val maxBufferSize = 1 * 1024 * 1024
+            val bytesAvailable = inputStream!!.available()
+
+            //int bufferSize = 1024;
+            val bufferSize = Math.min(bytesAvailable, maxBufferSize)
+            val buffers = ByteArray(bufferSize)
+            while (inputStream!!.read(buffers).also { read = it } != -1) {
+                outputStream.write(buffers, 0, read)
+            }
+            Log.e("File Size", "Size " + file.length())
+            inputStream!!.close()
+            outputStream.close()
+            Log.e("File Path", "Path " + file.path)
+            Log.e("File Size", "Size " + file.length())
+        } catch (e: Exception) {
+            Log.e("Exception", e.message!!)
+        }
+        return file.path
+    }
 }
 
 fun File.mimeType(): String? =
@@ -144,7 +177,8 @@ fun getValidity(
 
     return eCheckResult.CH_CHECK_WAS_NOT_DONE;
 }
-fun DocumentReaderResults.toParcelable(context: Context) : Parcelable {
+
+fun DocumentReaderResults.toParcelable(context: Context): Parcelable {
     val attributes = mutableListOf<TextFieldAttribute>()
     this.textResult?.fields?.forEach {
         val name = it.getFieldName(context)

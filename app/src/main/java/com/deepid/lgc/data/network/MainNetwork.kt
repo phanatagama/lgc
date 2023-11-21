@@ -1,11 +1,14 @@
 package com.deepid.lgc.data.network
 
 import com.deepid.lgc.data.model.FileUploadResponseItem
+import com.deepid.lgc.data.model.ImageUploadResponse
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HeaderMap
+import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.QueryMap
 import retrofit2.http.Url
@@ -20,4 +23,11 @@ interface MainNetwork {
         @Url uploadUrl: String, // it comes from our backend server
         @Body file: RequestBody
     ): Response<Unit>
+
+    @POST
+    @Headers("device-address: abcd")
+    suspend fun uploadImage(
+        @Url uploadUrl: String, // it comes from our backend server
+        @Body file: RequestBody
+    ): Response<ImageUploadResponse>
 }

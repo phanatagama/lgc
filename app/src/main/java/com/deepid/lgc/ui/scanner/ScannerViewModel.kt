@@ -6,9 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deepid.lgc.data.common.BaseResult
-
-import com.deepid.lgc.data.model.FileUploadRequest
-import com.deepid.lgc.data.model.FileUploadResponse
+import com.deepid.lgc.data.model.ImageUploadResponse
 import com.deepid.lgc.data.repository.MainRepository
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.model.results.FaceCaptureResponse
@@ -18,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import okhttp3.RequestBody
+import java.io.File
 
 class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel() {
     private val _documentReaderResultLiveData = MutableLiveData<DocumentReaderResults?>()
@@ -36,7 +34,7 @@ class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel()
         _faceCaptureResponseLiveData.value = results
     }
 
-    val _state = MutableStateFlow<ScannerUiState>(ScannerUiState.Init)
+    private val _state = MutableStateFlow<ScannerUiState>(ScannerUiState.Init)
     val state: StateFlow<ScannerUiState> get() = _state.asStateFlow()
 
     private fun showLoading() {
@@ -51,17 +49,13 @@ class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel()
         _state.value = ScannerUiState.Error(message)
     }
 
-    private fun setSuccess(data: FileUploadResponse) {
-        Log.d(TAG, "setSuccess: \n" +
-                "url: ${data.fileUploadResponse?.first()?.url}\n" +
-                "path: ${data.fileUploadResponse?.first()?.path}")
+    private fun setSuccess(data: ImageUploadResponse) {
         _state.value = ScannerUiState.Success(data)
     }
 
-
-    fun uploadFile(fileUploadRequest: FileUploadRequest, fileRequestBody: RequestBody) {
+    fun uploadImage(file: File) {
         viewModelScope.launch {
-            mainRepository.getUploadUrls(fileUploadRequest, fileRequestBody).onStart {
+            mainRepository.uploadFile(file).onStart {
                 showLoading()
             }.catch {
                 hideLoading()
@@ -74,8 +68,10 @@ class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel()
             }
         }
     }
+
+
     companion object{
-        val TAG: String = this.javaClass.name
+        const val TAG: String = "ScannerViewModel"
     }
 }
 
@@ -83,5 +79,5 @@ sealed interface ScannerUiState {
     object Init : ScannerUiState
     data class Loading(val isLoading: Boolean) : ScannerUiState
     data class Error(val message: String) : ScannerUiState
-    data class Success(val data: FileUploadResponse) : ScannerUiState
+    data class Success(val data: ImageUploadResponse) : ScannerUiState
 }

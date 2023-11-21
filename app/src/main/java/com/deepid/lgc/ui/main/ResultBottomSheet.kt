@@ -20,7 +20,6 @@ import com.deepid.lgc.databinding.LayoutResultBottomsheetBinding
 import com.deepid.lgc.ui.defaultscanner.DocumentFieldAdapter
 import com.deepid.lgc.ui.main.fragment.GraphicfieldFragment
 import com.deepid.lgc.ui.scanner.ScannerViewModel
-import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
 import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Helpers
 import com.deepid.lgc.util.Utils.resizeBitmap
@@ -225,16 +224,16 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
         )
 
-        Log.d(SuccessfulInitActivity.TAG, "UV Graphic Field: $uvDocumentReaderGraphicField")
+        Log.d(TAG, "UV Graphic Field: $uvDocumentReaderGraphicField")
 
         if (uvDocumentReaderGraphicField != null && uvDocumentReaderGraphicField.bitmap != null) {
             val resizedBitmap = resizeBitmap(uvDocumentReaderGraphicField.bitmap)
-            Log.d(SuccessfulInitActivity.TAG, "Resized UV Bitmap: $resizedBitmap")
+            Log.d(TAG, "Resized UV Bitmap: $resizedBitmap")
             binding.uvImageIv.visibility = View.VISIBLE
             binding.uvImageIv.setImageBitmap(resizedBitmap)
             saveToGallery(requireActivity(),resizedBitmap!!)
         } else {
-            Log.d(SuccessfulInitActivity.TAG, "UV Graphic Field or Bitmap is null")
+            Log.d(TAG, "UV Graphic Field or Bitmap is null")
         }
     }
 

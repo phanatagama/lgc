@@ -274,6 +274,7 @@
             android:layout_height="200dp"
             android:layout_marginHorizontal="16dp"
             android:visibility="gone"
+            tools:visibility="visible"
             android:background="@drawable/image_border"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
