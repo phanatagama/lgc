@@ -55,6 +55,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
                         )
                         scannerViewModel.setDocumentReaderResults(results)
                     }
+                    showUvImage(results)
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
                         //starting chip reading
