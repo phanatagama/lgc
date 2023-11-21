@@ -24,6 +24,7 @@ import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
 import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Helpers
 import com.deepid.lgc.util.Utils.resizeBitmap
+import com.deepid.lgc.util.Utils.saveToGallery
 import com.deepid.lgc.util.toParcelable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -184,6 +185,11 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
         val parcelableTextField =
             results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
         showUvImage(results)
+        image?.let { saveToGallery(requireActivity(), it) }
+        rawImage?.let {
+            saveToGallery(requireActivity(), it)
+        }
+
         with(binding) {
             titleTv.text = name
             detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
@@ -209,9 +215,10 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
                 rvAdapter.submitList(parcelableTextField.textField)
                 hideRecyclerView(false)
             }
-            ViewCompat.setNestedScrollingEnabled(recyclerView,false)
+            ViewCompat.setNestedScrollingEnabled(recyclerView, false)
         }
     }
+
     private fun showUvImage(documentReaderResults: DocumentReaderResults?) {
         val uvDocumentReaderGraphicField = documentReaderResults?.getGraphicFieldByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE,
@@ -225,6 +232,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             Log.d(SuccessfulInitActivity.TAG, "Resized UV Bitmap: $resizedBitmap")
             binding.uvImageIv.visibility = View.VISIBLE
             binding.uvImageIv.setImageBitmap(resizedBitmap)
+            saveToGallery(requireActivity(),resizedBitmap!!)
         } else {
             Log.d(SuccessfulInitActivity.TAG, "UV Graphic Field or Bitmap is null")
         }
