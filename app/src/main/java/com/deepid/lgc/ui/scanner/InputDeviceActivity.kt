@@ -17,12 +17,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityInputDeviceBinding
-import com.deepid.lgc.ui.main.ResultBottomSheet
+import com.deepid.lgc.ui.common.FaceCameraFragment
+import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepid.lgc.util.Utils
-import com.regula.common.utils.RegulaLog
+import com.deepid.lgc.util.Utils.setFunctionality
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -42,7 +43,9 @@ import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.FaceSDK
+import com.regula.facesdk.configuration.FaceCaptureConfiguration
 import com.regula.facesdk.exception.InitException
+import com.regula.facesdk.model.results.FaceCaptureResponse
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class InputDeviceActivity : AppCompatActivity() {
@@ -51,40 +54,7 @@ class InputDeviceActivity : AppCompatActivity() {
     private var loadingDialog: AlertDialog? = null
     private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityInputDeviceBinding
-
-    private fun setFunctionality(from: Functionality) {
-        val to = DocumentReader.Instance().functionality().edit()
-        to.setShowChangeFrameButton(from.isShowChangeFrameButton)
-        to.setBtDeviceName(from.btDeviceName)
-        to.setCameraFrame(from.cameraFrame)
-        to.setDatabaseAutoupdate(from.isDatabaseAutoupdate)
-        to.setOrientation(from.orientation)
-        to.setPictureOnBoundsReady(from.isPictureOnBoundsReady)
-        to.setShowCameraSwitchButton(from.isShowCameraSwitchButton)
-        to.setShowCaptureButton(from.isShowCaptureButton)
-        to.setShowCaptureButtonDelayFromDetect(from.showCaptureButtonDelayFromDetect)
-        to.setShowCaptureButtonDelayFromStart(from.showCaptureButtonDelayFromStart)
-        to.setShowCloseButton(from.isShowCloseButton)
-        to.setShowSkipNextPageButton(from.isShowSkipNextPageButton)
-        to.setShowTorchButton(from.isShowTorchButton)
-        to.setSkipFocusingFrames(from.isSkipFocusingFrames)
-        to.setStartDocReaderForResult(from.startDocReaderForResult)
-        try {
-            to.setUseAuthenticator(from.isUseAuthenticator)
-        } catch (var4: Exception) {
-            RegulaLog.e(var4)
-        }
-        to.setVideoCaptureMotionControl(from.isVideoCaptureMotionControl)
-        to.setCaptureMode(from.captureMode)
-        to.setDisplayMetadata(from.isDisplayMetaData)
-        to.setCameraSize(from.cameraWidth, from.cameraHeight)
-        to.setZoomEnabled(from.isZoomEnabled)
-        to.setZoomFactor(from.zoomFactor)
-        to.setCameraMode(from.cameraMode)
-        to.setExcludedCamera2Models(from.excludedCamera2Models)
-        to.setIsCameraTorchCheckDisabled(from.isCameraTorchCheckDisabled)
-        to.apply()
-    }
+    
 
     private var etDeviceName: EditText? = null
     private var btnConnect: Button? = null
@@ -98,8 +68,12 @@ class InputDeviceActivity : AppCompatActivity() {
             || action == DocReaderAction.TIMEOUT
         ) {
             dismissDialog()
+            if (results != null) {
+                scannerViewModel.setDocumentReaderResults(results)
+                ScanResultActivity.documentResults = results
+            }
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                Log.d(TAG, "DEBUGX MULTIPAGEMODE: ")
+                Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
                 if (results?.morePagesAvailable != 0) {
                     DocumentReader.Instance().startNewPage()
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -132,31 +106,20 @@ class InputDeviceActivity : AppCompatActivity() {
                         error: DocumentReaderException?
                     ) {
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL){
-
+                            scannerViewModel.setDocumentReaderResults(
+                                results_RFIDReader ?: results
+                            )
+                            captureFace()
                             displayResults()
                         }
-//                            ResultBottomSheet.results = results_RFIDReader!!
-                        //captureFace(results_RFIDReader!!)
                     }
                 })
             } else {
-                Log.d(TAG, "DEBUGX NO RFID PERFORMED ")
+                Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
                 /**
-                 * perform [livenessFace] or [captureface] then check similarity
+                 * perform [livenessFace] or [captureFace] then check similarity
                  */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
-                //  livenessFace(results)
-                // captureFace(results)
-//                ResultBottomSheet.results = results
-                displayResults()
+                captureFace()
             }
         } else {
             dismissDialog()
@@ -172,6 +135,34 @@ class InputDeviceActivity : AppCompatActivity() {
         }
     }
 
+    fun captureFace() {
+        val faceCaptureConfiguration: FaceCaptureConfiguration =
+            FaceCaptureConfiguration.Builder()
+                .registerUiFragmentClass(FaceCameraFragment::class.java)
+                .setCloseButtonEnabled(true)
+                .setCameraSwitchEnabled(false)
+                .build()
+        FaceSDK.Instance()
+            .presentFaceCaptureActivity(
+                this@InputDeviceActivity,
+                faceCaptureConfiguration
+            ) { response: FaceCaptureResponse ->
+                scannerViewModel.setFaceCaptureResponse(response)
+                ScanResultActivity.faceCaptureResponse = response
+                // ... check response.image for capture result
+                if (response.image?.bitmap == null) {
+                    response.exception?.message?.let {
+                        Toast.makeText(
+                            this@InputDeviceActivity,
+                            "Error: $it",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                displayResults()
+            }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInputDeviceBinding.inflate(layoutInflater)
@@ -180,23 +171,14 @@ class InputDeviceActivity : AppCompatActivity() {
         * Reset all configuration from main
         * */
         setFunctionality(Functionality())
-        FaceSDK.Instance().deinit()
-        DocumentReader.Instance().deinitializeReader()
+//        FaceSDK.Instance().deinit()
+//        DocumentReader.Instance().deinitializeReader()
 
         initViews()
         //observe()
         initFaceSDK()
         prepareDatabase()
-        DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
-        DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
-        DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
-        DocumentReader.Instance().processParams().setLogs(true)
-        DocumentReader.Instance().functionality().edit()
-            .setBtDeviceName("Regula 0326")
-            .setShowCaptureButton(true)
-            .setShowCaptureButtonDelayFromStart(0)
-//            .setCaptureMode(CaptureMode.CAPTURE_VIDEO)
-            .apply()
+        setupFunctionality()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
             if (etDeviceName?.text != null) {
@@ -209,6 +191,18 @@ class InputDeviceActivity : AppCompatActivity() {
                 startBluetoothService()
             }
         }
+    }
+
+    private fun setupFunctionality() {
+        DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().setLogs(true)
+        DocumentReader.Instance().functionality().edit()
+            .setBtDeviceName("Regula 0326")
+            .setShowCaptureButton(true)
+            .setShowCaptureButtonDelayFromStart(0)
+            .apply()
     }
 
     private fun initFaceSDK() {
@@ -267,8 +261,7 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        val dialog = ResultBottomSheet.newInstance()
-        dialog.show(supportFragmentManager, ResultBottomSheet.TAG)
+        startActivity(Intent(this, ScanResultActivity::class.java))
     }
 
     private fun initViews() {
@@ -292,7 +285,7 @@ class InputDeviceActivity : AppCompatActivity() {
                 Log.d(TAG, "[DEBUGX] init reader DocumentSDK is complete")
                 btnConnect?.isEnabled = true
             } else {
-                Log.e(TAG, "[DEBUG] INIT failed: $error ")
+                Log.e(TAG, "[DEBUGX] INIT failed: $error ")
                 Toast.makeText(this@InputDeviceActivity, "Init failed:$error", Toast.LENGTH_LONG)
                     .show()
                 return@IDocumentReaderInitCompletion
@@ -327,7 +320,8 @@ class InputDeviceActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 )
                     .show()
-                startActivity(Intent(this@InputDeviceActivity, SuccessfulInitActivity::class.java))
+//                startActivity(Intent(this@InputDeviceActivity, SuccessfulInitActivity::class.java))
+                showScanner()
                 return
             }
             Log.d(TAG, "[DEBUGX] bleManager is not connected")
@@ -359,8 +353,9 @@ class InputDeviceActivity : AppCompatActivity() {
             bleManager!!.removeCallback(this)
             Toast.makeText(this@InputDeviceActivity, "Bluetooth is connected", Toast.LENGTH_SHORT)
                 .show()
-            startActivity(Intent(this@InputDeviceActivity, SuccessfulInitActivity::class.java))
+//            startActivity(Intent(this@InputDeviceActivity, SuccessfulInitActivity::class.java))
             dismissDialog()
+            showScanner()
         }
     }
 

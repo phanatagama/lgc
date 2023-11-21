@@ -20,9 +20,12 @@
         android:theme="@style/Theme.lgc"
         tools:targetApi="31">
         <activity
+            android:name=".ui.result.ScanResultActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.splash.SplashActivity"
-            android:screenOrientation="portrait"
-            android:exported="true" >
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,8 +43,7 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.scanner.SuccessfulInitActivity"
             android:screenOrientation="portrait"

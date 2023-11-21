@@ -16,7 +16,16 @@ import android.widget.Toast
 import com.deepid.lgc.R
 import com.deepid.lgc.data.model.TextFieldAttribute
 import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
+import com.deepid.lgc.ui.main.ResultBottomSheet
+import com.deepid.lgc.util.Utils.resizeBitmap
+import com.regula.common.utils.RegulaLog
+import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.eCheckResult
+import com.regula.documentreader.api.enums.eGraphicFieldType
+import com.regula.documentreader.api.enums.eRPRM_Lights
+import com.regula.documentreader.api.enums.eRPRM_ResultType
+import com.regula.documentreader.api.enums.eVisualFieldType
+import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValidity
 import kotlinx.parcelize.Parcelize
@@ -144,6 +153,40 @@ object Utils {
         }
         return file.path
     }
+
+    fun setFunctionality(from: Functionality) {
+        val to = DocumentReader.Instance().functionality().edit()
+        to.setShowChangeFrameButton(from.isShowChangeFrameButton)
+        to.setBtDeviceName(from.btDeviceName)
+        to.setCameraFrame(from.cameraFrame)
+        to.setDatabaseAutoupdate(from.isDatabaseAutoupdate)
+        to.setOrientation(from.orientation)
+        to.setPictureOnBoundsReady(from.isPictureOnBoundsReady)
+        to.setShowCameraSwitchButton(from.isShowCameraSwitchButton)
+        to.setShowCaptureButton(from.isShowCaptureButton)
+        to.setShowCaptureButtonDelayFromDetect(from.showCaptureButtonDelayFromDetect)
+        to.setShowCaptureButtonDelayFromStart(from.showCaptureButtonDelayFromStart)
+        to.setShowCloseButton(from.isShowCloseButton)
+        to.setShowSkipNextPageButton(from.isShowSkipNextPageButton)
+        to.setShowTorchButton(from.isShowTorchButton)
+        to.setSkipFocusingFrames(from.isSkipFocusingFrames)
+        to.setStartDocReaderForResult(from.startDocReaderForResult)
+        try {
+            to.setUseAuthenticator(from.isUseAuthenticator)
+        } catch (var4: Exception) {
+            RegulaLog.e(var4)
+        }
+        to.setVideoCaptureMotionControl(from.isVideoCaptureMotionControl)
+        to.setCaptureMode(from.captureMode)
+        to.setDisplayMetadata(from.isDisplayMetaData)
+        to.setCameraSize(from.cameraWidth, from.cameraHeight)
+        to.setZoomEnabled(from.isZoomEnabled)
+        to.setZoomFactor(from.zoomFactor)
+        to.setCameraMode(from.cameraMode)
+        to.setExcludedCamera2Models(from.excludedCamera2Models)
+        to.setIsCameraTorchCheckDisabled(from.isCameraTorchCheckDisabled)
+        to.apply()
+    }
 }
 
 fun File.mimeType(): String? =
@@ -178,7 +221,10 @@ fun getValidity(
     return eCheckResult.CH_CHECK_WAS_NOT_DONE;
 }
 
-fun DocumentReaderResults.toParcelable(context: Context): Parcelable {
+fun DocumentReaderResults.toParcelable(
+    context: Context,
+    faceCaptureImage: Bitmap? = null
+): Parcelable {
     val attributes = mutableListOf<TextFieldAttribute>()
     this.textResult?.fields?.forEach {
         val name = it.getFieldName(context)
@@ -199,9 +245,77 @@ fun DocumentReaderResults.toParcelable(context: Context): Parcelable {
             attributes.add(item)
         }
     }
-    return DocumentReaderResultsParcel(attributes)
+
+    val statusDrawable = Helpers.drawable(
+        if (this.status.overallStatus == eCheckResult.CH_CHECK_OK) com.regula.documentreader.api.R.drawable.reg_ok else com.regula.documentreader.api.R.drawable.reg_fail,
+        context
+    )
+    val name = this.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
+    val gender = this.getTextFieldValueByType(eVisualFieldType.FT_SEX)
+    val age = this.getTextFieldValueByType(eVisualFieldType.FT_AGE)
+    val ageFieldName =
+        this.getTextFieldByType(eVisualFieldType.FT_AGE)?.getFieldName(context)
+    val userPhoto = this.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
+        ?: this.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
+
+    val birth = this.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
+    val address = this.getTextFieldValueByType(eVisualFieldType.FT_ISSUING_STATE_NAME)
+    val expiry = this.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_EXPIRY)
+    val rawImage = this.getGraphicFieldImageByType(
+        eGraphicFieldType.GF_PORTRAIT,
+        eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+        0,
+        eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
+    )
+        ?: this.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+        )
+    val uvImage = this.getGraphicFieldByType(
+        eGraphicFieldType.GF_DOCUMENT_IMAGE,
+        eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
+    )?.bitmap
+    val documentName = if (this.documentType.isNotEmpty()) {
+        Log.d(ResultBottomSheet.TAG, "debugx document name ${this.documentType.first().name}")
+        Log.d(
+            ResultBottomSheet.TAG,
+            "debugx document documentid ${this.documentType.first().documentID}"
+        )
+        Log.d(ResultBottomSheet.TAG, "debugx document dtypr ${this.documentType.first().dType}")
+        Log.d(
+            ResultBottomSheet.TAG,
+            "debugx document countty ${this.documentType.first().dCountryName}"
+        )
+        this.documentType.first().name
+    } else {
+        "-"
+    }
+    return DocumentReaderResultsParcel(
+        userName = name,
+        userDescription = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else "",
+        userAddress = address,
+        userDateOfBirth = birth,
+        userDateOfIssue = expiry,
+        documentName = documentName,
+        rawImage = resizeBitmap(rawImage),
+        photoImage = resizeBitmap(userPhoto),
+        uvImage = resizeBitmap(uvImage),
+        faceCaptureImage = resizeBitmap(faceCaptureImage),
+        textField = attributes
+    )
 }
 
 @Parcelize
-data class DocumentReaderResultsParcel(val textField: List<TextFieldAttribute>) :
-    Parcelable
+data class DocumentReaderResultsParcel(
+    val userName: String? = null,
+    val userDescription: String? = null,
+    val userAddress: String? = null,
+    val userDateOfBirth: String? = null,
+    val userDateOfIssue: String? = null,
+    val documentName: String? = null,
+    val rawImage: Bitmap? = null,
+    val photoImage: Bitmap? = null,
+    val uvImage: Bitmap? = null,
+    val faceCaptureImage: Bitmap? = null,
+    val textField: List<TextFieldAttribute>
+) : Parcelable

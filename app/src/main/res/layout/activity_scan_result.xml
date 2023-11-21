@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nestedScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_color"
+    android:overScrollMode="never">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/backgroundView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="17dp"
+            android:layout_marginTop="54dp"
+            android:background="#13253D"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/foregroundView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="9dp"
+            android:background="@drawable/shape_bottom_sheet"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/backgroundView" />
+
+        <View
+            android:id="@+id/divider_top"
+            android:layout_width="100dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/background_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/foregroundView" />
+
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="36dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="TextView"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/face_iv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/foregroundView" />
+
+        <TextView
+            android:id="@+id/detail_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="TextView"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/face_iv"
+            app:layout_constraintStart_toStartOf="@+id/title_tv"
+            app:layout_constraintTop_toBottomOf="@+id/title_tv" />
+
+        <TextView
+            android:id="@+id/similarity_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/detail_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Similarity: 0%" />
+
+        <TextView
+            android:id="@+id/status_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/light_green"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/detail_tv"
+            app:layout_constraintStart_toEndOf="@id/similarity_tv"
+            tools:text="(Valid)" />
+
+        <ImageView
+            android:id="@+id/face_iv"
+            android:layout_width="67dp"
+            android:layout_height="78dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title_tv"
+            app:srcCompat="@color/background_color" />
+
+        <ImageView
+            android:id="@+id/check_result_iv"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_ocr_ok"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/detail_tv"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tv" />
+
+        <ImageView
+            android:id="@+id/check_face_recognition_iv"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_face_recognition_ok"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/check_result_iv"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tv" />
+
+        <ImageView
+            android:id="@+id/check_liveness_iv"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_liveness_ok"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/check_face_recognition_iv"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tv" />
+
+        <ImageView
+            android:id="@+id/check_face_recognition_fail_iv"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_face_recognition_fail"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/check_liveness_iv"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tv" />
+
+        <ImageView
+            android:id="@+id/check_liveness_fail_iv"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_liveness_fail"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/check_face_recognition_fail_iv"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tv" />
+
+        <View
+            android:id="@+id/imageView3"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/background_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/similarity_tv" />
+
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:stretchColumns="*"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/imageView3">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/birth_date_title_tv"
+                    android:padding="3dip"
+                    android:text="BIRTH DATE"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/birth_date_tv"
+                    android:padding="3dip"
+                    android:text="11/11/23"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/address_title_tv"
+                    android:padding="3dip"
+                    android:text="ADDRESS"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/address_tv"
+                    android:padding="3dip"
+                    android:text="English"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/issue_title_tv"
+                    android:padding="3dip"
+                    android:text="ISSUE DATE"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/issue_tv"
+                    android:padding="3dip"
+                    android:text="11/11/23"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </TableRow>
+
+
+        </TableLayout>
+
+        <TextView
+            android:id="@+id/document_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="TextView"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+
+        <ImageView
+            android:id="@+id/rawImage_iv"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/image_border"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/document_tv"
+            tools:src="@drawable/reg_nfc_full_id_big" />
+        <ImageView
+            android:id="@+id/uvImage_iv"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginHorizontal="16dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:background="@drawable/image_border"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rawImage_iv"
+            tools:src="@drawable/reg_nfc_full_id_big" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/uvImage_iv"
+            tools:listitem="@layout/item_text_result"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

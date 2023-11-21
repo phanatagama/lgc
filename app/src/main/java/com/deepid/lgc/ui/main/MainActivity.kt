@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -25,6 +24,7 @@ import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityMainBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.common.RecyclerAdapter
+import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
 import com.deepid.lgc.ui.scanner.ScannerViewModel
@@ -32,6 +32,7 @@ import com.deepid.lgc.util.Base
 import com.deepid.lgc.util.Helpers.Companion.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.deepid.lgc.util.Utils
 import com.deepid.lgc.util.Utils.getRealPathFromURI
+import com.deepid.lgc.util.Utils.setFunctionality
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
@@ -41,10 +42,10 @@ import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
-import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.FaceSDK
@@ -60,7 +61,6 @@ class MainActivity : AppCompatActivity() {
     private var isShowRfid = false
     private var loadingDialog: AlertDialog? = null
     private var currentScenario: String = Scenario.SCENARIO_OCR
-    private var ocrDocumentReaderResults: DocumentReaderResults? = null
     private lateinit var binding: ActivityMainBinding
     private val rvAdapter: RecyclerAdapter by lazy {
         RecyclerAdapter(getRvData())
@@ -92,46 +92,10 @@ class MainActivity : AppCompatActivity() {
                     }
                     Log.d(TAG, "[DEBUGX] Image Path: ${imageUris[0].path!!} ")
                     val realPath = getRealPathFromURI(imageUris[0], this)
-                    realPath.let { path ->
-                        scannerViewModel.uploadImage(File(path))
-                    }
-//                    if (imageUris.size > 0) {
-//                        showDialog("Processing image")
-//                        resetScannerResult()
-//                        if (imageUris.size == 1) {
-//                            getBitmap(imageUris[0], 1920, 1080, this)?.let { bitmap ->
-//                                val recognizeConfig =
-//                                    RecognizeConfig.Builder(currentScenario).setBitmap(bitmap)
-//                                        .build()
-//                                DocumentReader.Instance().recognize(recognizeConfig, completion)
-//                            }
-//                        } else {
-//                            val bitmaps = arrayOfNulls<Bitmap>(imageUris.size)
-//                            for (i in bitmaps.indices) {
-//                                bitmaps[i] = getBitmap(imageUris[i], 1920, 1080, this)
-//                            }
-//                            val recognizeConfig =
-//                                RecognizeConfig.Builder(currentScenario).setBitmaps(bitmaps).build()
-//                            DocumentReader.Instance().recognize(recognizeConfig, completion)
-//                        }
-//                    }
+                    scannerViewModel.uploadImage(File(realPath))
                 }
             }
         }
-
-
-    // Registers a photo picker activity launcher in single-select mode.
-//    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-//        // Callback is invoked after the user selects a media item or closes the
-//        // photo picker.
-//        if (uri != null) {
-//            Log.d("PhotoPicker", "Selected URI: $uri")
-////            val bitmap: Bitmap? = getBitmap(uri, 1920, 1080, this)
-//            scannerViewModel.uploadImage(File(uri.path!!))
-//        } else {
-//            Log.d("PhotoPicker", "No media selected")
-//        }
-//    }
 
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
@@ -145,6 +109,7 @@ class MainActivity : AppCompatActivity() {
                     "[DEBUGX] DocReaderAction is Timeout: ${action == DocReaderAction.TIMEOUT} "
                 )
                 scannerViewModel.setDocumentReaderResults(results)
+                ScanResultActivity.documentResults = results
             }
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
                 Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
@@ -183,21 +148,18 @@ class MainActivity : AppCompatActivity() {
                             scannerViewModel.setDocumentReaderResults(results_RFIDReader ?: results)
                             if (isShowFaceRecognition) {
                                 captureFace(results_RFIDReader ?: results)
+                            } else {
+                                displayResults()
                             }
                         }
-                        displayResults()
-                        //captureFace(results_RFIDReader!!)
+
                     }
                 })
             } else {
                 Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
                 /**
-                 * perform [livenessFace] or [captureface] then check similarity
+                 * perform [livenessFace] or [captureFace] then check similarity
                  */
-                /**
-                 * perform [livenessFace] or [captureface] then check similarity
-                 */
-                //  livenessFace(results)
                 if (isShowFaceRecognition) {
                     if (results != null) {
                         captureFace(results)
@@ -235,6 +197,12 @@ class MainActivity : AppCompatActivity() {
         setupFunctionality()
     }
 
+    override fun onResume() {
+        super.onResume()
+        setFunctionality(Functionality())
+        setupFunctionality()
+    }
+
     private fun setupFunctionality() {
         DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
@@ -265,9 +233,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observe() {
-        scannerViewModel.documentReaderResultLiveData.observe(this) {
-            ocrDocumentReaderResults = it
-        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 scannerViewModel.state.collect { uiState ->
@@ -360,18 +325,9 @@ class MainActivity : AppCompatActivity() {
                 faceCaptureConfiguration
             ) { response: FaceCaptureResponse ->
                 scannerViewModel.setFaceCaptureResponse(response)
+                ScanResultActivity.faceCaptureResponse = response
                 // ... check response.image for capture result
-                response.image?.bitmap?.let { bitmap ->
-                    val documentImage: Bitmap? =
-                        results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
-                            ?: results?.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
-                    val liveImage: Bitmap = bitmap
-                    documentImage?.let {
-//                        matchFaces(documentImage, liveImage)
-//                        displayResults(documentImage, liveImage)
-                    }
-                    displayResults()
-                } ?: run {
+                if (response.image?.bitmap == null) {
                     response.exception?.message?.let {
                         Toast.makeText(
                             this@MainActivity,
@@ -379,20 +335,15 @@ class MainActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
-//                    displayResults(results)
-                    if (isShowFaceRecognition) {
-                        displayResults()
-                    }
                 }
+                displayResults()
                 isShowFaceRecognition = false
                 isShowRfid = false
-//                updateRecyclerViews(results)
             }
     }
 
     private fun displayResults() {
-        val dialog = ResultBottomSheet.newInstance()
-        dialog.show(supportFragmentManager, ResultBottomSheet.TAG)
+        startActivity(Intent(this, ScanResultActivity::class.java))
     }
 
     private fun createImageBrowsingRequest() {
@@ -401,7 +352,6 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
         intent.action = Intent.ACTION_GET_CONTENT
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
-//        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     private fun recognizeImage() {

@@ -11,6 +11,7 @@ import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -27,7 +28,6 @@ import com.deepid.lgc.util.Utils.saveToGallery
 import com.deepid.lgc.util.toParcelable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.regula.documentreader.api.enums.eCheckResult
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
@@ -42,14 +42,14 @@ import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThreshold
 import com.regula.facesdk.request.MatchFacesRequest
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-class ResultBottomSheet : BottomSheetDialogFragment() {
+class ResultBottomSheet : DialogFragment() {
     private var _binding: LayoutResultBottomsheetBinding? = null
     private val binding get() = _binding!!
     private val scannerViewModel: ScannerViewModel by activityViewModel()
     private val rvAdapter: DocumentFieldAdapter by lazy {
         DocumentFieldAdapter()
     }
-    var documentImage: Bitmap? = null
+    private var documentImage: Bitmap? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -276,7 +276,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
             R.string.tabs_image
         )
         const val TAG = "ModalBottomSheet"
-        fun newInstance(): BottomSheetDialogFragment {
+        fun newInstance(): DialogFragment {
             return ResultBottomSheet()
         }
     }
