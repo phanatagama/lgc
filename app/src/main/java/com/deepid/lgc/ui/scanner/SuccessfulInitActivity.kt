@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.deepid.lgc.R
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.main.ResultBottomSheet
+import com.deepid.lgc.util.Utils.resizeBitmap
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -71,8 +72,8 @@ class SuccessfulInitActivity : AppCompatActivity() {
                                         scannerViewModel.setDocumentReaderResults(
                                             results_RFIDReader ?: results
                                         )
-                                        showGraphicFieldImage(results)
                                         captureFace()
+                                        showGraphicFieldImage(results)
                                     }
 
                                 }
@@ -176,13 +177,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
             rfidImage?.setImageBitmap(resizeBitmap(documentImage))
     }
 
-    private fun resizeBitmap(bitmap: Bitmap?): Bitmap? {
-        if (bitmap != null) {
-            val aspectRatio = bitmap.width.toDouble() / bitmap.height.toDouble()
-            return Bitmap.createScaledBitmap(bitmap, (480 * aspectRatio).toInt(), 480, false)
-        }
-        return null
-    }
 
     private fun initViews() {
         showScannerBtn = findViewById(R.id.showScannerBtn)

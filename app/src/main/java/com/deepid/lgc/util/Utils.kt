@@ -103,6 +103,14 @@ object Utils {
 //        return file
 
     }
+
+    fun resizeBitmap(bitmap: Bitmap?): Bitmap? {
+        if (bitmap != null) {
+            val aspectRatio = bitmap.width.toDouble() / bitmap.height.toDouble()
+            return Bitmap.createScaledBitmap(bitmap, (480 * aspectRatio).toInt(), 480, false)
+        }
+        return null
+    }
 }
 
 fun File.mimeType(): String? =

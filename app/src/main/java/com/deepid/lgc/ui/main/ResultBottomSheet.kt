@@ -20,8 +20,10 @@ import com.deepid.lgc.databinding.LayoutResultBottomsheetBinding
 import com.deepid.lgc.ui.defaultscanner.DocumentFieldAdapter
 import com.deepid.lgc.ui.main.fragment.GraphicfieldFragment
 import com.deepid.lgc.ui.scanner.ScannerViewModel
+import com.deepid.lgc.ui.scanner.SuccessfulInitActivity
 import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Helpers
+import com.deepid.lgc.util.Utils.resizeBitmap
 import com.deepid.lgc.util.toParcelable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -142,22 +144,13 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun initViews(results: DocumentReaderResults?) {
-//        val sectionsPagerAdapter = SectionsPagerAdapter(this)
-//        sectionsPagerAdapter.documentReaderResults = results?.toParcelable(requireActivity())
-//        val viewPager: ViewPager2 = binding.viewPager
-//        viewPager.adapter = sectionsPagerAdapter
-//        val tabs: TabLayout = binding.tabs
-//        TabLayoutMediator(tabs, viewPager) { tab, position ->
-//            tab.text = resources.getString(TAB_TITLES[position])
-//        }.attach()
-
         Log.d(TAG, "raw result ${results?.rawResult}")
         val statusDrawable = Helpers.drawable(
             if (results?.status?.overallStatus == eCheckResult.CH_CHECK_OK) com.regula.documentreader.api.R.drawable.reg_ok else com.regula.documentreader.api.R.drawable.reg_fail,
             requireActivity()
         )
         val name = results?.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
-        Log.d(TAG, "debugx name from bottom sheet $name ")
+        Log.d(TAG, "[DEBUGX] name from bottom sheet $name ")
         val gender = results?.getTextFieldValueByType(eVisualFieldType.FT_SEX)
         val age = results?.getTextFieldValueByType(eVisualFieldType.FT_AGE)
         val ageFieldName =
@@ -190,6 +183,7 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
         }
         val parcelableTextField =
             results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
+        showUvImage(results)
         with(binding) {
             titleTv.text = name
             detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
@@ -216,6 +210,23 @@ class ResultBottomSheet : BottomSheetDialogFragment() {
                 hideRecyclerView(false)
             }
             ViewCompat.setNestedScrollingEnabled(recyclerView,false)
+        }
+    }
+    private fun showUvImage(documentReaderResults: DocumentReaderResults?) {
+        val uvDocumentReaderGraphicField = documentReaderResults?.getGraphicFieldByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
+        )
+
+        Log.d(SuccessfulInitActivity.TAG, "UV Graphic Field: $uvDocumentReaderGraphicField")
+
+        if (uvDocumentReaderGraphicField != null && uvDocumentReaderGraphicField.bitmap != null) {
+            val resizedBitmap = resizeBitmap(uvDocumentReaderGraphicField.bitmap)
+            Log.d(SuccessfulInitActivity.TAG, "Resized UV Bitmap: $resizedBitmap")
+            binding.uvImageIv.visibility = View.VISIBLE
+            binding.uvImageIv.setImageBitmap(resizedBitmap)
+        } else {
+            Log.d(SuccessfulInitActivity.TAG, "UV Graphic Field or Bitmap is null")
         }
     }
 

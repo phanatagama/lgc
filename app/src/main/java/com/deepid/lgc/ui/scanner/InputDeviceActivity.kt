@@ -190,6 +190,7 @@ class InputDeviceActivity : AppCompatActivity() {
         DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
+        DocumentReader.Instance().processParams().setLogs(true)
         DocumentReader.Instance().functionality().edit()
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)

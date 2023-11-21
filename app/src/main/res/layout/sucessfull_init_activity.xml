@@ -24,6 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:scaleType="centerInside"
+                android:visibility="gone"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
             <ImageView
@@ -31,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 tools:src="@tools:sample/backgrounds/scenic" />
         </LinearLayout>
     </ScrollView>
