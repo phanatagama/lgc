@@ -65,9 +65,6 @@ dependencies {
     }
     implementation ("com.regula.face:core:5.2.+@aar")
 
-    // Splashscreen
-    implementation("androidx.core:core-splashscreen:1.0.1")
-
     // Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version")
