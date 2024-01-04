@@ -15,6 +15,7 @@ import java.io.InputStream
 class Helpers {
     companion object {
         const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22
+        const val PERMISSIONS_REQUEST_CAMERA = 100
         fun drawable(
             @DrawableRes
             id: Int, context: Context): Drawable =
@@ -23,7 +24,7 @@ class Helpers {
         fun getColor(
             @ColorRes
             id: Int, context: Context): Int =
-            ResourcesCompat.getColor(context.resources, id, context.theme)!!
+            ResourcesCompat.getColor(context.resources, id, context.theme)
 
         fun getBitmap(
             selectedImage: Uri?,

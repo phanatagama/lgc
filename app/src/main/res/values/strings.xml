@@ -7,7 +7,12 @@
     <string name="menu_facial">Facial</string>
     <string name="menu_image">Image</string>
     <string name="menu_certificate">Certificate</string>
+    <string name="menu_normal">Normal</string>
+    <string name="menu_optical">Optical</string>
+    <string name="menu_normal_optical">Normal &amp; Optical</string>
     <string name="tabs_overall">Overall Result</string>
     <string name="tabs_text">Data Text</string>
     <string name="tabs_image">Images</string>
+    <string name="add_image">Add Image (%1$d/10)</string>
+    <string name="input_data_page">Input Data Page</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityInputDeviceBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
+import com.deepid.lgc.ui.input.InputActivity
 import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
@@ -54,7 +55,6 @@ class InputDeviceActivity : AppCompatActivity() {
     private var loadingDialog: AlertDialog? = null
     private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityInputDeviceBinding
-    
 
     private var etDeviceName: EditText? = null
     private var btnConnect: Button? = null
@@ -70,7 +70,7 @@ class InputDeviceActivity : AppCompatActivity() {
             dismissDialog()
             if (results != null) {
                 scannerViewModel.setDocumentReaderResults(results)
-                ScanResultActivity.documentResults = results
+                InputActivity.documentResults = results
             }
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
                 Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
@@ -117,9 +117,9 @@ class InputDeviceActivity : AppCompatActivity() {
             } else {
                 Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
                 /**
-                 * perform [livenessFace] or [captureFace] then check similarity
+                 * perform @livenessFace or @captureFace then check similarity
                  */
-                captureFace()
+                displayResults()
             }
         } else {
             dismissDialog()
@@ -221,7 +221,6 @@ class InputDeviceActivity : AppCompatActivity() {
         }
     }
 
-
     private fun prepareDatabase() {
         showDialog("preparing database")
         DocumentReader.Instance()
@@ -261,7 +260,7 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        startActivity(Intent(this, ScanResultActivity::class.java))
+        startActivity(Intent(this, InputActivity::class.java))
     }
 
     private fun initViews() {

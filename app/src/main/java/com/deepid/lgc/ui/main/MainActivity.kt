@@ -24,6 +24,7 @@ import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityMainBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.common.RecyclerAdapter
+import com.deepid.lgc.ui.input.InputActivity
 import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
@@ -55,6 +56,7 @@ import com.regula.facesdk.model.results.FaceCaptureResponse
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
     private var isShowFaceRecognition = false
@@ -96,6 +98,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+
 
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
@@ -158,7 +162,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
                 /**
-                 * perform [livenessFace] or [captureFace] then check similarity
+                 * perform @livenessFace or @captureFace then check similarity
                  */
                 if (isShowFaceRecognition) {
                     if (results != null) {
@@ -354,6 +358,8 @@ class MainActivity : AppCompatActivity() {
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
+
+
     private fun recognizeImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
@@ -386,6 +392,13 @@ class MainActivity : AppCompatActivity() {
             btnCertificate.setOnClickListener {
                 recognizeImage()
             }
+            btnNormal.setOnClickListener {
+                startActivity(Intent(this@MainActivity, InputActivity::class.java))
+            }
+            btnOptical.setOnClickListener {
+                startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))
+            }
+            btnNormalOptical.setOnClickListener {  }
         }
 
     }
@@ -406,14 +419,13 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "[DEBUGX] init DocumentReaderSDK is complete")
                 setButtonEnable()
             } else {
-                Log.e(TAG, "[DEBUG] init DocumentReaderSDK is failed: $error ")
+                Log.e(TAG, "[DEBUGX] init DocumentReaderSDK is failed: $error ")
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
         }
 
     private fun setButtonEnable() {
-
         if (FaceSDK.Instance().isInitialized && DocumentReader.Instance().isReady) {
             with(binding.contentMain) {
                 btnOcr.isEnabled = true
@@ -421,6 +433,8 @@ class MainActivity : AppCompatActivity() {
                 btnChip.isEnabled = true
                 btnConnect.isEnabled = true
                 btnCertificate.isEnabled = true
+                btnNormal.isEnabled = true
+                btnOptical.isEnabled = true
             }
         } else {
             with(binding.contentMain) {
@@ -429,6 +443,9 @@ class MainActivity : AppCompatActivity() {
                 btnChip.isEnabled = false
                 btnConnect.isEnabled = false
                 btnCertificate.isEnabled = false
+                btnNormal.isEnabled = false
+                btnOptical.isEnabled = false
+                btnNormalOptical.isEnabled = false
             }
         }
     }
