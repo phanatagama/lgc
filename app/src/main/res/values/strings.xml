@@ -15,4 +15,17 @@
     <string name="tabs_image">Images</string>
     <string name="add_image">Add Image (%1$d/10)</string>
     <string name="input_data_page">Input Data Page</string>
+    <string name="birth_date">BIRTH DATE</string>
+    <string name="birth_date_value">11/11/23</string>
+    <string name="address">ADDRESS</string>
+    <string name="address_value">Seoul, Korea</string>
+    <string name="issue_date">ISSUE DATE</string>
+    <string name="customer_detail">%s, AGE: %d</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="menu_visible">Visible</string>
+    <string name="menu_invisible">Invisible</string>
+    <string name="menu_auto">Auto</string>
+    <string name="menu_prescription">Prescription</string>
+    <string name="send_image">Send Image</string>
+    <string name="search">Search</string>
 </resources>

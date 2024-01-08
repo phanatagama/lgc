@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deepid.lgc.data.common.BaseResult
-import com.deepid.lgc.data.model.ImageUploadResponse
+import com.deepid.lgc.data.repository.network.dto.ImageUploadResponse
 import com.deepid.lgc.data.repository.MainRepository
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.model.results.FaceCaptureResponse

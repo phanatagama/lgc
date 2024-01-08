@@ -95,7 +95,7 @@ class OverallFragment : Fragment() {
                 ResultBottomSheet.TAG,
                 "debugx document countty ${results.documentType.first()?.dCountryName}"
             )
-            results?.documentType.first()?.name
+            results.documentType.first()?.name
         } else {
             "-"
         }

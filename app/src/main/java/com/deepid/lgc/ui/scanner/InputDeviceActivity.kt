@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityInputDeviceBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
-import com.deepid.lgc.ui.input.InputActivity
+import com.deepid.lgc.ui.customerInformation.CustomerInformationActivity
 import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
@@ -70,7 +70,7 @@ class InputDeviceActivity : AppCompatActivity() {
             dismissDialog()
             if (results != null) {
                 scannerViewModel.setDocumentReaderResults(results)
-                InputActivity.documentResults = results
+                CustomerInformationActivity.documentResults = results
             }
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
                 Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
@@ -105,7 +105,7 @@ class InputDeviceActivity : AppCompatActivity() {
                         results_RFIDReader: DocumentReaderResults?,
                         error: DocumentReaderException?
                     ) {
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL){
+                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                             scannerViewModel.setDocumentReaderResults(
                                 results_RFIDReader ?: results
                             )
@@ -168,8 +168,8 @@ class InputDeviceActivity : AppCompatActivity() {
         binding = ActivityInputDeviceBinding.inflate(layoutInflater)
         setContentView(binding.root)
         /**
-        * Reset all configuration from main
-        * */
+         * Reset all configuration from main
+         * */
         setFunctionality(Functionality())
 //        FaceSDK.Instance().deinit()
 //        DocumentReader.Instance().deinitializeReader()
@@ -180,7 +180,7 @@ class InputDeviceActivity : AppCompatActivity() {
         prepareDatabase()
         setupFunctionality()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
-        btnConnect?.setOnClickListener { view: View? ->
+        btnConnect?.setOnClickListener { _: View? ->
             if (etDeviceName?.text != null) {
                 showDialog("Searching devices")
                 handler.sendEmptyMessageDelayed(0, 7000)
@@ -260,7 +260,7 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        startActivity(Intent(this, InputActivity::class.java))
+        startActivity(Intent(this, CustomerInformationActivity::class.java))
     }
 
     private fun initViews() {
@@ -336,7 +336,7 @@ class InputDeviceActivity : AppCompatActivity() {
             isBleServiceConnected = false
         }
     }
-    private val handler = Handler { msg: Message? ->
+    private val handler = Handler { _: Message? ->
         Toast.makeText(this, "Failed to connect to the torch device", Toast.LENGTH_SHORT).show()
         dismissDialog()
         false

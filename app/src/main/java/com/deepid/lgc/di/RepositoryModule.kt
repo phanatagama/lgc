@@ -1,6 +1,6 @@
 package com.deepid.lgc.di
 
-import com.deepid.lgc.data.network.MainNetwork
+import com.deepid.lgc.data.repository.network.MainNetwork
 import com.deepid.lgc.data.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named

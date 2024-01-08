@@ -1,23 +1,23 @@
-package com.deepid.lgc.ui.input
+package com.deepid.lgc.ui.customerInformation
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.deepid.lgc.R
-import com.deepid.lgc.databinding.ActivityInputBinding
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
+import com.deepid.lgc.domain.model.DataImage
+import com.deepid.lgc.domain.model.generateImagePlaceholder
 import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.util.Helpers
 import com.regula.documentreader.api.DocumentReader
@@ -31,13 +31,17 @@ import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
-class InputActivity : AppCompatActivity() {
-    private val inputViewModel: InputViewModel by viewModel()
-    private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
-    private lateinit var binding: ActivityInputBinding
+class CustomerInformationActivity : AppCompatActivity() {
+//    private val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+//    private val currentDateTime : String= LocalDateTime.now().format(formatter)
+//    private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
+    private val currentScenario: String = Scenario.SCENARIO_FULL_AUTH
+    private lateinit var binding: ActivityCustomerInformationBinding
+    private var selectedImage: DataImage = DataImage(1,null)
     private val rvAdapter: PhotoAdapter by lazy {
         PhotoAdapter()
     }
@@ -52,38 +56,24 @@ class InputActivity : AppCompatActivity() {
                 Helpers.PERMISSIONS_REQUEST_CAMERA
             )
         } else {
-            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(cameraIntent, RESULT_ADD_PHOTO)
+            takePhotoLauncher.launch(null)
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RESULT_ADD_PHOTO && resultCode == RESULT_OK) {
-            val photo = data?.extras!!["data"] as Bitmap?
-            if (photo != null) {
-                inputViewModel.addImage(photo)
+    private val takePhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { result ->
+            result?.let {
+                rvAdapter.updateList(selectedImage.copy(bitmap = it))
             }
         }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == Helpers.PERMISSIONS_REQUEST_CAMERA && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "onRequestPermissionsResult: permission is granted")
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityInputBinding.inflate(layoutInflater)
+        binding = ActivityCustomerInformationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         observe()
         bindViews()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Request camera permissions
         if (allPermissionsGranted()) {
             if (documentResults == null) {
@@ -121,6 +111,7 @@ class InputActivity : AppCompatActivity() {
                     "Permission request denied",
                     Toast.LENGTH_SHORT
                 ).show()
+                finish()
             } else {
                 takePhoto()
             }
@@ -128,16 +119,26 @@ class InputActivity : AppCompatActivity() {
 
     private fun bindViews() {
         with(binding) {
+//            issueTitleTv.text = currentDateTime
             rvPhoto.layoutManager =
-                LinearLayoutManager(this@InputActivity, LinearLayoutManager.HORIZONTAL, false)
+                GridLayoutManager(this@CustomerInformationActivity, 2)
             rvPhoto.adapter = rvAdapter
-            btnAdd.setOnClickListener {
-                if (documentResults == null) {
+            rvAdapter.submitList(generateImagePlaceholder)
+            rvAdapter.listener = object : PhotoAdapter.OnItemClickListener {
+                override fun onItemClickListener(view: View, dataImage: DataImage) {
+                    selectedImage = dataImage
+                    if (dataImage.bitmap != null) {
+                        Toast.makeText(
+                            this@CustomerInformationActivity,
+                            "Grid ${dataImage.id} was filled",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return
+                    }
                     takePhoto()
-                } else {
-                    showScanner()
                 }
             }
+            ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
         }
         insertOpticalImage(documentResults)
     }
@@ -149,9 +150,8 @@ class InputActivity : AppCompatActivity() {
             ?: documentReaderResults?.getGraphicFieldImageByType(
                 eGraphicFieldType.GF_DOCUMENT_IMAGE
             )
-        userPhoto?.let { inputViewModel.addImage(it) }
+//        userPhoto?.let { customerInformationViewModel.addImage(it) }
     }
-
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE
@@ -176,29 +176,7 @@ class InputActivity : AppCompatActivity() {
             }
             if (results?.chipPage != 0) {
                 Log.d(InputDeviceActivity.TAG, "DEBUGX RFID IS PERFORMED: ")
-                DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
-                    override fun onChipDetected() {
-                        Log.d("Rfid", "Chip detected")
-                    }
-
-                    override fun onProgress(notification: DocumentReaderNotification) {
-//                        rfidProgress(notification.code, notification.value)
-                    }
-
-                    override fun onRetryReadChip(exception: DocReaderRfidException) {
-                        Log.d("Rfid", "Retry with error: " + exception.errorCode)
-                    }
-
-                    override fun onCompleted(
-                        rfidAction: Int,
-                        results_RFIDReader: DocumentReaderResults?,
-                        error: DocumentReaderException?
-                    ) {
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                            // TODO: show result here
-                        }
-                    }
-                })
+                DocumentReader.Instance().startRFIDReader(this, rfidCompletion)
             } else {
                 Log.d(InputDeviceActivity.TAG, "[DEBUGX] NO RFID PERFORMED ")
                 /**
@@ -218,10 +196,34 @@ class InputActivity : AppCompatActivity() {
         }
     }
 
+    private val rfidCompletion = object : IRfidReaderCompletion() {
+        override fun onChipDetected() {
+            Log.d("Rfid", "Chip detected")
+        }
+
+        override fun onProgress(notification: DocumentReaderNotification) {
+//            rfidProgress(notification.code, notification.value)
+        }
+
+        override fun onRetryReadChip(exception: DocReaderRfidException) {
+            Log.d("Rfid", "Retry with error: " + exception.errorCode)
+        }
+
+        override fun onCompleted(
+            rfidAction: Int,
+            resultsRFIDReader: DocumentReaderResults?,
+            error: DocumentReaderException?
+        ) {
+            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                // TODO: show result here
+            }
+        }
+    }
+
     private fun showScanner() {
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
-            .showScanner(this@InputActivity, scannerConfig, completion)
+            .showScanner(this@CustomerInformationActivity, scannerConfig, completion)
     }
 
     override fun onDestroy() {
@@ -230,23 +232,12 @@ class InputActivity : AppCompatActivity() {
     }
 
     private fun observe() {
-        inputViewModel.images.observe(this) { data ->
-            if (data != null) {
-                rvAdapter.submitList(data.mapIndexed { index, it -> DataImage(index, it) })
-            }
-        }
-        inputViewModel.count.observe(this) { it ->
-            with(binding) {
-                btnAdd.isEnabled = it < 10
-                btnAdd.text = getString(R.string.add_image, it)
-            }
-        }
+        // TODO: observe view model LiveData/Flow here
     }
 
     companion object {
-        const val TAG = "InputActivity"
-        const val RESULT_ADD_PHOTO = 101
         var documentResults: DocumentReaderResults? = null
+        private const val TAG = "InputActivity"
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA

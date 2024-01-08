@@ -24,7 +24,7 @@ import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityMainBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.common.RecyclerAdapter
-import com.deepid.lgc.ui.input.InputActivity
+import com.deepid.lgc.ui.customerInformation.CustomerInformationActivity
 import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
@@ -358,8 +358,6 @@ class MainActivity : AppCompatActivity() {
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
-
-
     private fun recognizeImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
@@ -392,13 +390,13 @@ class MainActivity : AppCompatActivity() {
             btnCertificate.setOnClickListener {
                 recognizeImage()
             }
-            btnNormal.setOnClickListener {
-                startActivity(Intent(this@MainActivity, InputActivity::class.java))
+            btnVisible.setOnClickListener {
+                startActivity(Intent(this@MainActivity, CustomerInformationActivity::class.java))
             }
-            btnOptical.setOnClickListener {
+            btnInvisible.setOnClickListener {
                 startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))
             }
-            btnNormalOptical.setOnClickListener {  }
+            btnAuto.setOnClickListener {  }
         }
 
     }
@@ -433,8 +431,8 @@ class MainActivity : AppCompatActivity() {
                 btnChip.isEnabled = true
                 btnConnect.isEnabled = true
                 btnCertificate.isEnabled = true
-                btnNormal.isEnabled = true
-                btnOptical.isEnabled = true
+                btnVisible.isEnabled = true
+                btnInvisible.isEnabled = true
             }
         } else {
             with(binding.contentMain) {
@@ -443,9 +441,10 @@ class MainActivity : AppCompatActivity() {
                 btnChip.isEnabled = false
                 btnConnect.isEnabled = false
                 btnCertificate.isEnabled = false
-                btnNormal.isEnabled = false
-                btnOptical.isEnabled = false
-                btnNormalOptical.isEnabled = false
+                btnVisible.isEnabled = false
+                btnInvisible.isEnabled = false
+                btnAuto.isEnabled = false
+                btnPrescription.isEnabled = false
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.deepid.lgc.data.model
+package com.deepid.lgc.domain.model
 
 import android.graphics.Bitmap
 import java.io.Serializable

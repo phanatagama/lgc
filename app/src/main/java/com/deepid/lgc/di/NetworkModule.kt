@@ -1,10 +1,12 @@
 package com.deepid.lgc.di
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.deepid.lgc.BuildConfig
 import com.deepid.lgc.data.common.NetworkInterceptor
 import com.google.gson.GsonBuilder
+import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -29,13 +31,27 @@ fun provideRetrofit(client: OkHttpClient): Retrofit {
 }
 
 fun provideHttpClient(networkInterceptor: NetworkInterceptor, applicationContext: Context): OkHttpClient {
+//    val hostname = "beta-be.aizi.kr/api/mobile"
+//    val certificate = CertificatePinner.Builder()
+//        .add(hostname, "sha256/KrPP8OwXCuMt+NE42RM7btRgXsFF6ps8ynA0Rj62j0k=")
+//        .add(hostname, "sha256/jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=")
+//        .add(hostname, "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
+//        .build()
     return OkHttpClient.Builder().apply {
         addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-        addInterceptor(ChuckerInterceptor(applicationContext))
+        addInterceptor(
+            ChuckerInterceptor.Builder(applicationContext)
+                .collector(ChuckerCollector(applicationContext))
+                .maxContentLength(250000L)
+                .redactHeaders(emptySet())
+                .alwaysReadResponseBody(false)
+                .build()
+        )
         readTimeout(60, TimeUnit.SECONDS)
         writeTimeout(60, TimeUnit.SECONDS)
         connectTimeout(60, TimeUnit.SECONDS)
         addInterceptor(networkInterceptor)
+//        certificatePinner(certificate)
     }.build()
 }
 

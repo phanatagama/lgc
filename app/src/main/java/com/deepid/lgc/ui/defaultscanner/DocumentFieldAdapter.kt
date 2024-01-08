@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deepid.lgc.R
-import com.deepid.lgc.data.model.TextFieldAttribute
+import com.deepid.lgc.domain.model.TextFieldAttribute
 
 class DocumentFieldAdapter :
     ListAdapter<TextFieldAttribute, DocumentFieldAdapter.DocumentFieldViewHolder>(DiffCallback) {

@@ -3,10 +3,10 @@ package com.deepid.lgc.data.repository
 import android.util.Log
 import com.deepid.lgc.data.common.BaseResult
 import com.deepid.lgc.data.common.Failure
-import com.deepid.lgc.data.model.FileUploadRequest
-import com.deepid.lgc.data.model.FileUploadResponse
-import com.deepid.lgc.data.model.ImageUploadResponse
-import com.deepid.lgc.data.network.MainNetwork
+import com.deepid.lgc.data.repository.network.dto.FileUploadRequest
+import com.deepid.lgc.data.repository.network.dto.FileUploadResponse
+import com.deepid.lgc.data.repository.network.dto.ImageUploadResponse
+import com.deepid.lgc.data.repository.network.MainNetwork
 import com.deepid.lgc.data.serializeToMap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 class MainRepository(
@@ -62,15 +63,15 @@ class MainRepository(
             )
         }.flowOn(ioDispatcher)
 
-    override suspend fun uploadFile(photoFile: File): Flow<BaseResult<ImageUploadResponse, Failure>> =
+    override suspend fun uploadFile(file: File): Flow<BaseResult<ImageUploadResponse, Failure>> =
         flow {
             Log.d(TAG, "[DEBUGX] uploadFile: ")
             val requestBody: RequestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart(
                     "image",
-                    photoFile.name,
-                    RequestBody.create("image/*".toMediaTypeOrNull(), photoFile)
+                    file.name,
+                    file.asRequestBody("image/*".toMediaTypeOrNull())
                 )
                 .build()
             emit(

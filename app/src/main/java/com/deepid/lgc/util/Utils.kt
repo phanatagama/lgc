@@ -14,7 +14,7 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import com.deepid.lgc.R
-import com.deepid.lgc.data.model.TextFieldAttribute
+import com.deepid.lgc.domain.model.TextFieldAttribute
 import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
 import com.deepid.lgc.ui.main.ResultBottomSheet
 import com.deepid.lgc.util.Utils.resizeBitmap
@@ -125,10 +125,10 @@ object Utils {
     fun getRealPathFromURI(uri: Uri, context: Context): String {
         val returnCursor = context.contentResolver.query(uri, null, null, null, null)
         val nameIndex = returnCursor!!.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        val sizeIndex = returnCursor!!.getColumnIndex(OpenableColumns.SIZE)
-        returnCursor!!.moveToFirst()
-        val name = returnCursor!!.getString(nameIndex)
-        val size = java.lang.Long.toString(returnCursor!!.getLong(sizeIndex))
+        val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
+        returnCursor.moveToFirst()
+        val name = returnCursor.getString(nameIndex)
+        val size = returnCursor.getLong(sizeIndex).toString()
         val file = File(context.filesDir, name)
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
@@ -140,11 +140,11 @@ object Utils {
             //int bufferSize = 1024;
             val bufferSize = Math.min(bytesAvailable, maxBufferSize)
             val buffers = ByteArray(bufferSize)
-            while (inputStream!!.read(buffers).also { read = it } != -1) {
+            while (inputStream.read(buffers).also { read = it } != -1) {
                 outputStream.write(buffers, 0, read)
             }
             Log.e("File Size", "Size " + file.length())
-            inputStream!!.close()
+            inputStream.close()
             outputStream.close()
             Log.e("File Path", "Path " + file.path)
             Log.e("File Size", "Size " + file.length())

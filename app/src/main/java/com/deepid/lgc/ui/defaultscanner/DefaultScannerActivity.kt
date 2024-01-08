@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.deepid.lgc.data.model.TextFieldAttribute
+import com.deepid.lgc.domain.model.TextFieldAttribute
 import com.deepid.lgc.databinding.ActivityDefaultScannerBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.regula.documentreader.api.DocumentReader
@@ -119,7 +119,7 @@ class DefaultScannerActivity : AppCompatActivity() {
         Log.d(TAG, "[DEBUGX] updateRecyclerViews")
         if(attributes.isNotEmpty()){
             Log.d(TAG, "[DEBUGX] attribut is not empty")
-            rvAdapter.submitList(attributes as MutableList<TextFieldAttribute>)
+            rvAdapter.submitList(attributes)
             hideRecyclerView(false)
         }
     }
