@@ -36,8 +36,8 @@ import java.time.format.DateTimeFormatter
 
 
 class CustomerInformationActivity : AppCompatActivity() {
-//    private val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
-//    private val currentDateTime : String= LocalDateTime.now().format(formatter)
+    private val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+    private val currentDateTime : String= LocalDateTime.now().format(formatter)
 //    private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
     private val currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityCustomerInformationBinding
@@ -119,7 +119,7 @@ class CustomerInformationActivity : AppCompatActivity() {
 
     private fun bindViews() {
         with(binding) {
-//            issueTitleTv.text = currentDateTime
+            issueTv.text = currentDateTime
             rvPhoto.layoutManager =
                 GridLayoutManager(this@CustomerInformationActivity, 2)
             rvPhoto.adapter = rvAdapter
@@ -237,7 +237,6 @@ class CustomerInformationActivity : AppCompatActivity() {
 
     companion object {
         var documentResults: DocumentReaderResults? = null
-        private const val TAG = "InputActivity"
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA

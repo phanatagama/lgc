@@ -13,7 +13,7 @@ import com.deepid.lgc.domain.model.DataImage
 
 class PhotoAdapter :
     ListAdapter<DataImage, PhotoAdapter.PhotoAdapterViewHolder>(DiffCallback) {
-    var listener: OnItemClickListener? = null;
+    var listener: OnItemClickListener? = null
 
     interface OnItemClickListener {
         fun onItemClickListener(view: View, dataImage: DataImage)
@@ -24,6 +24,7 @@ class PhotoAdapter :
         fun bind(item: DataImage) {
             with(binding) {
                 item.bitmap?.let {
+                    addIcon.visibility = View.GONE
                     image.setImageBitmap(it)
                 }
             }

@@ -12,6 +12,7 @@ android {
         applicationId("com.regula.documentreader")
         multiDexEnabled(true)
         minSdk(21)
+        //noinspection OldTargetApi
         targetSdk(32)
         versionCode(1)
         versionName("1.0.6")
@@ -29,9 +30,10 @@ android {
     }
     buildFeatures{
         viewBinding(true)
+        buildConfig(true)
     }
     compileOptions {
-//        coreLibraryDesugaringEnabled(true)
+        coreLibraryDesugaringEnabled(true)
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -41,12 +43,12 @@ android {
 }
 
 dependencies {
-    def coroutine_version = "1.6.4"
+    def coroutine_version = "1.7.1"
     def retrofit_version = "2.9.0"
-    def okhttp_logging_version = "4.10.0"
+    def okhttp_logging_version = "4.11.0"
     def koin_version = "3.2.2"
     def koin_android_version= "3.3.0"
-//    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     // View
     implementation("androidx.core:core-ktx:1.8.0")
@@ -59,7 +61,7 @@ dependencies {
     implementation("com.regula.btdevice:api:1.0.+@aar")
     implementation("com.regula.documentreader.core:fullauthrfid:6.9.+@aar")
     implementation("com.regula.documentreader:api:6.9.+@aar") {
-        transitive = true;
+        transitive = true
     }
 
     // Regula Face SDK

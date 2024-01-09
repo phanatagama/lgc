@@ -25,6 +25,7 @@ import com.deepid.lgc.databinding.ActivityMainBinding
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.common.RecyclerAdapter
 import com.deepid.lgc.ui.customerInformation.CustomerInformationActivity
+import com.deepid.lgc.ui.customerInformation.search.SearchCustomerInformationActivity
 import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
@@ -397,6 +398,9 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))
             }
             btnAuto.setOnClickListener {  }
+            btnPrescription.setOnClickListener {
+                startActivity(Intent(this@MainActivity, SearchCustomerInformationActivity::class.java))
+            }
         }
 
     }
@@ -433,6 +437,7 @@ class MainActivity : AppCompatActivity() {
                 btnCertificate.isEnabled = true
                 btnVisible.isEnabled = true
                 btnInvisible.isEnabled = true
+                btnPrescription.isEnabled = true
             }
         } else {
             with(binding.contentMain) {
