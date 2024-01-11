@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -43,19 +44,14 @@ android {
 }
 
 dependencies {
-    def coroutine_version = "1.7.1"
-    def retrofit_version = "2.9.0"
-    def okhttp_logging_version = "4.11.0"
-    def koin_version = "3.2.2"
-    def koin_android_version= "3.3.0"
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$core_library_desugaring")
 
     // View
-    implementation("androidx.core:core-ktx:1.8.0")
-    implementation("androidx.appcompat:appcompat:1.5.0")
-    implementation("com.google.android.material:material:1.8.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.core:core-ktx:$core_ktx")
+    implementation("androidx.appcompat:appcompat:$appcompat")
+    implementation("com.google.android.material:material:$material")
+    implementation("androidx.constraintlayout:constraintlayout:$constraintlayout")
+    implementation("androidx.viewpager2:viewpager2:$viewpager2")
 
     // Regula Document Reader SDK
     implementation("com.regula.btdevice:api:1.0.+@aar")
@@ -71,19 +67,25 @@ dependencies {
     implementation ("com.regula.face:core:5.2.+@aar")
 
     // Coroutine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
 
     // Networking
-    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
-    implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
-    implementation("com.squareup.okhttp3:logging-interceptor:$okhttp_logging_version")
-    // Chucker
-    debugImplementation("com.github.chuckerteam.chucker:library:3.5.2")
-    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okhttp_loggingVersion")
+    // Chuck
+    debugImplementation("com.github.chuckerteam.chucker:library:$chuck")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:$chuck")
 
     // Dependency Injection
-    implementation("io.insert-koin:koin-core:$koin_version")
-    implementation("io.insert-koin:koin-android:$koin_android_version")
-    implementation("io.insert-koin:koin-androidx-navigation:$koin_android_version")
+    implementation("io.insert-koin:koin-core:$koinVersion")
+    implementation("io.insert-koin:koin-android:$koin_androidVersion")
+    implementation("io.insert-koin:koin-androidx-navigation:$koin_androidVersion")
+
+    // Room
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+    ksp "androidx.room:room-compiler:$room_version"
 }
