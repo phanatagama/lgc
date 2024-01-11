@@ -114,7 +114,8 @@ class MainActivity : AppCompatActivity() {
                     "[DEBUGX] DocReaderAction is Timeout: ${action == DocReaderAction.TIMEOUT} "
                 )
                 scannerViewModel.setDocumentReaderResults(results)
-                ScanResultActivity.documentResults = results
+//                ScanResultActivity.documentResults = results
+                CustomerInformationActivity.documentResults = results
             }
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
                 Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
@@ -215,10 +216,13 @@ class MainActivity : AppCompatActivity() {
         DocumentReader.Instance().functionality().edit()
             .setBtDeviceName("Regula 0326")
             .setShowCaptureButton(true)
+            .setShowTorchButton(true)
             .setShowCaptureButtonDelayFromStart(0)
             .setShowCaptureButtonDelayFromDetect(0)
             .setCaptureMode(CaptureMode.AUTO)
             .setDisplayMetadata(true)
+            .setPictureOnBoundsReady(true)
+            .setCameraMode(2)
             .apply()
     }
 
@@ -348,7 +352,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        startActivity(Intent(this, ScanResultActivity::class.java))
+//        startActivity(Intent(this, ScanResultActivity::class.java))
+        startActivity(Intent(this, CustomerInformationActivity::class.java))
     }
 
     private fun createImageBrowsingRequest() {
@@ -397,7 +402,9 @@ class MainActivity : AppCompatActivity() {
             btnInvisible.setOnClickListener {
                 startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))
             }
-            btnAuto.setOnClickListener {  }
+            btnAuto.setOnClickListener {
+                showScanner()
+            }
             btnPrescription.setOnClickListener {
                 startActivity(Intent(this@MainActivity, SearchCustomerInformationActivity::class.java))
             }
@@ -437,6 +444,7 @@ class MainActivity : AppCompatActivity() {
                 btnCertificate.isEnabled = true
                 btnVisible.isEnabled = true
                 btnInvisible.isEnabled = true
+//                btnAuto.isEnabled = true
                 btnPrescription.isEnabled = true
             }
         } else {

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.deepid.lgc.data.common.toDateString
 import com.deepid.lgc.databinding.RvItemCustomerInformationBinding
 import com.deepid.lgc.domain.model.CustomerInformation
 
@@ -12,12 +13,16 @@ class CustomerInformationAdapter :
     ListAdapter<CustomerInformation, CustomerInformationAdapter.ViewHolder>(
         DiffCallback
     ) {
-    inner class ViewHolder(private val binding: RvItemCustomerInformationBinding) :
+    interface OnItemClickListener {
+        fun onItemClickListener(view: RvItemCustomerInformationBinding, customerInformation: CustomerInformation)
+    }
+    var listener: OnItemClickListener? = null
+    inner class ViewHolder(val binding: RvItemCustomerInformationBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(customerInformation: CustomerInformation) {
             with(binding){
                 titleTv.text = customerInformation.name
-                issueTv.text = customerInformation.issueDate
+                issueTv.text = customerInformation.issueDate.toDateString()
                 addressTv.text = customerInformation.address
             }
         }
@@ -50,5 +55,8 @@ class CustomerInformationAdapter :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
+        holder.binding.root.setOnClickListener {
+            listener?.onItemClickListener(holder.binding, getItem(position))
+        }
     }
 }

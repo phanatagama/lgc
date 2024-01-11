@@ -3,10 +3,13 @@ package com.deepid.lgc.data.repository
 import android.util.Log
 import com.deepid.lgc.data.common.BaseResult
 import com.deepid.lgc.data.common.Failure
+import com.deepid.lgc.data.repository.local.dao.AppRoomDatabase
+import com.deepid.lgc.data.repository.local.dao.CustomerInformationDao
+import com.deepid.lgc.data.repository.local.dao.DataImageDao
+import com.deepid.lgc.data.repository.network.MainNetwork
 import com.deepid.lgc.data.repository.network.dto.FileUploadRequest
 import com.deepid.lgc.data.repository.network.dto.FileUploadResponse
 import com.deepid.lgc.data.repository.network.dto.ImageUploadResponse
-import com.deepid.lgc.data.repository.network.MainNetwork
 import com.deepid.lgc.data.serializeToMap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -20,50 +23,51 @@ import java.io.File
 
 class MainRepository(
     private val ioDispatcher: CoroutineDispatcher,
-    private val mainNetwork: MainNetwork
+    private val mainNetwork: MainNetwork,
+    private val customerInformationDao: CustomerInformationDao,
+    private val dataImageDao: DataImageDao
 ) : IMainRepository {
-    override suspend fun getUploadUrls(
+    override fun getUploadUrls(
         fileUploadRequest: FileUploadRequest,
         fileRequestBody: RequestBody
     ): Flow<BaseResult<FileUploadResponse, Failure>> =
         flow {
-            emit(
-                try {
-                    val response =
-                        mainNetwork.getUploadUrls(fileUploadRequest.serializeToMap() as Map<String, String>)
-                    if (response.isSuccessful) {
-                        Log.d(TAG, "getUploadUrls: ${response.body()?.first()?.path}")
-                        response.body()?.first()?.url?.let {
-                            Log.d(
-                                TAG,
-                                "getUploadUrls:${response.body()?.first()?.path?.substring(22)} "
-                            )
-                            mainNetwork.uploadFile(
-                                uploadUrl = it,
-                                headers = mapOf(
-                                    "Content-Type" to fileUploadRequest.mimeType,
-                                    "Content-Length" to fileUploadRequest.fileLength.toString()
-                                ),
-                                file = fileRequestBody
-                            )
-                            it
-                        }
-                        BaseResult.Success(FileUploadResponse(response.body()))
-                    } else {
-                        Log.e(
+            try {
+                val response =
+                    mainNetwork.getUploadUrls(fileUploadRequest.serializeToMap() as Map<String, String>)
+                if (response.isSuccessful) {
+                    Log.d(TAG, "getUploadUrls: ${response.body()?.first()?.path}")
+                    response.body()?.first()?.url?.let {
+                        Log.d(
                             TAG,
-                            "getUploadUrls: ${response.code()},${response.body()},${response}"
+                            "getUploadUrls:${response.body()?.first()?.path?.substring(22)} "
                         )
-                        BaseResult.Error(Failure(response.code(), response.message()))
+                        mainNetwork.uploadFile(
+                            uploadUrl = it,
+                            headers = mapOf(
+                                "Content-Type" to fileUploadRequest.mimeType,
+                                "Content-Length" to fileUploadRequest.fileLength.toString()
+                            ),
+                            file = fileRequestBody
+                        )
+                        it
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "getUploadUrls: $e")
-                    BaseResult.Error(Failure(-1, e.message.toString()))
+                    emit(BaseResult.Success(FileUploadResponse(response.body())))
+                } else {
+                    Log.e(
+                        TAG,
+                        "getUploadUrls: ${response.code()},${response.body()},${response}"
+                    )
+                    emit(BaseResult.Error(Failure(response.code(), response.message())))
                 }
-            )
+            } catch (e: Exception) {
+                Log.e(TAG, "getUploadUrls: $e")
+                emit(BaseResult.Error(Failure(-1, e.message.toString())))
+            }
+
         }.flowOn(ioDispatcher)
 
-    override suspend fun uploadFile(file: File): Flow<BaseResult<ImageUploadResponse, Failure>> =
+    override fun uploadFile(file: File): Flow<BaseResult<ImageUploadResponse, Failure>> =
         flow {
             Log.d(TAG, "[DEBUGX] uploadFile: ")
             val requestBody: RequestBody = MultipartBody.Builder()
@@ -74,25 +78,24 @@ class MainRepository(
                     file.asRequestBody("image/*".toMediaTypeOrNull())
                 )
                 .build()
-            emit(
-                try {
-                    val result = mainNetwork.uploadImage(
-                        "https://logichain-image-server-002a7a2fcab2.herokuapp.com/image",
-                        requestBody
-                    )
-                    if (result.isSuccessful) {
-                        Log.d(TAG, "[DEBUGX] uploadFile: Success upload", )
-                        BaseResult.Success(result.body() as ImageUploadResponse)
-                    } else {
-                        Log.e(TAG, "[DEBUGX] uploadFile: Failed upload from server", )
-                        BaseResult.Error(Failure(result.code(), result.message()))
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "[DEBUGX] uploadFile: Failed upload", )
-                    BaseResult.Error(Failure(-1, e.message.toString()))
+            try {
+                val result = mainNetwork.uploadImage(
+                    "https://logichain-image-server-002a7a2fcab2.herokuapp.com/image",
+                    requestBody
+                )
+                if (result.isSuccessful) {
+                    Log.d(TAG, "[DEBUGX] uploadFile: Success upload")
+                    emit(BaseResult.Success(result.body() as ImageUploadResponse))
+                } else {
+                    Log.e(TAG, "[DEBUGX] uploadFile: Failed upload from server")
+                    emit(BaseResult.Error(Failure(result.code(), result.message())))
                 }
-            )
-        }
+            } catch (e: Exception) {
+                Log.e(TAG, "[DEBUGX] uploadFile: Failed upload")
+                emit(BaseResult.Error(Failure(-1, e.message.toString())))
+            }
+
+        }.flowOn(ioDispatcher)
 
 
     companion object {
@@ -102,10 +105,10 @@ class MainRepository(
 }
 
 interface IMainRepository {
-    suspend fun getUploadUrls(
+    fun getUploadUrls(
         fileUploadRequest: FileUploadRequest,
         fileRequestBody: RequestBody
     ): Flow<BaseResult<FileUploadResponse, Failure>>
 
-    suspend fun uploadFile(file: File): Flow<BaseResult<ImageUploadResponse, Failure>>
+    fun uploadFile(file: File): Flow<BaseResult<ImageUploadResponse, Failure>>
 }

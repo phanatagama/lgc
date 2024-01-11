@@ -1,12 +1,10 @@
 package com.deepid.lgc.ui.customerInformation
 
 import android.Manifest
+import android.app.DatePickerDialog
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,33 +13,34 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
+import com.deepid.lgc.data.common.toDate
 import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
 import com.deepid.lgc.domain.model.DataImage
 import com.deepid.lgc.domain.model.generateImagePlaceholder
-import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.util.Helpers
+import com.deepid.lgc.util.Utils.saveToGallery
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
-import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
-import com.regula.documentreader.api.errors.DocReaderRfidException
-import com.regula.documentreader.api.errors.DocumentReaderException
-import com.regula.documentreader.api.results.DocumentReaderNotification
+import com.regula.documentreader.api.enums.eRPRM_Lights
+import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.results.DocumentReaderResults
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
 class CustomerInformationActivity : AppCompatActivity() {
     private val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
-    private val currentDateTime : String= LocalDateTime.now().format(formatter)
-//    private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
+    private var birthDate = LocalDateTime.now()
+    private var issueDate = LocalDateTime.now()
+    private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
     private val currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityCustomerInformationBinding
-    private var selectedImage: DataImage = DataImage(1,null)
+    private var selectedImage: DataImage = generateImagePlaceholder.first()
     private val rvAdapter: PhotoAdapter by lazy {
         PhotoAdapter()
     }
@@ -75,13 +74,38 @@ class CustomerInformationActivity : AppCompatActivity() {
         bindViews()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Request camera permissions
-        if (allPermissionsGranted()) {
-            if (documentResults == null) {
+        if (documentResults == null) {
+            if (allPermissionsGranted()) {
                 takePhoto()
+            } else {
+                requestPermissions()
             }
         } else {
-            requestPermissions()
+            insertOpticalImage(documentResults)
         }
+    }
+
+    private fun saveCustomerInformation() {
+        with(binding) {
+            if (titleTv.text.isNullOrEmpty() || addressTv.text.isNullOrEmpty() || issueTv.text.isNullOrEmpty() || birthDateTv.text.isNullOrEmpty() || !rvAdapter.currentList.any { it.bitmap != null }) {
+                Toast.makeText(
+                    this@CustomerInformationActivity,
+                    "Please fill all fields",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+            customerInformationViewModel.addImage(rvAdapter.currentList.filter { it.bitmap != null }
+                .map { it.copy(path = it.bitmap?.saveToGallery(this@CustomerInformationActivity)) })
+            customerInformationViewModel.insertCustomerInformation(
+                titleTv.text.toString(),
+                addressTv.text.toString(),
+                issueTv.text.toString().toDate(),
+                birthDateTv.text.toString().toDate(),
+            )
+            finish()
+        }
+
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -117,30 +141,79 @@ class CustomerInformationActivity : AppCompatActivity() {
             }
         }
 
+
     private fun bindViews() {
         with(binding) {
-            issueTv.text = currentDateTime
-            rvPhoto.layoutManager =
-                GridLayoutManager(this@CustomerInformationActivity, 2)
-            rvPhoto.adapter = rvAdapter
-            rvAdapter.submitList(generateImagePlaceholder)
-            rvAdapter.listener = object : PhotoAdapter.OnItemClickListener {
-                override fun onItemClickListener(view: View, dataImage: DataImage) {
-                    selectedImage = dataImage
-                    if (dataImage.bitmap != null) {
-                        Toast.makeText(
-                            this@CustomerInformationActivity,
-                            "Grid ${dataImage.id} was filled",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return
-                    }
+            issueTv.text = issueDate.format(formatter)
+            issueTv.setOnClickListener {
+                val datePickerDialog = DatePickerDialog(
+                    this@CustomerInformationActivity,
+                    { _, year, month, dayOfMonth ->
+                        val date = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0)
+                        issueTv.text = date.format(formatter)
+                        issueDate = date
+                    },
+                    issueDate.year,
+                    issueDate.monthValue - 1,
+                    issueDate.dayOfMonth
+                )
+                datePickerDialog.show()
+                return@setOnClickListener
+            }
+            birthDateTv.text = birthDate.format(formatter)
+            birthDateTv.setOnClickListener {
+                val datePickerDialog = DatePickerDialog(
+                    this@CustomerInformationActivity,
+                    { _, year, month, dayOfMonth ->
+                        val date = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0)
+                        birthDateTv.text = date.format(formatter)
+                        birthDate = date
+                    },
+                    birthDate.year,
+                    birthDate.monthValue - 1,
+                    birthDate.dayOfMonth
+                )
+                datePickerDialog.show()
+                return@setOnClickListener
+            }
+            btnSend.isEnabled = true
+            btnSend.setOnClickListener {
+                saveCustomerInformation()
+            }
+            setupRecyclerView()
+        }
+    }
+
+    /** Setup recyclerview
+     * 1. Setup layout manager
+     * 2. Setup adapter
+     * 3. Setup listener
+     * 4. Setup nested scrolling
+     */
+    private fun ActivityCustomerInformationBinding.setupRecyclerView() {
+        rvPhoto.layoutManager =
+            GridLayoutManager(this@CustomerInformationActivity, 2)
+        rvPhoto.adapter = rvAdapter
+        rvAdapter.submitList(generateImagePlaceholder)
+        rvAdapter.listener = object : PhotoAdapter.OnItemClickListener {
+            override fun onItemClickListener(view: View, dataImage: DataImage) {
+                selectedImage = dataImage
+                if (dataImage.bitmap != null) {
+                    Toast.makeText(
+                        this@CustomerInformationActivity,
+                        "Grid ${dataImage.id} was filled",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return
+                }
+                if (documentResults == null) {
                     takePhoto()
+                } else {
+                    showScanner()
                 }
             }
-            ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
         }
-        insertOpticalImage(documentResults)
+        ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
     }
 
     private fun insertOpticalImage(documentReaderResults: DocumentReaderResults?) {
@@ -150,8 +223,22 @@ class CustomerInformationActivity : AppCompatActivity() {
             ?: documentReaderResults?.getGraphicFieldImageByType(
                 eGraphicFieldType.GF_DOCUMENT_IMAGE
             )
-//        userPhoto?.let { customerInformationViewModel.addImage(it) }
+            // use raw image if UV image is not available
+            ?: documentReaderResults?.getGraphicFieldImageByType(
+                eGraphicFieldType.GF_PORTRAIT,
+                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+                0,
+                eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
+            )
+            ?: documentReaderResults?.getGraphicFieldImageByType(
+                eGraphicFieldType.GF_DOCUMENT_IMAGE,
+                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            )
+        userPhoto?.let {
+            rvAdapter.updateList(selectedImage.copy(bitmap = it))
+        }
     }
+
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE
@@ -160,62 +247,15 @@ class CustomerInformationActivity : AppCompatActivity() {
             if (results != null) {
                 documentResults = results
                 insertOpticalImage(results)
-            }
-            if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                Log.d(InputDeviceActivity.TAG, "[DEBUGX] MULTIPAGEMODE: ")
-                if (results?.morePagesAvailable != 0) {
-                    DocumentReader.Instance().startNewPage()
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        showScanner()
-                    }, 100)
-                    return@IDocumentReaderCompletion
-                } else {
-                    DocumentReader.Instance().functionality().edit().setManualMultipageMode(false)
-                        .apply()
-                }
-            }
-            if (results?.chipPage != 0) {
-                Log.d(InputDeviceActivity.TAG, "DEBUGX RFID IS PERFORMED: ")
-                DocumentReader.Instance().startRFIDReader(this, rfidCompletion)
             } else {
-                Log.d(InputDeviceActivity.TAG, "[DEBUGX] NO RFID PERFORMED ")
-                /**
-                 * perform @livenessFace or @captureFace then check similarity
-                 */
+                Toast.makeText(this, "DocReaderSDK has been failed to identify", Toast.LENGTH_LONG)
+                    .show()
             }
         } else {
             if (action == DocReaderAction.CANCEL) {
-                if (DocumentReader.Instance().functionality().isManualMultipageMode)
-                    DocumentReader.Instance().functionality().edit().setManualMultipageMode(false)
-                        .apply()
-
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private val rfidCompletion = object : IRfidReaderCompletion() {
-        override fun onChipDetected() {
-            Log.d("Rfid", "Chip detected")
-        }
-
-        override fun onProgress(notification: DocumentReaderNotification) {
-//            rfidProgress(notification.code, notification.value)
-        }
-
-        override fun onRetryReadChip(exception: DocReaderRfidException) {
-            Log.d("Rfid", "Retry with error: " + exception.errorCode)
-        }
-
-        override fun onCompleted(
-            rfidAction: Int,
-            resultsRFIDReader: DocumentReaderResults?,
-            error: DocumentReaderException?
-        ) {
-            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                // TODO: show result here
             }
         }
     }
@@ -227,8 +267,8 @@ class CustomerInformationActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         documentResults = null
+        super.onDestroy()
     }
 
     private fun observe() {

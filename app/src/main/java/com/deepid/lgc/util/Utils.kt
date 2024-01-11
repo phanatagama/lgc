@@ -14,6 +14,8 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import com.deepid.lgc.R
+import com.deepid.lgc.data.repository.local.entity.CustomerInformationEntity
+import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.TextFieldAttribute
 import com.deepid.lgc.ui.defaultscanner.DefaultScannerActivity
 import com.deepid.lgc.ui.main.ResultBottomSheet
@@ -60,8 +62,9 @@ object Utils {
         return license
     }
 
-    fun saveToGallery(context: Context?, bitmap: Bitmap) {
+    fun Bitmap.saveToGallery(context: Context?) :  String{
         val filename = "${UUID.randomUUID()}.jpg"
+        var path: String = ""
         //Output stream
         var fos: OutputStream? = null
 
@@ -84,6 +87,7 @@ object Utils {
 
                 //Opening an outputstream with the Uri that we got
                 fos = imageUri?.let { resolver.openOutputStream(it) }
+                path = imageUri?.path.toString()
             }
         } else {
             //These for devices running on android < Q
@@ -92,17 +96,19 @@ object Utils {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             val image = File(imagesDir, filename)
             fos = FileOutputStream(image)
+            path = image.path.toString()
         }
 
         fos?.use {
             //Finally writing the bitmap to the output stream that we opened
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            this.compress(Bitmap.CompressFormat.JPEG, 100, it)
             Toast.makeText(
                 context,
                 "Image Save to Gallery",
                 Toast.LENGTH_LONG
             ).show()
         }
+        return path
 //        val wrapper = ContextWrapper(context)
 //        var file = wrapper.getDir("Images", Context.MODE_PRIVATE)
 //        file = File(file, "${UUID.randomUUID()}.jpg")
@@ -189,6 +195,11 @@ object Utils {
     }
 }
 
+fun List<CustomerInformationEntity>.mapToModel(): List<CustomerInformation> {
+    return map {
+        it.mapToModel()
+    }
+}
 fun File.mimeType(): String? =
     MimeTypeMap.getSingleton().getMimeTypeFromExtension(this.extension)
 
@@ -218,7 +229,7 @@ fun getValidity(
             return validity.status
     }
 
-    return eCheckResult.CH_CHECK_WAS_NOT_DONE;
+    return eCheckResult.CH_CHECK_WAS_NOT_DONE
 }
 
 fun DocumentReaderResults.toParcelable(

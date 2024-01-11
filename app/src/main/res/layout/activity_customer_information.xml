@@ -12,8 +12,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:paddingVertical="16dp"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingVertical="16dp">
 
         <View
             android:id="@+id/top_divider"
@@ -25,31 +25,43 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/title_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="36dp"
+            android:background="@drawable/shape_rounded"
+            android:backgroundTint="@color/grey10"
             android:ellipsize="end"
+            android:hint="@string/customer_name"
             android:maxLines="2"
-            android:text="@string/customer_name"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
             android:textColor="@color/white"
-            android:textSize="24sp"
+            android:textColorHint="@color/facesdk_grey"
+            android:textSize="32sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/top_divider" />
 
-        <TextView
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/detail_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/shape_rounded"
+            android:backgroundTint="@color/grey10"
             android:ellipsize="end"
+            android:hint="@string/customer_detail"
+            android:maxLength="500"
             android:maxLines="1"
-            android:text="@string/customer_detail"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textColorHint="@color/facesdk_grey"
+            android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="@id/title_tv"
             app:layout_constraintStart_toStartOf="@id/title_tv"
             app:layout_constraintTop_toBottomOf="@id/title_tv" />
@@ -71,66 +83,84 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
+            android:shrinkColumns="*"
             android:stretchColumns="*"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/middle_divider">
 
             <TableRow
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/birth_date_title_tv"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:padding="3dip"
                     android:text="@string/birth_date"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="16sp" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/birth_date_tv"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:padding="3dip"
                     android:text="@string/birth_date_value"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="16sp" />
             </TableRow>
 
             <TableRow
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/address_title_tv"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:padding="3dip"
                     android:text="@string/address"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="16sp" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/address_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@android:color/transparent"
+                    android:ellipsize="end"
+                    android:hint="@string/address_value"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="160"
+                    android:maxLines="4"
                     android:padding="3dip"
-                    android:text="@string/address_value"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textColorHint="@color/facesdk_grey"
+                    android:textSize="16sp" />
             </TableRow>
 
             <TableRow
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/issue_title_tv"
+                    android:layout_width="0dp"
                     android:padding="3dip"
                     android:text="@string/issue_date"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="16sp" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/issue_tv"
+                    android:layout_width="0dp"
                     android:padding="3dip"
                     android:text="@string/birth_date_value"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="16sp" />
             </TableRow>
 
 
@@ -150,6 +180,7 @@
             app:layout_constraintTop_toBottomOf="@id/tableLayout"
             app:spanCount="2"
             tools:listitem="@layout/rv_item_image" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_send"
             android:layout_width="0dp"

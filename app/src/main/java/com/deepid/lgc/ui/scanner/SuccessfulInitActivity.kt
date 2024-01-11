@@ -65,12 +65,12 @@ class SuccessfulInitActivity : AppCompatActivity() {
                             object : IRfidReaderCompletion() {
                                 override fun onCompleted(
                                     rfidAction: Int,
-                                    results_RFIDReader: DocumentReaderResults?,
+                                    resultsRFIDReader: DocumentReaderResults?,
                                     error: DocumentReaderException?
                                 ) {
                                     if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                         scannerViewModel.setDocumentReaderResults(
-                                            results_RFIDReader ?: results
+                                            resultsRFIDReader ?: results
                                         )
                                         captureFace()
                                         showGraphicFieldImage(results)

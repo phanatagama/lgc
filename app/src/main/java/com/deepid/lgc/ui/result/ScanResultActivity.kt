@@ -13,6 +13,7 @@ import com.deepid.lgc.databinding.ActivityScanResultBinding
 import com.deepid.lgc.ui.defaultscanner.DocumentFieldAdapter
 import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Utils
+import com.deepid.lgc.util.Utils.saveToGallery
 import com.deepid.lgc.util.toParcelable
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
@@ -67,10 +68,9 @@ class ScanResultActivity : AppCompatActivity() {
         }
         val parcelableTextField =
             documentResults?.toParcelable(this) as DocumentReaderResultsParcel?
-        userPhoto?.let { Utils.saveToGallery(this, it) }
-        rawImage?.let {
-            Utils.saveToGallery(this, it)
-        }
+        userPhoto?.saveToGallery(this)
+        rawImage?.saveToGallery(this)
+
         val uvImage = documentResults?.getGraphicFieldByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE,
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
@@ -119,7 +119,7 @@ class ScanResultActivity : AppCompatActivity() {
     private fun matchFaces(first: Bitmap, second: Bitmap) {
         val firstImage = MatchFacesImage(first, ImageType.DOCUMENT_WITH_LIVE, true)
         val secondImage = MatchFacesImage(second, ImageType.LIVE, true)
-        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage));
+        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage))
         FaceSDK.Instance().matchFaces(matchFacesRequest) { matchFacesResponse: MatchFacesResponse ->
             val split = MatchFacesSimilarityThresholdSplit(matchFacesResponse.results, 0.75)
             with(binding) {

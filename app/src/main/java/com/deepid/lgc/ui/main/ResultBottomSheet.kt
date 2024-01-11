@@ -62,15 +62,15 @@ class ResultBottomSheet : DialogFragment() {
 
     override fun show(manager: FragmentManager, tag: String?) {
         try {
-            val ft = manager?.beginTransaction()
+            val ft = manager.beginTransaction()
             val prev: Fragment? = manager.findFragmentByTag(TAG)
             if (prev != null) {
                 Log.d(TAG, "showFragment: remove prev...." + prev.javaClass.name)
-                ft?.remove(prev)
+                ft.remove(prev)
             }
             manager.executePendingTransactions()
-            ft?.add(this, tag)
-            ft?.commitAllowingStateLoss()
+            ft.add(this, tag)
+            ft.commitAllowingStateLoss()
         } catch (ignored: IllegalStateException) {
 
         }
@@ -99,7 +99,7 @@ class ResultBottomSheet : DialogFragment() {
     private fun matchFaces(first: Bitmap, second: Bitmap) {
         val firstImage = MatchFacesImage(first, ImageType.DOCUMENT_WITH_LIVE, true)
         val secondImage = MatchFacesImage(second, ImageType.LIVE, true)
-        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage));
+        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage))
         FaceSDK.Instance().matchFaces(matchFacesRequest) { matchFacesResponse: MatchFacesResponse ->
             val split = MatchFacesSimilarityThresholdSplit(matchFacesResponse.results, 0.75)
             with(binding) {
@@ -184,10 +184,9 @@ class ResultBottomSheet : DialogFragment() {
         val parcelableTextField =
             results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
         showUvImage(results)
-        image?.let { saveToGallery(requireActivity(), it) }
-        rawImage?.let {
-            saveToGallery(requireActivity(), it)
-        }
+        image?.saveToGallery(requireActivity())
+        rawImage?.saveToGallery(requireActivity())
+
 
         with(binding) {
             titleTv.text = name
@@ -231,7 +230,7 @@ class ResultBottomSheet : DialogFragment() {
             Log.d(TAG, "Resized UV Bitmap: $resizedBitmap")
             binding.uvImageIv.visibility = View.VISIBLE
             binding.uvImageIv.setImageBitmap(resizedBitmap)
-            saveToGallery(requireActivity(),resizedBitmap!!)
+            resizedBitmap!!.saveToGallery(requireActivity())
         } else {
             Log.d(TAG, "UV Graphic Field or Bitmap is null")
         }

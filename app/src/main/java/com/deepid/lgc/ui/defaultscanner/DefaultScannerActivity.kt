@@ -136,7 +136,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                 return validity.status
         }
 
-        return eCheckResult.CH_CHECK_WAS_NOT_DONE;
+        return eCheckResult.CH_CHECK_WAS_NOT_DONE
     }
 
     @Transient
@@ -270,7 +270,7 @@ class DefaultScannerActivity : AppCompatActivity() {
     private fun matchFaces(first: Bitmap, second: Bitmap) {
         val firstImage = MatchFacesImage(first, ImageType.DOCUMENT_WITH_LIVE, true)
         val secondImage = MatchFacesImage(second, ImageType.LIVE, true)
-        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage));
+        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage))
         FaceSDK.Instance().matchFaces(matchFacesRequest) { matchFacesResponse: MatchFacesResponse ->
             val split = MatchFacesSimilarityThresholdSplit(matchFacesResponse.results, 0.75)
             with(binding) {
