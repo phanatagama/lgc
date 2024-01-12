@@ -397,7 +397,9 @@ class MainActivity : AppCompatActivity() {
                 recognizeImage()
             }
             btnVisible.setOnClickListener {
-                startActivity(Intent(this@MainActivity, CustomerInformationActivity::class.java))
+                val visibleIntent = Intent(this@MainActivity, CustomerInformationActivity::class.java)
+                visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
+                startActivity(visibleIntent)
             }
             btnInvisible.setOnClickListener {
                 startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))

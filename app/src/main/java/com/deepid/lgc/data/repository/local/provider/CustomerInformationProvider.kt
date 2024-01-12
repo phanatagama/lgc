@@ -1,8 +1,8 @@
 package com.deepid.lgc.data.repository.local.provider
 
-import android.content.Context
 import com.deepid.lgc.data.repository.local.dao.CustomerInformationDao
 import com.deepid.lgc.data.repository.local.dao.DataImageDao
+import com.deepid.lgc.data.repository.local.entity.CustomerInformationWithImages
 import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.DataImage
 import com.deepid.lgc.util.mapToModel
@@ -27,7 +27,7 @@ class CustomerInformationProvider(
 
     suspend fun insertDataImage(dataImage: List<DataImage>, customerId: String) {
         withContext(dispatcher) {
-            dataImageDao.insertAll(dataImage.map { it.mapToEntity(customerId) })
+            dataImageDao.insert(dataImage.map { it.mapToEntity(customerId) })
         }
     }
 
@@ -38,6 +38,11 @@ class CustomerInformationProvider(
 
     fun getCustomerInformation(name: String): Flow<List<CustomerInformation>> {
         return customerInformationDao.get(name).filterNotNull().map { it.mapToModel() }
+            .flowOn(dispatcher)
+    }
+
+    fun getCustomerInformationById(id: String): Flow<CustomerInformationWithImages> {
+        return customerInformationDao.getById(id).filterNotNull()
             .flowOn(dispatcher)
     }
 

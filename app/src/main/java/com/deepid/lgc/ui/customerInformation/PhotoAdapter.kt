@@ -1,5 +1,6 @@
 package com.deepid.lgc.ui.customerInformation
 
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deepid.lgc.databinding.RvItemImageBinding
 import com.deepid.lgc.domain.model.DataImage
+import java.io.File
 
 
 class PhotoAdapter :
@@ -26,6 +28,13 @@ class PhotoAdapter :
                 item.bitmap?.let {
                     addIcon.visibility = View.GONE
                     image.setImageBitmap(it)
+                }
+                item.path?.let {
+                    addIcon.visibility = View.GONE
+                    val imgFile = File(it)
+                    if (imgFile.exists()) {
+                        image.setImageURI(Uri.fromFile(imgFile))
+                    }
                 }
             }
         }

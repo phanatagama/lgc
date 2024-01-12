@@ -1,8 +1,8 @@
 package com.deepid.lgc.ui.customerInformation.search
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.deepid.lgc.databinding.ActivitySearchCustomerInformationBinding
 import com.deepid.lgc.databinding.RvItemCustomerInformationBinding
 import com.deepid.lgc.domain.model.CustomerInformation
-import com.deepid.lgc.domain.model.generateCustomerInformation
+import com.deepid.lgc.ui.customerInformation.CustomerInformationActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,12 +30,10 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
                 view: RvItemCustomerInformationBinding,
                 customerInformation: CustomerInformation
             ) {
-                Toast.makeText(
-                    this@SearchCustomerInformationActivity,
-                    "${customerInformation.name} Clicked",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                val visibleIntent = Intent(this@SearchCustomerInformationActivity, CustomerInformationActivity::class.java)
+                visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 2)
+                visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_ID, customerInformation.id)
+                startActivity(visibleIntent)
             }
         }
     private val rvAdapter by lazy {
@@ -46,6 +44,7 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchCustomerInformationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         bindViews()
         observe()
     }
@@ -90,8 +89,6 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
                     LinearLayoutManager.VERTICAL
                 )
             )
-            rvAdapter.submitList(generateCustomerInformation)
-
             searchView.setOnQueryTextListener(
                 searchQueryListener
             )

@@ -3,21 +3,23 @@ package com.deepid.lgc.ui.customerInformation
 import android.Manifest
 import android.app.DatePickerDialog
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.deepid.lgc.data.common.toDate
 import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
+import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.DataImage
-import com.deepid.lgc.domain.model.generateImagePlaceholder
-import com.deepid.lgc.util.Helpers
+import com.deepid.lgc.util.IdProviderImpl
 import com.deepid.lgc.util.Utils.saveToGallery
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
@@ -40,22 +42,19 @@ class CustomerInformationActivity : AppCompatActivity() {
     private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
     private val currentScenario: String = Scenario.SCENARIO_FULL_AUTH
     private lateinit var binding: ActivityCustomerInformationBinding
-    private var selectedImage: DataImage = generateImagePlaceholder.first()
     private val rvAdapter: PhotoAdapter by lazy {
         PhotoAdapter()
     }
+    private val generateImagePlaceholder: List<DataImage> =
+        (1..10).map { DataImage(IdProviderImpl().generate()) }
+    private var selectedImage: DataImage = generateImagePlaceholder.first()
 
     private fun takePhoto() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                Helpers.PERMISSIONS_REQUEST_CAMERA
-            )
-        } else {
+        // Request camera permissions
+        if (allPermissionsGranted()) {
             takePhotoLauncher.launch(null)
+        } else {
+            requestPermissions()
         }
     }
 
@@ -70,18 +69,21 @@ class CustomerInformationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCustomerInformationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        observe()
-        bindViews()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        // Request camera permissions
-        if (documentResults == null) {
-            if (allPermissionsGranted()) {
+        setupRecyclerView()
+        if (intent.getIntExtra(CUSTOMER_INFORMATION_TYPE, 1) == 1) {
+            bindViews()
+            if (documentResults == null) {
                 takePhoto()
             } else {
-                requestPermissions()
+                insertOpticalImage(documentResults)
             }
         } else {
-            insertOpticalImage(documentResults)
+            val customerInformationId = intent.getStringExtra(CUSTOMER_INFORMATION_ID)
+            if (customerInformationId != null) {
+                customerInformationViewModel.getCustomerInformationById(customerInformationId)
+            }
+            observe()
         }
     }
 
@@ -99,6 +101,7 @@ class CustomerInformationActivity : AppCompatActivity() {
                 .map { it.copy(path = it.bitmap?.saveToGallery(this@CustomerInformationActivity)) })
             customerInformationViewModel.insertCustomerInformation(
                 titleTv.text.toString(),
+                detailTv.text.toString(),
                 addressTv.text.toString(),
                 issueTv.text.toString().toDate(),
                 birthDateTv.text.toString().toDate(),
@@ -115,10 +118,10 @@ class CustomerInformationActivity : AppCompatActivity() {
     }
 
     private fun requestPermissions() {
-        activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+        requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
     }
 
-    private val activityResultLauncher =
+    private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         )
@@ -180,8 +183,39 @@ class CustomerInformationActivity : AppCompatActivity() {
             btnSend.setOnClickListener {
                 saveCustomerInformation()
             }
-            setupRecyclerView()
+
         }
+    }
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onContextItemSelected(item)
+    }
+
+    private fun bindViews(customerInformation: CustomerInformation) {
+        with(binding) {
+            rvAdapter.submitList(customerInformation.images)
+            titleTv.setText(customerInformation.name)
+            detailTv.setText(customerInformation.description)
+            addressTv.setText(customerInformation.address)
+            issueTv.text = customerInformation.issueDate.format(formatter)
+            birthDateTv.text = customerInformation.birthDate.format(formatter)
+            disableEditText(titleTv)
+            disableEditText(detailTv)
+            disableEditText(addressTv)
+        }
+    }
+
+    private fun disableEditText(editText: EditText) {
+        editText.isFocusable = false
+        editText.isEnabled = false
+        editText.isCursorVisible = false
+        editText.keyListener = null
+        editText.setBackgroundColor(Color.TRANSPARENT)
     }
 
     /** Setup recyclerview
@@ -190,30 +224,27 @@ class CustomerInformationActivity : AppCompatActivity() {
      * 3. Setup listener
      * 4. Setup nested scrolling
      */
-    private fun ActivityCustomerInformationBinding.setupRecyclerView() {
-        rvPhoto.layoutManager =
-            GridLayoutManager(this@CustomerInformationActivity, 2)
-        rvPhoto.adapter = rvAdapter
-        rvAdapter.submitList(generateImagePlaceholder)
-        rvAdapter.listener = object : PhotoAdapter.OnItemClickListener {
-            override fun onItemClickListener(view: View, dataImage: DataImage) {
-                selectedImage = dataImage
-                if (dataImage.bitmap != null) {
-                    Toast.makeText(
-                        this@CustomerInformationActivity,
-                        "Grid ${dataImage.id} was filled",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    return
-                }
-                if (documentResults == null) {
-                    takePhoto()
-                } else {
-                    showScanner()
+    private fun setupRecyclerView(currentList: List<DataImage> = generateImagePlaceholder) {
+        with(binding) {
+            rvPhoto.layoutManager =
+                GridLayoutManager(this@CustomerInformationActivity, 2)
+            rvPhoto.adapter = rvAdapter
+            rvAdapter.submitList(currentList)
+            rvAdapter.listener = object : PhotoAdapter.OnItemClickListener {
+                override fun onItemClickListener(view: View, dataImage: DataImage) {
+                    selectedImage = dataImage
+                    if (dataImage.bitmap != null || dataImage.path != null) {
+                        return
+                    }
+                    if (documentResults == null) {
+                        takePhoto()
+                    } else {
+                        showScanner()
+                    }
                 }
             }
+            ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
         }
-        ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
     }
 
     private fun insertOpticalImage(documentReaderResults: DocumentReaderResults?) {
@@ -272,11 +303,15 @@ class CustomerInformationActivity : AppCompatActivity() {
     }
 
     private fun observe() {
-        // TODO: observe view model LiveData/Flow here
+        customerInformationViewModel.customerInformation.observe(this) {
+            bindViews(it)
+        }
     }
 
     companion object {
         var documentResults: DocumentReaderResults? = null
+        const val CUSTOMER_INFORMATION_TYPE = "CUSTOMER_INFORMATION_TYPE"
+        const val CUSTOMER_INFORMATION_ID = "CUSTOMER_INFORMATION_ID"
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA

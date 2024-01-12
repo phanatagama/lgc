@@ -1,10 +1,7 @@
 package com.deepid.lgc.domain.model
 
-import android.content.Context
 import android.graphics.Bitmap
 import com.deepid.lgc.data.repository.local.entity.DataImageEntity
-import com.deepid.lgc.util.IdProviderImpl
-import com.deepid.lgc.util.Utils.saveToGallery
 
 data class DataImage(
     val id: String,
@@ -20,6 +17,3 @@ data class DataImage(
         )
     }
 }
-
-val generateImagePlaceholder: List<DataImage> =
-    (1..10).map { DataImage(IdProviderImpl().generate()) }

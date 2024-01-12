@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 data class CustomerInformation(
     val name: String,
+    val description: String,
     val address: String,
     val issueDate: LocalDateTime,
     val birthDate: LocalDateTime,
@@ -15,11 +16,12 @@ data class CustomerInformation(
     constructor(
         id: String?,
         name: String,
+        description: String,
         address: String,
         issueDate: LocalDateTime,
         birthDate: LocalDateTime,
         images: List<DataImage> = emptyList()
-    ) : this(name, address, issueDate, birthDate, images) {
+    ) : this(name, description, address, issueDate, birthDate, images) {
         this.id = id
     }
 
@@ -27,6 +29,7 @@ data class CustomerInformation(
         return CustomerInformationEntity(
             id = id ?: "0",
             name = name,
+            description = description,
             address = address,
             issueDate = issueDate,
             birthDate = birthDate
@@ -38,16 +41,16 @@ val generateCustomerInformation = listOf(
     CustomerInformation(
         "1",
         "John",
+        "MALE, AGE: 23",
         "Seoul",
         LocalDateTime.now(),
         LocalDateTime.now(),
-        generateImagePlaceholder
     ), CustomerInformation(
         "2",
         "Doe",
+        "MALE, AGE: 23",
         "Seoul",
         LocalDateTime.now(),
         LocalDateTime.now(),
-        generateImagePlaceholder
     )
 )

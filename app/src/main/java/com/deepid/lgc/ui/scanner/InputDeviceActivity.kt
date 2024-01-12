@@ -265,7 +265,9 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        startActivity(Intent(this, CustomerInformationActivity::class.java))
+        val visibleIntent = Intent(this, CustomerInformationActivity::class.java)
+        visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
+        startActivity(visibleIntent)
     }
 
     private fun initViews() {
@@ -274,7 +276,6 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     fun initializeReader() {
-        Log.d(TAG, "[DEBUGX] initializeReader")
         val license = Utils.getLicense(this) ?: return
         showDialog("Initializing")
 
@@ -289,7 +290,6 @@ class InputDeviceActivity : AppCompatActivity() {
                 Log.d(TAG, "[DEBUGX] init reader DocumentSDK is complete")
                 btnConnect?.isEnabled = true
             } else {
-                Log.e(TAG, "[DEBUGX] INIT failed: $error ")
                 Toast.makeText(this@InputDeviceActivity, "Init failed:$error", Toast.LENGTH_LONG)
                     .show()
                 return@IDocumentReaderInitCompletion

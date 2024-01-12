@@ -22,7 +22,7 @@ import java.time.LocalDateTime
     exportSchema = false
 )
 @TypeConverters(DateConverter::class)
-public abstract class AppRoomDatabase : RoomDatabase() {
+abstract class AppRoomDatabase : RoomDatabase() {
 
     abstract fun customerInformationDao(): CustomerInformationDao
     abstract fun dataImageDao(): DataImageDao
@@ -67,6 +67,7 @@ public abstract class AppRoomDatabase : RoomDatabase() {
             val defaultCustomerInformation = CustomerInformationEntity(
                 id = CustomerInformationEntity.DEFAULT_ID,
                 name = "Others",
+                description = "Others",
                 address = "Korea",
                 issueDate = dateTime,
                 birthDate = dateTime

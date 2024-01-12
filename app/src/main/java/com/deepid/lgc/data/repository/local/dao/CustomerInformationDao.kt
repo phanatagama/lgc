@@ -17,7 +17,7 @@ interface CustomerInformationDao : BaseDao<CustomerInformationEntity> {
     fun get(): Flow<List<CustomerInformationEntity>>
 
     @Query("SELECT * FROM customer_information WHERE id = :id")
-    fun get(id: Int): Flow<CustomerInformationEntity>
+    fun getById(id: String): Flow<CustomerInformationWithImages>
 
     @Query("SELECT * FROM customer_information WHERE name LIKE '%' || :name || '%'")
     fun get(name: String): Flow<List<CustomerInformationEntity>>
