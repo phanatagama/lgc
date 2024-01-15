@@ -1,7 +1,7 @@
-package com.deepid.lgc.data.repository.network
+package com.deepid.lgc.data.repository.remote
 
-import com.deepid.lgc.data.repository.network.dto.FileUploadResponseItem
-import com.deepid.lgc.data.repository.network.dto.ImageUploadResponse
+import com.deepid.lgc.data.repository.remote.dto.FileUploadResponseItem
+import com.deepid.lgc.data.repository.remote.dto.ImageUploadResponse
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body

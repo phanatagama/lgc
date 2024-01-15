@@ -3,13 +3,12 @@ package com.deepid.lgc.data.repository
 import android.util.Log
 import com.deepid.lgc.data.common.BaseResult
 import com.deepid.lgc.data.common.Failure
-import com.deepid.lgc.data.repository.local.dao.AppRoomDatabase
 import com.deepid.lgc.data.repository.local.dao.CustomerInformationDao
 import com.deepid.lgc.data.repository.local.dao.DataImageDao
-import com.deepid.lgc.data.repository.network.MainNetwork
-import com.deepid.lgc.data.repository.network.dto.FileUploadRequest
-import com.deepid.lgc.data.repository.network.dto.FileUploadResponse
-import com.deepid.lgc.data.repository.network.dto.ImageUploadResponse
+import com.deepid.lgc.data.repository.remote.MainNetwork
+import com.deepid.lgc.data.repository.remote.dto.FileUploadRequest
+import com.deepid.lgc.data.repository.remote.dto.FileUploadResponse
+import com.deepid.lgc.data.repository.remote.dto.ImageUploadResponse
 import com.deepid.lgc.data.serializeToMap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow

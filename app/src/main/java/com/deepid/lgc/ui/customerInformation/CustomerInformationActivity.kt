@@ -20,7 +20,7 @@ import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
 import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.DataImage
 import com.deepid.lgc.util.IdProviderImpl
-import com.deepid.lgc.util.Utils.saveToGallery
+import com.deepid.lgc.util.Utils.saveBitmap
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -40,7 +40,7 @@ class CustomerInformationActivity : AppCompatActivity() {
     private var birthDate = LocalDateTime.now()
     private var issueDate = LocalDateTime.now()
     private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
-    private val currentScenario: String = Scenario.SCENARIO_FULL_AUTH
+    private val currentScenario: String = Scenario.SCENARIO_CAPTURE
     private lateinit var binding: ActivityCustomerInformationBinding
     private val rvAdapter: PhotoAdapter by lazy {
         PhotoAdapter()
@@ -98,7 +98,7 @@ class CustomerInformationActivity : AppCompatActivity() {
                 return
             }
             customerInformationViewModel.addImage(rvAdapter.currentList.filter { it.bitmap != null }
-                .map { it.copy(path = it.bitmap?.saveToGallery(this@CustomerInformationActivity)) })
+                .map { it.copy(path = it.bitmap?.saveBitmap(this@CustomerInformationActivity)) })
             customerInformationViewModel.insertCustomerInformation(
                 titleTv.text.toString(),
                 detailTv.text.toString(),

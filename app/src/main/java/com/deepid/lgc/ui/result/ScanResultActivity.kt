@@ -9,11 +9,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityScanResultBinding
 import com.deepid.lgc.ui.defaultscanner.DocumentFieldAdapter
 import com.deepid.lgc.util.DocumentReaderResultsParcel
-import com.deepid.lgc.util.Utils
-import com.deepid.lgc.util.Utils.saveToGallery
+import com.deepid.lgc.util.Utils.saveBitmap
 import com.deepid.lgc.util.toParcelable
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
@@ -68,8 +68,8 @@ class ScanResultActivity : AppCompatActivity() {
         }
         val parcelableTextField =
             documentResults?.toParcelable(this) as DocumentReaderResultsParcel?
-        userPhoto?.saveToGallery(this)
-        rawImage?.saveToGallery(this)
+        userPhoto?.saveBitmap(this)
+        rawImage?.saveBitmap(this)
 
         val uvImage = documentResults?.getGraphicFieldByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE,
@@ -146,8 +146,8 @@ class ScanResultActivity : AppCompatActivity() {
                             )
                         }
                     } else {
-                        similarityTv.text = "Similarity: 0%"
-                        statusTv.text = "(Not Valid)"
+                        similarityTv.text = getString(R.string.similarity_0)
+                        statusTv.text = getString(R.string.not_valid)
                         statusTv.setTextColor(
                             ContextCompat.getColor(
                                 this@ScanResultActivity,

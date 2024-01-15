@@ -54,7 +54,7 @@ class InputDeviceActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
     private var isBleServiceConnected = false
     private var loadingDialog: AlertDialog? = null
-    private var currentScenario: String = Scenario.SCENARIO_FULL_AUTH
+    private var currentScenario: String = Scenario.SCENARIO_CAPTURE
     private lateinit var binding: ActivityInputDeviceBinding
 
     private var etDeviceName: EditText? = null

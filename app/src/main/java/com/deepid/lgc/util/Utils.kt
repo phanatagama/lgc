@@ -1,18 +1,14 @@
 package com.deepid.lgc.util
 
 import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
 import android.os.Parcelable
-import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
-import android.widget.Toast
 import com.deepid.lgc.R
 import com.deepid.lgc.data.repository.local.entity.CustomerInformationEntity
 import com.deepid.lgc.domain.model.CustomerInformation
@@ -62,62 +58,15 @@ object Utils {
         return license
     }
 
-    fun Bitmap.saveToGallery(context: Context?) :  String{
-        val filename = "${UUID.randomUUID()}.jpg"
-        var path: String = ""
-        //Output stream
-        var fos: OutputStream? = null
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //getting the contentResolver
-            context?.contentResolver?.also { resolver ->
-
-                //Content resolver will process the contentvalues
-                val contentValues = ContentValues().apply {
-
-                    //putting file information in content values
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-                }
-
-                //Inserting the contentValues to contentResolver and getting the Uri
-                val imageUri: Uri? =
-                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-                //Opening an outputstream with the Uri that we got
-                fos = imageUri?.let { resolver.openOutputStream(it) }
-                path = imageUri?.path.toString()
-            }
-        } else {
-            //These for devices running on android < Q
-            //So I don't think an explanation is needed here
-            val imagesDir =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-            val image = File(imagesDir, filename)
-            fos = FileOutputStream(image)
-            path = image.path.toString()
-        }
-
-        fos?.use {
-            //Finally writing the bitmap to the output stream that we opened
-            this.compress(Bitmap.CompressFormat.JPEG, 100, it)
-            Toast.makeText(
-                context,
-                "Image Save to Gallery",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-        return path
-//        val wrapper = ContextWrapper(context)
-//        var file = wrapper.getDir("Images", Context.MODE_PRIVATE)
-//        file = File(file, "${UUID.randomUUID()}.jpg")
-//        val stream: OutputStream = FileOutputStream(file)
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream)
-//        stream.flush()
-//        stream.close()
-//        return file
-
+    fun Bitmap.saveBitmap(context: Context): String {
+        val wrapper = ContextWrapper(context)
+        var file = wrapper.getDir("Images", Context.MODE_PRIVATE)
+        file = File(file, "${UUID.randomUUID()}.jpg")
+        val stream: OutputStream = FileOutputStream(file)
+        this.compress(Bitmap.CompressFormat.JPEG, 25, stream)
+        stream.flush()
+        stream.close()
+        return file.path
     }
 
     fun resizeBitmap(bitmap: Bitmap?): Bitmap? {

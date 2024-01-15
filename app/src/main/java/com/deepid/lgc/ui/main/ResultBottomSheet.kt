@@ -24,7 +24,7 @@ import com.deepid.lgc.ui.scanner.ScannerViewModel
 import com.deepid.lgc.util.DocumentReaderResultsParcel
 import com.deepid.lgc.util.Helpers
 import com.deepid.lgc.util.Utils.resizeBitmap
-import com.deepid.lgc.util.Utils.saveToGallery
+import com.deepid.lgc.util.Utils.saveBitmap
 import com.deepid.lgc.util.toParcelable
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -184,8 +184,8 @@ class ResultBottomSheet : DialogFragment() {
         val parcelableTextField =
             results?.toParcelable(requireActivity()) as DocumentReaderResultsParcel?
         showUvImage(results)
-        image?.saveToGallery(requireActivity())
-        rawImage?.saveToGallery(requireActivity())
+        image?.saveBitmap(requireActivity())
+        rawImage?.saveBitmap(requireActivity())
 
 
         with(binding) {
@@ -230,7 +230,7 @@ class ResultBottomSheet : DialogFragment() {
             Log.d(TAG, "Resized UV Bitmap: $resizedBitmap")
             binding.uvImageIv.visibility = View.VISIBLE
             binding.uvImageIv.setImageBitmap(resizedBitmap)
-            resizedBitmap!!.saveToGallery(requireActivity())
+            resizedBitmap!!.saveBitmap(requireActivity())
         } else {
             Log.d(TAG, "UV Graphic Field or Bitmap is null")
         }

@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private var isShowFaceRecognition = false
     private var isShowRfid = false
     private var loadingDialog: AlertDialog? = null
-    private var currentScenario: String = Scenario.SCENARIO_OCR
+    private var currentScenario: String = Scenario.SCENARIO_CAPTURE
     private lateinit var binding: ActivityMainBinding
     private val rvAdapter: RecyclerAdapter by lazy {
         RecyclerAdapter(getRvData())

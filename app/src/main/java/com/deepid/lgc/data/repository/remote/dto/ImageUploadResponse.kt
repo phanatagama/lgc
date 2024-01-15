@@ -1,4 +1,4 @@
-package com.deepid.lgc.data.repository.network.dto
+package com.deepid.lgc.data.repository.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
