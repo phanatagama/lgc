@@ -27,7 +27,9 @@
     <string name="menu_auto">Auto</string>
     <string name="menu_prescription">Prescription</string>
     <string name="send_image">Send Image</string>
+    <string name="save_data">Save Data</string>
     <string name="search">Search</string>
     <string name="similarity_0">Similarity: 0%</string>
     <string name="not_valid">(Not Valid)</string>
+    <string name="close">Close</string>
 </resources>

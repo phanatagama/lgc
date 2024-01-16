@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
@@ -15,10 +16,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
+import com.deepid.lgc.R
 import com.deepid.lgc.data.common.toDate
 import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
 import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.DataImage
+import com.deepid.lgc.ui.customerInformation.daum.RoadAddressSearchDialog
 import com.deepid.lgc.util.IdProviderImpl
 import com.deepid.lgc.util.Utils.saveBitmap
 import com.regula.documentreader.api.DocumentReader
@@ -97,6 +100,7 @@ class CustomerInformationActivity : AppCompatActivity() {
                 ).show()
                 return
             }
+
             customerInformationViewModel.addImage(rvAdapter.currentList.filter { it.bitmap != null }
                 .map { it.copy(path = it.bitmap?.saveBitmap(this@CustomerInformationActivity)) })
             customerInformationViewModel.insertCustomerInformation(
@@ -179,6 +183,17 @@ class CustomerInformationActivity : AppCompatActivity() {
                 datePickerDialog.show()
                 return@setOnClickListener
             }
+            addressTv.setOnClickListener {
+                val dialog = RoadAddressSearchDialog.newInstance()
+                dialog.listener = object : RoadAddressSearchDialog.OnInputListener {
+                    override fun sendInput(input: String?) {
+                        input?.let {
+                            addressTv.setText(it)
+                        }
+                    }
+                }
+                dialog.show(supportFragmentManager, "RoadAddressSearchDialog")
+            }
             btnSend.isEnabled = true
             btnSend.setOnClickListener {
                 saveCustomerInformation()
@@ -205,6 +220,7 @@ class CustomerInformationActivity : AppCompatActivity() {
             addressTv.setText(customerInformation.address)
             issueTv.text = customerInformation.issueDate.format(formatter)
             birthDateTv.text = customerInformation.birthDate.format(formatter)
+            btnSend.text = getString(R.string.send_image)
             disableEditText(titleTv)
             disableEditText(detailTv)
             disableEditText(addressTv)

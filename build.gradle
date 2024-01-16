@@ -19,6 +19,7 @@ ext {
     constraintlayout = "2.1.4"
     viewpager2 = "1.0.0"
     chuck = "3.5.2"
+    ktor_version = "1.6.8"
 }
 tasks.register('clean', Delete) {
     delete rootProject.buildDir

@@ -4,7 +4,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build
 import android.os.Parcelable
 import android.provider.OpenableColumns
 import android.util.Log
@@ -40,6 +42,31 @@ import java.util.UUID
 
 
 object Utils {
+    const val TYPE_WIFI = 1
+    const val TYPE_MOBILE = 2
+    const val TYPE_NOT_CONNECTED = 3
+
+    fun getConnectivityStatus(context: Context): Int {
+        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            manager.getNetworkCapabilities(manager.activeNetwork)?.run {
+                when {
+                    hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) -> TYPE_WIFI
+                    hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR) -> TYPE_MOBILE
+                    else -> TYPE_NOT_CONNECTED
+                }
+            }
+        } else {
+            manager.activeNetworkInfo?.run {
+                when (type) {
+                    ConnectivityManager.TYPE_WIFI -> TYPE_WIFI
+                    ConnectivityManager.TYPE_MOBILE -> TYPE_MOBILE
+                    else -> TYPE_NOT_CONNECTED
+                }
+            }
+        } //연결 X
+        return networkInfo ?: TYPE_NOT_CONNECTED
+    }
 
     fun getLicense(context: Context?): ByteArray? {
         if (context == null) return null
@@ -149,6 +176,7 @@ fun List<CustomerInformationEntity>.mapToModel(): List<CustomerInformation> {
         it.mapToModel()
     }
 }
+
 fun File.mimeType(): String? =
     MimeTypeMap.getSingleton().getMimeTypeFromExtension(this.extension)
 
