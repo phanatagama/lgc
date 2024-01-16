@@ -186,6 +186,7 @@ class CustomerInformationActivity : AppCompatActivity() {
 
         }
     }
+
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -249,22 +250,28 @@ class CustomerInformationActivity : AppCompatActivity() {
 
     private fun insertOpticalImage(documentReaderResults: DocumentReaderResults?) {
         val userPhoto = documentReaderResults?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            0,
+            eRPRM_Lights.RPRM_LIGHT_UV
+        ) ?:
+        // use raw image if UV image is not available
+        documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_PORTRAIT
         )
-            ?: documentReaderResults?.getGraphicFieldImageByType(
-                eGraphicFieldType.GF_DOCUMENT_IMAGE
-            )
-            // use raw image if UV image is not available
-            ?: documentReaderResults?.getGraphicFieldImageByType(
-                eGraphicFieldType.GF_PORTRAIT,
-                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
-                0,
-                eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
-            )
-            ?: documentReaderResults?.getGraphicFieldImageByType(
-                eGraphicFieldType.GF_DOCUMENT_IMAGE,
-                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
-            )
+        ?: documentReaderResults?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE
+        )
+        ?: documentReaderResults?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_PORTRAIT,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            0,
+            eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
+        )
+        ?: documentReaderResults?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+        )
         userPhoto?.let {
             rvAdapter.updateList(selectedImage.copy(bitmap = it))
         }
