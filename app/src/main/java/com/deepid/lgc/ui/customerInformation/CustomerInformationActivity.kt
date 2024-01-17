@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
@@ -76,7 +75,7 @@ class CustomerInformationActivity : AppCompatActivity() {
         setupRecyclerView()
         if (intent.getIntExtra(CUSTOMER_INFORMATION_TYPE, 1) == 1) {
             bindViews()
-            if (documentResults == null) {
+            if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 1) == 1) {
                 takePhoto()
             } else {
                 insertOpticalImage(documentResults)
@@ -184,22 +183,27 @@ class CustomerInformationActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             addressTv.setOnClickListener {
-                val dialog = RoadAddressSearchDialog.newInstance()
-                dialog.listener = object : RoadAddressSearchDialog.OnInputListener {
-                    override fun sendInput(input: String?) {
-                        input?.let {
-                            addressTv.setText(it)
-                        }
-                    }
-                }
-                dialog.show(supportFragmentManager, "RoadAddressSearchDialog")
+                addressLookup()
             }
+            addressTv.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) addressLookup() }
             btnSend.isEnabled = true
             btnSend.setOnClickListener {
                 saveCustomerInformation()
             }
 
         }
+    }
+
+    private fun addressLookup() {
+        val dialog = RoadAddressSearchDialog.newInstance()
+        dialog.listener = object : RoadAddressSearchDialog.OnInputListener {
+            override fun sendInput(input: String?) {
+                input?.let {
+                    binding.addressTv.setText(it)
+                }
+            }
+        }
+        dialog.show(supportFragmentManager, "RoadAddressSearchDialog")
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -265,32 +269,47 @@ class CustomerInformationActivity : AppCompatActivity() {
     }
 
     private fun insertOpticalImage(documentReaderResults: DocumentReaderResults?) {
-        val userPhoto = documentReaderResults?.getGraphicFieldImageByType(
+        val uvImage = documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE,
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
             0,
             eRPRM_Lights.RPRM_LIGHT_UV
-        ) ?:
-        // use raw image if UV image is not available
-        documentReaderResults?.getGraphicFieldImageByType(
+        )
+        val rawImage = documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_PORTRAIT
-        )
-        ?: documentReaderResults?.getGraphicFieldImageByType(
+        ) ?: documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE
-        )
-        ?: documentReaderResults?.getGraphicFieldImageByType(
+        ) ?: documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_PORTRAIT,
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
             0,
             eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
-        )
-        ?: documentReaderResults?.getGraphicFieldImageByType(
+        ) ?: documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE,
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
         )
-        userPhoto?.let {
-            rvAdapter.updateList(selectedImage.copy(bitmap = it))
+
+        val emptySlot = getEmptySlot()
+        val emptyField = if (emptySlot.hasNext()) emptySlot.next() else null
+        val emptyField2 = if (emptySlot.hasNext()) emptySlot.next() else null
+        if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 2) == 2) {
+            uvImage?.let {
+                if (emptyField != null) {
+                    rvAdapter.updateList(emptyField.copy(bitmap = it))
+                }
+            }
+        } else {
+            if (rawImage != null && uvImage != null && emptyField != null && emptyField2 != null) {
+                rvAdapter.updateList(
+                    emptyField.copy(bitmap = rawImage),
+                    emptyField2.copy(bitmap = uvImage)
+                )
+            }
         }
+    }
+
+    private fun getEmptySlot(): Iterator<DataImage> {
+        return rvAdapter.currentList.filter { it.bitmap == null }.iterator()
     }
 
     @Transient
@@ -335,6 +354,7 @@ class CustomerInformationActivity : AppCompatActivity() {
         var documentResults: DocumentReaderResults? = null
         const val CUSTOMER_INFORMATION_TYPE = "CUSTOMER_INFORMATION_TYPE"
         const val CUSTOMER_INFORMATION_ID = "CUSTOMER_INFORMATION_ID"
+        const val CUSTOMER_INFORMATION_FEATURE = "CUSTOMER_INFORMATION_FEATURE"
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA

@@ -352,8 +352,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-//        startActivity(Intent(this, ScanResultActivity::class.java))
-        startActivity(Intent(this, CustomerInformationActivity::class.java))
+        val customerIntent =Intent(this, CustomerInformationActivity::class.java)
+        customerIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
+        customerIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE, 2)
+        startActivity(customerIntent)
     }
 
     private fun createImageBrowsingRequest() {
@@ -402,10 +404,17 @@ class MainActivity : AppCompatActivity() {
                 startActivity(visibleIntent)
             }
             btnInvisible.setOnClickListener {
-                startActivity(Intent(this@MainActivity, InputDeviceActivity::class.java))
+                val invisibleIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
+                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
+                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,2)
+                startActivity(invisibleIntent)
             }
             btnAuto.setOnClickListener {
-                showScanner()
+                val autoIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
+                autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
+                autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,3)
+                startActivity(autoIntent)
+//                showScanner()
             }
             btnPrescription.setOnClickListener {
                 startActivity(Intent(this@MainActivity, SearchCustomerInformationActivity::class.java))
@@ -446,7 +455,7 @@ class MainActivity : AppCompatActivity() {
                 btnCertificate.isEnabled = true
                 btnVisible.isEnabled = true
                 btnInvisible.isEnabled = true
-//                btnAuto.isEnabled = true
+                btnAuto.isEnabled = true
                 btnPrescription.isEnabled = true
             }
         } else {

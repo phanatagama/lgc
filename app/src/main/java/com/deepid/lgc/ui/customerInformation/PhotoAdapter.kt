@@ -63,6 +63,14 @@ class PhotoAdapter :
         submitList(newList)
     }
 
+    fun updateList(rawImage: DataImage, uvImage: DataImage) {
+        val filterList = currentList.toMutableList().filter { data ->
+            data.id != rawImage.id && data.id != uvImage.id
+        }
+        val newList = listOf(rawImage, uvImage) + filterList
+        submitList(newList)
+    }
+
     object DiffCallback : DiffUtil.ItemCallback<DataImage>() {
         override fun areItemsTheSame(
             oldItem: DataImage,

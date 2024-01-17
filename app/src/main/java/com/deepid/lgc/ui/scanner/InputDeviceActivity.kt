@@ -265,9 +265,13 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        val visibleIntent = Intent(this, CustomerInformationActivity::class.java)
-        visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
-        startActivity(visibleIntent)
+        val formIntent = Intent(this, CustomerInformationActivity::class.java)
+        formIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
+        formIntent.putExtra(
+            CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,
+            intent.getIntExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE, 2)
+        )
+        startActivity(formIntent)
     }
 
     private fun initViews() {

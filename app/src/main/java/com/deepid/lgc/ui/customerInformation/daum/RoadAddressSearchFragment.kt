@@ -130,10 +130,6 @@ class RoadAddressSearchDialog : DialogFragment() {
             Log.d(null, "DEBUGX processDATA: $roadAdd")
             handler?.post(Runnable {
                 listener?.sendInput(roadAdd)
-//                navController!!.previousBackStackEntry!!.savedStateHandle.set(
-//                    "roadAddress",
-//                    roadAdd
-//                )
                 dismiss()
             })
         }
