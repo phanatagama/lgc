@@ -10,6 +10,7 @@ import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.DataImage
 import com.deepid.lgc.util.IdProviderImpl
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -55,8 +56,21 @@ class CustomerInformationViewModel(
         _customerInformation.value = customerInformation
         Log.d(TAG, "insertCustomerInformation: ${customerInformation.id}")
         viewModelScope.launch {
-            customerInformationProvider.insertCustomerInformation(customerInformation)
-            customerInformationProvider.insertDataImage(dataImages, customerInformation.id!!)
+            Log.d(TAG, "DEBUGX DATASAVED TEST")
+            val dataSaved = customerInformationProvider.getCustomerInformation(name).first()
+                .filter { it.name == name && it.birthDate == birthDateTime }
+            Log.d(TAG, "DEBUGX DATASAVED SIZE: ${dataSaved.size}")
+            if (dataSaved.isEmpty()) {
+                customerInformationProvider.insertCustomerInformation(customerInformation)
+                customerInformationProvider.insertDataImage(dataImages, customerInformation.id!!)
+            } else {
+                dataSaved.first().id?.let {
+                    customerInformationProvider.insertDataImage(
+                        dataImages,
+                        it
+                    )
+                }
+            }
         }
     }
 

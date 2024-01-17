@@ -35,6 +35,7 @@ import com.regula.documentreader.api.results.DocumentReaderResults
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 
 class CustomerInformationActivity : AppCompatActivity() {
@@ -98,6 +99,12 @@ class CustomerInformationActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
                 return
+            } else {
+                Toast.makeText(
+                    this@CustomerInformationActivity,
+                    "Saving Complete",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             customerInformationViewModel.addImage(rvAdapter.currentList.filter { it.bitmap != null }
@@ -151,21 +158,6 @@ class CustomerInformationActivity : AppCompatActivity() {
     private fun bindViews() {
         with(binding) {
             issueTv.text = issueDate.format(formatter)
-            issueTv.setOnClickListener {
-                val datePickerDialog = DatePickerDialog(
-                    this@CustomerInformationActivity,
-                    { _, year, month, dayOfMonth ->
-                        val date = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0)
-                        issueTv.text = date.format(formatter)
-                        issueDate = date
-                    },
-                    issueDate.year,
-                    issueDate.monthValue - 1,
-                    issueDate.dayOfMonth
-                )
-                datePickerDialog.show()
-                return@setOnClickListener
-            }
             birthDateTv.text = birthDate.format(formatter)
             birthDateTv.setOnClickListener {
                 val datePickerDialog = DatePickerDialog(
@@ -178,7 +170,7 @@ class CustomerInformationActivity : AppCompatActivity() {
                     birthDate.year,
                     birthDate.monthValue - 1,
                     birthDate.dayOfMonth
-                )
+                ).apply { datePicker.maxDate = Date().time }
                 datePickerDialog.show()
                 return@setOnClickListener
             }
@@ -228,6 +220,11 @@ class CustomerInformationActivity : AppCompatActivity() {
             disableEditText(titleTv)
             disableEditText(detailTv)
             disableEditText(addressTv)
+            btnSend.isEnabled = true
+            btnSend.setOnClickListener {
+                Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 

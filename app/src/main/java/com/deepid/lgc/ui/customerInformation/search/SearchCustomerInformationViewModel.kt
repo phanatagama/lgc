@@ -65,6 +65,11 @@ class SearchCustomerInformationViewModel(private val customerInformationProvider
             }
         }
     }
+    fun deleteCustomerInformation(customerInformation: CustomerInformation) {
+        viewModelScope.launch {
+            customerInformationProvider.deleteCustomerInformation(customerInformation)
+        }
+    }
 
     fun removeMessage() {
         _state.update { currentState -> currentState.copy(message = null) }

@@ -14,13 +14,20 @@ class CustomerInformationAdapter :
         DiffCallback
     ) {
     interface OnItemClickListener {
-        fun onItemClickListener(view: RvItemCustomerInformationBinding, customerInformation: CustomerInformation)
+        fun onItemClickListener(
+            view: RvItemCustomerInformationBinding,
+            customerInformation: CustomerInformation
+        )
+
+        fun onDeleteItem(customerInformation: CustomerInformation)
     }
+
     var listener: OnItemClickListener? = null
+
     inner class ViewHolder(val binding: RvItemCustomerInformationBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(customerInformation: CustomerInformation) {
-            with(binding){
+            with(binding) {
                 titleTv.text = customerInformation.name
                 issueTv.text = customerInformation.issueDate.toDateString()
                 addressTv.text = customerInformation.address
@@ -54,9 +61,13 @@ class CustomerInformationAdapter :
     )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val item = getItem(position)
+        holder.bind(item)
         holder.binding.root.setOnClickListener {
-            listener?.onItemClickListener(holder.binding, getItem(position))
+            listener?.onItemClickListener(holder.binding, item)
+        }
+        holder.binding.btnDelete.setOnClickListener {
+            listener?.onDeleteItem(item)
         }
     }
 }

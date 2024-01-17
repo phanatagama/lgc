@@ -35,6 +35,10 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
                 visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_ID, customerInformation.id)
                 startActivity(visibleIntent)
             }
+
+            override fun onDeleteItem(customerInformation: CustomerInformation) {
+                searchCustomerInformationViewModel.deleteCustomerInformation(customerInformation)
+            }
         }
     private val rvAdapter by lazy {
         CustomerInformationAdapter()

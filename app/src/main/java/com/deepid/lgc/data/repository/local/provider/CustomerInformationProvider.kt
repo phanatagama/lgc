@@ -46,4 +46,9 @@ class CustomerInformationProvider(
             .flowOn(dispatcher)
     }
 
+    suspend fun deleteCustomerInformation(customerInformation: CustomerInformation) {
+        withContext(dispatcher) {
+            customerInformationDao.delete(customerInformation.mapToEntity())
+        }
+    }
 }
