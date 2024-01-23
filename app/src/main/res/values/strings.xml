@@ -18,9 +18,9 @@
     <string name="birth_date">BIRTH DATE</string>
     <string name="birth_date_value">11/11/23</string>
     <string name="address">ADDRESS</string>
-    <string name="address_value">Address…</string>
+    <string name="address_value">"124-38 Garibong-dong, Guro-gu, Seoul"</string>
     <string name="issue_date">ISSUE DATE</string>
-    <string name="customer_detail">GENDER, AGE: xx</string>
+    <string name="customer_detail">MALE, AGE: 30</string>
     <string name="customer_name">Customer Name…</string>
     <string name="menu_visible">Visible</string>
     <string name="menu_invisible">Invisible</string>
@@ -32,4 +32,7 @@
     <string name="similarity_0">Similarity: 0%</string>
     <string name="not_valid">(Not Valid)</string>
     <string name="close">Close</string>
+    <string name="connect">Connect</string>
+    <string name="regula_id_0326">Regula ID 0326</string>
+    <string name="john_doe">John Doe</string>
 </resources>

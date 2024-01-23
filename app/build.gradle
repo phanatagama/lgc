@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.parcelize")
     id("com.google.devtools.ksp")
 }
 
@@ -22,11 +22,11 @@ android {
     buildTypes {
         release {
             minifyEnabled(false)
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField("String", 'BASE_URL', "\"$API_PROD\"")
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            buildConfigField("String", "BASE_URL", "\"$API_PROD\"")
         }
         debug {
-            buildConfigField("String", 'BASE_URL', "\"$API_DEV\"")
+            buildConfigField("String", "BASE_URL", "\"$API_DEV\"")
         }
     }
     buildFeatures{
@@ -35,8 +35,8 @@ android {
     }
     compileOptions {
         coreLibraryDesugaringEnabled(true)
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -55,6 +55,9 @@ dependencies {
     implementation("com.google.android.material:material:$material")
     implementation("androidx.constraintlayout:constraintlayout:$constraintlayout")
     implementation("androidx.viewpager2:viewpager2:$viewpager2")
+
+    // Zoom Image View
+    implementation("com.otaliastudios:zoomlayout:$zoom_image_view_version")
 
     // Regula Document Reader SDK
     implementation("com.regula.btdevice:api:1.0.+@aar")
@@ -87,14 +90,14 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-navigation:$koin_androidVersion")
 
     // Room
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-    ksp "androidx.room:room-compiler:$room_version"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
-//    Ktor
-    implementation("io.ktor:ktor-server-core:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation "io.ktor:ktor-html-builder:$ktor_version"
-    implementation "io.ktor:ktor-gson:$ktor_version"
+    // Ktor
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-html-builder:$ktorVersion")
+    implementation("io.ktor:ktor-gson:$ktorVersion")
 }

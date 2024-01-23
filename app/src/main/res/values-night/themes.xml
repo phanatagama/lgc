@@ -12,8 +12,8 @@
         <!-- Background brand color-->
         <item name="android:colorBackground">@color/primary_color</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="android:navigationBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
