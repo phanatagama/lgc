@@ -125,6 +125,7 @@ class CustomerInformationActivity : AppCompatActivity() {
         Log.d("tryOrientation", orientation.toString() + "")
         val rotationMatrix = Matrix()
         rotationMatrix.setRotate(orientation.toFloat())
+        cur?.close()
         return Bitmap.createBitmap(input, 0, 0, input.width, input.height, rotationMatrix, true)
     }
 
@@ -143,6 +144,9 @@ class CustomerInformationActivity : AppCompatActivity() {
             }
         } else {
             rvAdapter.parentType = 2
+            binding.btnCloseSingle.setOnClickListener {
+                displayImage(false)
+            }
             val customerInformationId = intent.getStringExtra(CUSTOMER_INFORMATION_ID)
             if (customerInformationId != null) {
                 customerInformationViewModel.getCustomerInformationById(customerInformationId)
@@ -293,6 +297,10 @@ class CustomerInformationActivity : AppCompatActivity() {
                 Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
                     .show()
             }
+            btnSendSingle.setOnClickListener {
+                Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
@@ -342,10 +350,35 @@ class CustomerInformationActivity : AppCompatActivity() {
                         rvAdapter.updateList(it)
                     }
                 }
+
+                override fun onItemLongClickListener(view: View, dataImage: DataImage) {
+                    singleImage.setImageURI(Uri.fromFile(File(dataImage.path!!)))
+                    displayImage(true)
+                }
             }
             ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
         }
     }
+
+    private fun displayImage(isSingleView: Boolean){
+        with(binding){
+            if(isSingleView){
+                rvPhoto.visibility = View.GONE
+                btnSend.visibility = View.GONE
+                singleImage.visibility = View.VISIBLE
+                btnSendSingle.visibility = View.VISIBLE
+                btnCloseSingle.visibility = View.VISIBLE
+
+            }else{
+                rvPhoto.visibility = View.VISIBLE
+                btnSend.visibility = View.VISIBLE
+                singleImage.visibility = View.GONE
+                btnSendSingle.visibility = View.GONE
+                btnCloseSingle.visibility = View.GONE
+            }
+        }
+    }
+
 
     private fun showImageDialog(bitmap: Bitmap) {
         PhotoDialogFragment.newInstance(bitmap).show(supportFragmentManager, "PhotoDialogFragment")

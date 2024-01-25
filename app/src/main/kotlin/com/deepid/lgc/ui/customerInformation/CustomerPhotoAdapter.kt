@@ -21,6 +21,7 @@ class CustomerPhotoAdapter :
     interface OnItemClickListener {
         fun onItemClickListener(view: View, dataImage: DataImage)
         fun onItemDeleteClickListener(view: View, dataImage: DataImage)
+        fun onItemLongClickListener(view: View, dataImage: DataImage)
     }
 
     inner class PhotoAdapterViewHolder(val binding: RvItemImageBinding) :
@@ -78,6 +79,10 @@ class CustomerPhotoAdapter :
                 )
             }
         } else {
+            holder.binding.imageCard.setOnLongClickListener {
+                listener?.onItemLongClickListener(it, item)
+                true
+            }
             holder.hideDeleteIcon()
         }
     }

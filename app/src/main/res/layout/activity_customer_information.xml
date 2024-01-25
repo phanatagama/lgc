@@ -106,10 +106,10 @@
                     android:id="@+id/birth_date_tv"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:padding="3dip"
                     android:hint="@string/birth_date_value"
-                    android:textColorHint="@color/facesdk_text_grey"
+                    android:padding="3dip"
                     android:textColor="@color/white"
+                    android:textColorHint="@color/facesdk_text_grey"
                     android:textSize="16sp" />
             </TableRow>
 
@@ -158,10 +158,10 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/issue_tv"
                     android:layout_width="0dp"
-                    android:padding="3dip"
                     android:hint="@string/birth_date_value"
-                    android:textColorHint="@color/facesdk_text_grey"
+                    android:padding="3dip"
                     android:textColor="@color/white"
+                    android:textColorHint="@color/facesdk_text_grey"
                     android:textSize="16sp" />
             </TableRow>
 
@@ -183,6 +183,51 @@
             app:spanCount="2"
             tools:listitem="@layout/rv_item_image" />
 
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/single_image"
+            android:layout_width="0dp"
+            android:layout_height="480dp"
+            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="48dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/add_image"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tableLayout"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/btn_close_single"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="top|end"
+            android:background="@drawable/shape_rounded"
+            android:backgroundTint="@color/white"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/single_image"
+            app:layout_constraintTop_toTopOf="@id/single_image"
+            app:srcCompat="@drawable/close_button"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_send_single"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="14dp"
+            android:text="@string/send_image"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="26sp"
+            app:layout_constraintEnd_toEndOf="@id/single_image"
+            app:layout_constraintStart_toStartOf="@id/single_image"
+            app:layout_constraintTop_toBottomOf="@id/single_image" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_send"
             android:layout_width="0dp"
