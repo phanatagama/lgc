@@ -328,14 +328,20 @@ class CustomerInformationActivity : AppCompatActivity() {
                 override fun onItemClickListener(view: View, dataImage: DataImage) {
                     selectedImage = dataImage
                     if (dataImage.bitmap != null || dataImage.path != null) {
-                        showImageDialog(
-                            dataImage.bitmap ?: getBitmap(
-                                Uri.fromFile(File(dataImage.path!!)),
-                                576,
-                                768,
-                                this@CustomerInformationActivity
-                            )!!
-                        )
+                        if(rvAdapter.parentType == 1){
+                            showImageDialog(
+                                dataImage.bitmap ?: getBitmap(
+                                    Uri.fromFile(File(dataImage.path!!)),
+                                    576,
+                                    768,
+                                    this@CustomerInformationActivity
+                                )!!
+                            )
+                        } else {
+                            singleImage.setImageURI(Uri.fromFile(File(dataImage.path!!)))
+                            displayImage(true)
+                        }
+
                         return
                     }
                     if (documentResults == null) {
@@ -349,11 +355,6 @@ class CustomerInformationActivity : AppCompatActivity() {
                     dataImage.copy(bitmap = null, path = null).let {
                         rvAdapter.updateList(it)
                     }
-                }
-
-                override fun onItemLongClickListener(view: View, dataImage: DataImage) {
-                    singleImage.setImageURI(Uri.fromFile(File(dataImage.path!!)))
-                    displayImage(true)
                 }
             }
             ViewCompat.setNestedScrollingEnabled(rvPhoto, false)
