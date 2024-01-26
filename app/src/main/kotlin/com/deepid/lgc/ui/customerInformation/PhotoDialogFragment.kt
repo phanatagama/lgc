@@ -1,4 +1,4 @@
-package com.deepid.lgc
+package com.deepid.lgc.ui.customerInformation
 
 import android.graphics.Bitmap
 import android.os.Bundle

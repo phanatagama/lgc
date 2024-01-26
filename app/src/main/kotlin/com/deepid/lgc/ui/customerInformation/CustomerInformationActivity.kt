@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -24,13 +25,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import com.deepid.lgc.PhotoDialogFragment
 import com.deepid.lgc.R
 import com.deepid.lgc.data.common.toDate
 import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
 import com.deepid.lgc.domain.model.CustomerInformation
 import com.deepid.lgc.domain.model.DataImage
 import com.deepid.lgc.ui.customerInformation.daum.RoadAddressSearchDialog
+import com.deepid.lgc.ui.customerInformation.diagnose.DiagnoseActivity
 import com.deepid.lgc.util.IdProviderImpl
 import com.deepid.lgc.util.Utils.getBitmap
 import com.deepid.lgc.util.Utils.saveBitmap
@@ -293,16 +294,27 @@ class CustomerInformationActivity : AppCompatActivity() {
             disableEditText(titleTv)
             disableEditText(detailTv)
             disableEditText(addressTv)
-            btnSend.isEnabled = true
+            btnSend.isEnabled = false
             btnSend.setOnClickListener {
-                Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
-                    .show()
+//                goToDiagnoseActivity()
             }
             btnSendSingle.setOnClickListener {
-                Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
-                    .show()
+                goToDiagnoseActivity()
+//                Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
+//                    .show()
             }
         }
+    }
+
+    private fun goToDiagnoseActivity() {
+        val intent = Intent(this@CustomerInformationActivity, DiagnoseActivity::class.java)
+
+        intent.putExtra("image",selectedImage.path )
+        intent.putExtra("name", binding.titleTv.text.toString())
+        intent.putExtra("detail", binding.detailTv.text.toString())
+        intent.putExtra("issue", binding.issueTv.text.toString())
+        intent.putExtra("birthDate", binding.birthDateTv.text.toString())
+        startActivity(intent)
     }
 
     private fun disableEditText(editText: EditText) {

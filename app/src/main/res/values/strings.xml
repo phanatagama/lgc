@@ -35,4 +35,6 @@
     <string name="connect">Connect</string>
     <string name="regula_id_0326">Regula ID 0326</string>
     <string name="john_doe">John Doe</string>
+    <string name="medicines">MEDICINES</string>
+    <string name="dermatology_clinic">Dermatology Clinic</string>
 </resources>

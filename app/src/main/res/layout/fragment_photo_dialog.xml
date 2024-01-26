@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="576dp"
     android:background="@color/primary_color"
-    tools:context=".PhotoDialogFragment">
+    tools:context=".ui.customerInformation.PhotoDialogFragment">
 
     <com.otaliastudios.zoom.ZoomImageView
         android:id="@+id/zoom_image_view"
