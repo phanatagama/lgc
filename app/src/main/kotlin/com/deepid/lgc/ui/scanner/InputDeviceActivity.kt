@@ -10,15 +10,20 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityInputDeviceBinding
-import com.deepid.lgc.ui.BaseRegulaSdkActivity
+import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.customerInformation.CustomerInformationActivity
 import com.deepid.lgc.ui.result.ScanResultActivity
 import com.deepid.lgc.util.BluetoothUtil
 import com.deepid.lgc.util.PermissionUtil
 import com.deepid.lgc.util.PermissionUtil.Companion.respondToPermissionRequest
+import com.deepid.lgc.util.Utils
+import com.deepid.lgc.util.Utils.setFunctionality
+import com.deepid.lgc.util.debounce
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -26,14 +31,22 @@ import com.regula.documentreader.api.ble.RegulaBleService
 import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
+import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
+import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.facesdk.FaceSDK
 import com.regula.facesdk.callback.FaceCaptureCallback
+import com.regula.facesdk.configuration.FaceCaptureConfiguration
+import com.regula.facesdk.exception.InitException
 import com.regula.facesdk.model.results.FaceCaptureResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -42,7 +55,7 @@ import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class InputDeviceActivity : BaseRegulaSdkActivity() {
+class InputDeviceActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
     private var isBleServiceConnected = false
 
@@ -53,9 +66,113 @@ class InputDeviceActivity : BaseRegulaSdkActivity() {
 
     private val scannerViewModel: ScannerViewModel by viewModel()
     private val bluetoothUtil = BluetoothUtil()
+    private var currentScenario: String = Scenario.SCENARIO_CAPTURE
+    private var loadingDialog: AlertDialog? = null
+    private fun dismissDialog() {
+        if (loadingDialog != null) {
+            loadingDialog!!.dismiss()
+        }
+    }
+
+    private fun showScanner() {
+        Log.d(null, "DEBUGX showScanner: currentscenario $currentScenario")
+        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
+        DocumentReader.Instance()
+            .showScanner(this@InputDeviceActivity, scannerConfig, completion)
+    }
+
+    private fun captureFace() {
+        val faceCaptureConfiguration: FaceCaptureConfiguration =
+            FaceCaptureConfiguration.Builder()
+                .registerUiFragmentClass(FaceCameraFragment::class.java)
+                .setCloseButtonEnabled(true)
+                .setCameraSwitchEnabled(false)
+                .build()
+        FaceSDK.Instance()
+            .presentFaceCaptureActivity(
+                this,
+                faceCaptureConfiguration, faceCaptureCallback
+            )
+    }
+
+    private fun initFaceSDK() {
+        if (!FaceSDK.Instance().isInitialized) {
+            FaceSDK.Instance().init(this) { status: Boolean, e: InitException? ->
+                if (!status) {
+                    Toast.makeText(
+                        this@InputDeviceActivity,
+                        "Init FaceSDK finished with error: " + if (e != null) e.message else "",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@init
+                }
+                Log.d(null, "FaceSDK init completed successfully")
+            }
+        }
+    }
+    private fun prepareDatabase() {
+        showDialog("preparing database")
+        DocumentReader.Instance()
+            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
+                this@InputDeviceActivity,
+                "FullAuth",
+                object : IDocumentReaderPrepareCompletion {
+                    override fun onPrepareProgressChanged(progress: Int) {
+                        if (loadingDialog != null)
+                            loadingDialog?.setTitle("Downloading database: $progress%")
+                    }
+
+                    override fun onPrepareCompleted(
+                        status: Boolean,
+                        error: DocumentReaderException?
+                    ) {
+                        if (status) {
+                            Log.d(
+                                TAG,
+                                "[DEBUGX] database onPreparedComplete then initializeReader"
+                            )
+                            initializeReader()
+                        } else {
+                            dismissDialog()
+                            Toast.makeText(
+                                this@InputDeviceActivity,
+                                "Prepare DB failed:$error",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                })
+    }
+
+    private fun initializeReader() {
+        val license = Utils.getLicense(this) ?: return
+        showDialog("Initializing")
+
+        DocumentReader.Instance()
+            .initializeReader(this@InputDeviceActivity, DocReaderConfig(license), initCompletion)
+    }
+
+    private fun showDialog(msg: String?) {
+        dismissDialog()
+        val builderDialog = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
+        builderDialog.setTitle(msg)
+        builderDialog.setView(dialogView)
+        builderDialog.setCancelable(false)
+        loadingDialog = builderDialog.show()
+    }
+
+    private fun handler(delay: Long): () -> Unit = lifecycleScope.debounce(delay) {
+        Toast.makeText(
+            this,
+            "Failed to connect to the torch device",
+            Toast.LENGTH_SHORT
+        ).show()
+        dismissDialog()
+    }
 
     @Transient
-    override val completion: IDocumentReaderCompletion =
+    private val completion: IDocumentReaderCompletion =
         IDocumentReaderCompletion { action, results, error ->
             if (action == DocReaderAction.COMPLETE
                 || action == DocReaderAction.TIMEOUT
@@ -100,12 +217,12 @@ class InputDeviceActivity : BaseRegulaSdkActivity() {
 
                             override fun onCompleted(
                                 rfidAction: Int,
-                                results_RFIDReader: DocumentReaderResults?,
+                                resultsRFIDReader: DocumentReaderResults?,
                                 error: DocumentReaderException?
                             ) {
                                 if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                     scannerViewModel.setDocumentReaderResults(
-                                        results_RFIDReader ?: results
+                                        resultsRFIDReader ?: results
                                     )
                                     captureFace()
                                     displayResults()
@@ -134,7 +251,7 @@ class InputDeviceActivity : BaseRegulaSdkActivity() {
             }
         }
 
-    override val faceCaptureCallback: FaceCaptureCallback =
+    private val faceCaptureCallback: FaceCaptureCallback =
         FaceCaptureCallback { response: FaceCaptureResponse ->
             scannerViewModel.setFaceCaptureResponse(response)
             ScanResultActivity.faceCaptureResponse = response
@@ -152,14 +269,18 @@ class InputDeviceActivity : BaseRegulaSdkActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityInputDeviceBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
+        binding = ActivityInputDeviceBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        /**
+         * Reset all configuration from main
+         * */
+        setFunctionality(Functionality())
         initViews()
         //observe()
-//        prepareDatabase()
-//        setupFunctionality()
+        initFaceSDK()
+        prepareDatabase()
+        setupFunctionality()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { _: View? ->
             if (etDeviceName?.text != null) {
@@ -174,7 +295,7 @@ class InputDeviceActivity : BaseRegulaSdkActivity() {
         }
     }
 
-    override fun setupFunctionality() {
+    private fun setupFunctionality() {
         DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
@@ -207,7 +328,7 @@ class InputDeviceActivity : BaseRegulaSdkActivity() {
     }
 
 
-    override val initCompletion =
+    private val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {

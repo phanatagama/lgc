@@ -12,14 +12,16 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.deepid.lgc.R
 import com.deepid.lgc.databinding.ActivityMainBinding
-import com.deepid.lgc.ui.BaseRegulaSdkActivity
 import com.deepid.lgc.ui.common.FaceCameraFragment
 import com.deepid.lgc.ui.common.RecyclerAdapter
 import com.deepid.lgc.ui.customerInformation.CustomerInformationActivity
@@ -29,17 +31,22 @@ import com.deepid.lgc.ui.scanner.InputDeviceActivity
 import com.deepid.lgc.ui.scanner.ScannerUiState
 import com.deepid.lgc.ui.scanner.ScannerViewModel
 import com.deepid.lgc.util.Base
+import com.deepid.lgc.util.Utils
 import com.deepid.lgc.util.Utils.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.deepid.lgc.util.Utils.getRealPathFromURI
 import com.deepid.lgc.util.Utils.setFunctionality
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
+import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
+import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
@@ -53,7 +60,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
 
-class MainActivity : BaseRegulaSdkActivity() {
+class MainActivity : AppCompatActivity() {
+    private var loadingDialog: AlertDialog? = null
+    private var currentScenario: String = Scenario.SCENARIO_CAPTURE
     private var isShowFaceRecognition = false
     private var isShowRfid = false
     private lateinit var binding: ActivityMainBinding
@@ -91,11 +100,17 @@ class MainActivity : BaseRegulaSdkActivity() {
                 }
             }
         }
-
+    fun initializeReader() {
+        Log.d(TAG, "[DEBUGX] initializeReader")
+        val license = Utils.getLicense(this) ?: return
+        showDialog("Initializing")
+        DocumentReader.Instance()
+            .initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
+    }
 
 
     @Transient
-    override val completion = IDocumentReaderCompletion { action, results, error ->
+    private val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE
             || action == DocReaderAction.TIMEOUT
         ) {
@@ -183,27 +198,20 @@ class MainActivity : BaseRegulaSdkActivity() {
             }
         }
     }
-    override val faceCaptureCallback: FaceCaptureCallback
+    private val faceCaptureCallback: FaceCaptureCallback
         get() = FaceCaptureCallback { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViews()
         observe()
-//        initFaceSDK()
-//        prepareDatabase()
-//        setupFunctionality()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setFunctionality(Functionality())
+        initFaceSDK()
+        prepareDatabase()
         setupFunctionality()
     }
-
-    override fun setupFunctionality() {
+    private fun setupFunctionality() {
         DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
@@ -220,19 +228,78 @@ class MainActivity : BaseRegulaSdkActivity() {
             .apply()
     }
 
-    override fun initFaceSDK() {
-        FaceSDK.Instance().init(this) { status: Boolean, e: InitException? ->
-            if (!status) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Init FaceSDK finished with error: " + if (e != null) e.message else "",
-                    Toast.LENGTH_LONG
-                ).show()
-                return@init
-            }
-            Log.d(TAG, "[DEBUGX] FaceSDK init completed successfully")
-            setButtonEnable()
+    private fun dismissDialog() {
+        if (loadingDialog != null) {
+            loadingDialog!!.dismiss()
         }
+    }
+    private fun showDialog(msg: String?) {
+        dismissDialog()
+        val builderDialog = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
+        builderDialog.setTitle(msg)
+        builderDialog.setView(dialogView)
+        builderDialog.setCancelable(false)
+        loadingDialog = builderDialog.show()
+    }
+    private fun initFaceSDK() {
+        if (!FaceSDK.Instance().isInitialized) {
+            FaceSDK.Instance().init(this) { status: Boolean, e: InitException? ->
+                if (!status) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Init FaceSDK finished with error: " + if (e != null) e.message else "",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@init
+                }
+                Log.d(null, "FaceSDK init completed successfully")
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setFunctionality(Functionality())
+        setupFunctionality()
+    }
+
+    private fun prepareDatabase() {
+        showDialog("preparing database")
+        DocumentReader.Instance()
+            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
+                this@MainActivity,
+                "FullAuth",
+                object : IDocumentReaderPrepareCompletion {
+                    override fun onPrepareProgressChanged(progress: Int) {
+                        if (loadingDialog != null)
+                            loadingDialog?.setTitle("Downloading database: $progress%")
+                    }
+                    override fun onPrepareCompleted(
+                        status: Boolean,
+                        error: DocumentReaderException?
+                    ) {
+                        if (status) {
+                            Log.d(TAG, "[DEBUGX] database onPreparedComplete then initializeReader")
+                            initializeReader()
+                        } else {
+                            dismissDialog()
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Prepare DB failed:$error",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                })
+    }
+
+    private fun showScanner() {
+        Log.d(TAG, "[DEBUGX] showScanner: currentscenario $currentScenario")
+        resetScannerResult()
+        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
+        DocumentReader.Instance()
+            .showScanner(this@MainActivity, scannerConfig, completion)
     }
 
     private fun observe() {
@@ -271,10 +338,6 @@ class MainActivity : BaseRegulaSdkActivity() {
 
     }
 
-    override fun showScanner() {
-        resetScannerResult()
-        super.showScanner()
-    }
 
     private fun resetScannerResult() {
         scannerViewModel.setDocumentReaderResults(null)
@@ -383,7 +446,7 @@ class MainActivity : BaseRegulaSdkActivity() {
 
     }
 
-    override val initCompletion =
+    private val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {

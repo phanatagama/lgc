@@ -53,7 +53,7 @@ import java.util.Date
 
 
 class CustomerInformationActivity : AppCompatActivity() {
-    var uri: Uri? = null
+    private var uri: Uri? = null
     private val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
     private var birthDate = LocalDateTime.now()
     private var issueDate = LocalDateTime.now()
@@ -82,7 +82,8 @@ class CustomerInformationActivity : AppCompatActivity() {
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                 }
             val imageDetails = ContentValues().apply {
-                put(MediaStore.Audio.Media.DISPLAY_NAME, filename)
+//                put(MediaStore.Audio.Media.DISPLAY_NAME, filename)
+                put(MediaStore.Audio.Media.DATA, filename)
             }
             uri = contentResolver.insert(imageUri, imageDetails)
             takePhotoLauncher.launch(uri)
