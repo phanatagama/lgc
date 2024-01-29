@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "887044397039",
+    "project_id": "lgc2-5719a",
+    "storage_bucket": "lgc2-5719a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:887044397039:android:30aaa8148fa693ae7a881a",
+        "android_client_info": {
+          "package_name": "com.regula.documentreader"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPfEfZm2tYiKon5JHiazX2gXfOLEJb160"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
