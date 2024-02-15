@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.deepid.deepscope.data.common.DateConverter
 import com.deepid.deepscope.data.repository.local.entity.CustomerInformationEntity
@@ -15,14 +16,16 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
+
 // Annotates class to be a Room Database with a table (entity) of the T class
 @Database(
     entities = [CustomerInformationEntity::class, DataImageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(DateConverter::class)
 abstract class AppRoomDatabase : RoomDatabase() {
+
 
     abstract fun customerInformationDao(): CustomerInformationDao
     abstract fun dataImageDao(): DataImageDao
@@ -35,6 +38,14 @@ abstract class AppRoomDatabase : RoomDatabase() {
         private var INSTANCE: AppRoomDatabase? = null
 
         private const val DB_NAME = "app_database"
+        private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE 'data_image' ADD COLUMN 'type' INTEGER NOT NULL DEFAULT 1"
+                )
+            }
+        }
+
 
 
         fun getDatabase(context: Context): AppRoomDatabase {
@@ -55,7 +66,10 @@ abstract class AppRoomDatabase : RoomDatabase() {
                             }
                         }
                     }
-                ).fallbackToDestructiveMigration().build()
+                )
+                    .addMigrations(MIGRATION_1_2)
+//                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 // return instance
                 instance
