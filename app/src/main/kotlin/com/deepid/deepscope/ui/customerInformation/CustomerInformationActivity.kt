@@ -1,4 +1,4 @@
-package com.deepid.lgc.ui.customerInformation
+package com.deepid.deepscope.ui.customerInformation
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -25,16 +25,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import com.deepid.lgc.R
-import com.deepid.lgc.data.common.toDate
-import com.deepid.lgc.databinding.ActivityCustomerInformationBinding
-import com.deepid.lgc.domain.model.CustomerInformation
-import com.deepid.lgc.domain.model.DataImage
-import com.deepid.lgc.ui.customerInformation.daum.RoadAddressSearchDialog
-import com.deepid.lgc.ui.customerInformation.diagnose.DiagnoseActivity
-import com.deepid.lgc.util.IdProviderImpl
-import com.deepid.lgc.util.Utils.getBitmap
-import com.deepid.lgc.util.Utils.saveBitmap
+import com.deepid.deepscope.R
+import com.deepid.deepscope.data.common.toDate
+import com.deepid.deepscope.databinding.ActivityCustomerInformationBinding
+import com.deepid.deepscope.domain.model.CustomerInformation
+import com.deepid.deepscope.domain.model.DataImage
+import com.deepid.deepscope.ui.customerInformation.daum.RoadAddressSearchDialog
+import com.deepid.deepscope.ui.customerInformation.diagnose.DiagnoseActivity
+import com.deepid.deepscope.util.IdProviderImpl
+import com.deepid.deepscope.util.Utils.getBitmap
+import com.deepid.deepscope.util.Utils.getImageUri
+import com.deepid.deepscope.util.Utils.saveBitmap
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -71,22 +72,7 @@ class CustomerInformationActivity : AppCompatActivity() {
     private fun takePhoto() {
         // Request camera permissions
         if (allPermissionsGranted()) {
-            val filename = "${LocalDateTime.now().toString()}-LGC.jpg"
-
-            // Get the correct media Uri for your Android build version
-            val imageUri =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    MediaStore.Images.Media.getContentUri(
-                        MediaStore.VOLUME_EXTERNAL_PRIMARY
-                    )
-                } else {
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                }
-            val imageDetails = ContentValues().apply {
-//                put(MediaStore.Audio.Media.DISPLAY_NAME, filename)
-                put(MediaStore.Audio.Media.DATA, filename)
-            }
-            uri = contentResolver.insert(imageUri, imageDetails)
+            uri = getImageUri(this)
             takePhotoLauncher.launch(uri)
         } else {
             requestPermissions()
@@ -98,7 +84,7 @@ class CustomerInformationActivity : AppCompatActivity() {
             if (result && uri != null) {
                 val bitmapResult = uriToBitmap(uri!!)
                 bitmapResult?.let {
-                    rvAdapter.updateList(selectedImage.copy(bitmap = rotateBitmap(it)))
+                    rvAdapter.updateList(selectedImage.copy(bitmap = it))
                 }
             }
         }
@@ -186,7 +172,9 @@ class CustomerInformationActivity : AppCompatActivity() {
                     .toDate()
 
             customerInformationViewModel.addImage(rvAdapter.currentList.filter { it.bitmap != null }
-                .map { it.copy(path = it.bitmap?.saveBitmap(this@CustomerInformationActivity)) })
+                .map {
+                    it.copy(path = it.bitmap?.saveBitmap(this@CustomerInformationActivity))
+                })
             customerInformationViewModel.insertCustomerInformation(
                 title, detail, address, issue, birth
             )
