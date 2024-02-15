@@ -3,12 +3,10 @@ package com.deepid.deepscope.ui.customerInformation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
 import android.net.Uri
@@ -36,6 +34,7 @@ import com.deepid.deepscope.util.IdProviderImpl
 import com.deepid.deepscope.util.Utils.getBitmap
 import com.deepid.deepscope.util.Utils.getImageUri
 import com.deepid.deepscope.util.Utils.saveBitmap
+import com.deepid.deepscope.util.Utils.uriToBitmap
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -47,8 +46,6 @@ import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.results.DocumentReaderResults
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
-import java.io.FileDescriptor
-import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -82,24 +79,13 @@ class CustomerInformationActivity : AppCompatActivity() {
     private val takePhotoLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
             if (result && uri != null) {
-                val bitmapResult = uriToBitmap(uri!!)
+                val bitmapResult = uriToBitmap(this@CustomerInformationActivity, uri!!)
                 bitmapResult?.let {
-                    rvAdapter.updateList(selectedImage.copy(bitmap = it))
+                    rvAdapter.updateList(selectedImage.copy(bitmap = it, type = 1))
                 }
             }
         }
-    private fun uriToBitmap(selectedFileUri: Uri): Bitmap? {
-        try {
-            val parcelFileDescriptor = contentResolver.openFileDescriptor(selectedFileUri, "r")
-            val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
-            val image = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-            parcelFileDescriptor.close()
-            return image
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return null
-    }
+
     @SuppressLint("Range")
     fun rotateBitmap(input: Bitmap): Bitmap? {
         val orientationColumn =
@@ -148,14 +134,14 @@ class CustomerInformationActivity : AppCompatActivity() {
             if (!rvAdapter.currentList.any { it.bitmap != null }) {
                 Toast.makeText(
                     this@CustomerInformationActivity,
-                    "there is no photos",
+                    getString(R.string.there_is_no_photos),
                     Toast.LENGTH_SHORT
                 ).show()
                 return
             } else {
                 Toast.makeText(
                     this@CustomerInformationActivity,
-                    "Saving Complete",
+                    getString(R.string.complete),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -207,7 +193,7 @@ class CustomerInformationActivity : AppCompatActivity() {
             if (!permissionGranted) {
                 Toast.makeText(
                     baseContext,
-                    "Permission request denied",
+                    getString(R.string.permission_request_denied),
                     Toast.LENGTH_SHORT
                 ).show()
                 finish()
@@ -257,7 +243,7 @@ class CustomerInformationActivity : AppCompatActivity() {
                 }
             }
         }
-        dialog.show(supportFragmentManager, "RoadAddressSearchDialog")
+        dialog.show(supportFragmentManager, RoadAddressSearchDialog.TAG)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -288,8 +274,6 @@ class CustomerInformationActivity : AppCompatActivity() {
             }
             btnSendSingle.setOnClickListener {
                 goToDiagnoseActivity()
-//                Toast.makeText(this@CustomerInformationActivity, "Complete", Toast.LENGTH_SHORT)
-//                    .show()
             }
         }
     }
@@ -297,11 +281,12 @@ class CustomerInformationActivity : AppCompatActivity() {
     private fun goToDiagnoseActivity() {
         val intent = Intent(this@CustomerInformationActivity, DiagnoseActivity::class.java)
 
-        intent.putExtra("image",selectedImage.path )
-        intent.putExtra("name", binding.titleTv.text.toString())
-        intent.putExtra("detail", binding.detailTv.text.toString())
-        intent.putExtra("issue", binding.issueTv.text.toString())
-        intent.putExtra("birthDate", binding.birthDateTv.text.toString())
+        intent.putExtra(DiagnoseActivity.IMAGE_PATH,selectedImage.path )
+        intent.putExtra(DiagnoseActivity.NAME, binding.titleTv.text.toString())
+        intent.putExtra(DiagnoseActivity.DETAIL, binding.detailTv.text.toString())
+        intent.putExtra(DiagnoseActivity.ISSUE, binding.issueTv.text.toString())
+        intent.putExtra(DiagnoseActivity.BIRTH_DATE, binding.birthDateTv.text.toString())
+        intent.putExtra(DiagnoseActivity.IMAGE_TYPE, selectedImage.type)
         startActivity(intent)
     }
 
@@ -345,6 +330,7 @@ class CustomerInformationActivity : AppCompatActivity() {
 
                         return
                     }
+
                     if (documentResults == null) {
                         takePhoto()
                     } else {
@@ -383,7 +369,7 @@ class CustomerInformationActivity : AppCompatActivity() {
 
 
     private fun showImageDialog(bitmap: Bitmap) {
-        PhotoDialogFragment.newInstance(bitmap).show(supportFragmentManager, "PhotoDialogFragment")
+        PhotoDialogFragment.newInstance(bitmap).show(supportFragmentManager, PhotoDialogFragment.TAG)
     }
 
 
@@ -414,14 +400,14 @@ class CustomerInformationActivity : AppCompatActivity() {
         if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 2) == 2) {
             uvImage?.let {
                 if (emptyField != null) {
-                    rvAdapter.updateList(emptyField.copy(bitmap = it))
+                    rvAdapter.updateList(emptyField.copy(bitmap = it, type = 2))
                 }
             }
         } else {
             if (rawImage != null && uvImage != null && emptyField != null && emptyField2 != null) {
                 rvAdapter.updateList(
-                    emptyField.copy(bitmap = rawImage),
-                    emptyField2.copy(bitmap = uvImage)
+                    emptyField.copy(bitmap = rawImage, type=1),
+                    emptyField2.copy(bitmap = uvImage, type = 2)
                 )
             }
         }
@@ -440,12 +426,13 @@ class CustomerInformationActivity : AppCompatActivity() {
                 documentResults = results
                 insertOpticalImage(results)
             } else {
-                Toast.makeText(this, "DocReaderSDK has been failed to identify", Toast.LENGTH_LONG)
+                Toast.makeText(this,
+                    getString(R.string.docreadersdk_has_been_failed_to_identify), Toast.LENGTH_LONG)
                     .show()
             }
         } else {
             if (action == DocReaderAction.CANCEL) {
-                Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.scanning_was_cancelled), Toast.LENGTH_LONG).show()
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
             }

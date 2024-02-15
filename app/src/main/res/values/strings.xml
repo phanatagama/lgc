@@ -36,7 +36,23 @@
     <string name="regula_id_0326">Regula ID 0326</string>
     <string name="john_doe">John Doe</string>
     <string name="medicines">MEDICINES</string>
+    <string name="functional_cosmetics">Functional Cosmetics</string>
     <string name="dermatology_clinic">Dermatology Clinic</string>
-    <string name="home">Home</string>
     <string name="complete">Complete</string>
+    <string name="there_is_no_photos">there is no photos</string>
+    <string name="permission_request_denied">Permission request denied</string>
+    <string name="docreadersdk_has_been_failed_to_identify">DocReaderSDK has been failed to identify</string>
+    <string name="scanning_was_cancelled">Scanning was cancelled</string>
+    <string name="skin_disease_care">Skin Disease Care</string>
+    <string name="skin_aging_care">Skin Aging Care</string>
+    <string name="esroban_description_1">Apply Esroban 3 times a day.</string>
+    <string name="esroban_description_2">Take Calcineurin Inhibitor twice a day.</string>
+    <string name="melanon_cream_description_1">Apply Melanon Cream once a day before bedtime.</string>
+    <string name="melanon_cream_description_2">Apply anti-wrinkle cream morning and evening</string>
+    <string name="esroban">Esroban</string>
+    <string name="_1">1</string>
+    <string name="calcineurin_inhibitor">Calcineurin Inhibitor</string>
+    <string name="melanon_cream">Melanon Cream</string>
+    <string name="anti_wrinkle_cream">Anti-wrinkle Cream</string>
+
 </resources>

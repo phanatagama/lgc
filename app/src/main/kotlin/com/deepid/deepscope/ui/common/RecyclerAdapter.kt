@@ -9,7 +9,7 @@ import com.deepid.deepscope.R
 import com.deepid.deepscope.databinding.RvItemMenuBinding
 import com.deepid.deepscope.util.Base
 import com.deepid.deepscope.util.ItemMenu
-import com.deepid.deepscope.util.Utils.getColor
+import com.deepid.deepscope.util.Utils.getColorResource
 
 class RecyclerAdapter(private val items: List<Base>) :
     RecyclerView.Adapter<RecyclerAdapter.VH>() {
@@ -36,7 +36,7 @@ class RecyclerAdapter(private val items: List<Base>) :
         class ItemMenuVH(private val binding: RvItemMenuBinding): VH(binding.root){
             override fun bind(base: Base) {
                 val itemMenu = base as ItemMenu
-                val color = getColor(if(itemMenu.isActive) R.color.secondary_color else R.color.background_color, context)
+                val color = getColorResource(if(itemMenu.isActive) R.color.secondary_color else R.color.background_color, context)
                 with(binding){
                     menuTitleTv.text = itemMenu.title
                     menuIconTv.setImageDrawable(itemMenu.image)

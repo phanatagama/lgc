@@ -51,6 +51,7 @@ import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
 import java.io.File
+import java.io.FileDescriptor
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -97,14 +98,31 @@ object Utils {
             imageFile
         )
     }
+
+    fun uriToBitmap(context: Context, selectedFileUri: Uri): Bitmap? {
+        try {
+            val parcelFileDescriptor =
+                context.contentResolver.openFileDescriptor(selectedFileUri, "r")
+            val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
+            val image = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+            parcelFileDescriptor.close()
+            return image
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
     fun getDrawable(
         @DrawableRes
-        id: Int, context: Context): Drawable =
+        id: Int, context: Context
+    ): Drawable =
         ResourcesCompat.getDrawable(context.resources, id, context.theme)!!
 
-    fun getColor(
+    fun getColorResource(
         @ColorRes
-        id: Int, context: Context): Int =
+        id: Int, context: Context
+    ): Int =
         ResourcesCompat.getColor(context.resources, id, context.theme)
 
     fun getBitmap(
@@ -195,7 +213,6 @@ object Utils {
         }
         return null
     }
-
 
 
     fun getRealPathFromURI(uri: Uri, context: Context): String {
@@ -387,7 +404,8 @@ fun DocumentReaderResults.toParcelable(
         textField = attributes
     )
 }
-fun  CoroutineScope.debounce(
+
+fun CoroutineScope.debounce(
     waitMs: Long = 300L,
     destinationFunction: () -> Unit
 ): () -> Unit {

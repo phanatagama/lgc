@@ -124,7 +124,6 @@ class RoadAddressSearchDialog : DialogFragment() {
         @JavascriptInterface
         @Suppress("unused")
         fun processDATA(roadAdd: String?) {
-            Log.d(null, "DEBUGX processDATA: $roadAdd")
             handler?.post(Runnable {
                 listener?.sendInput(roadAdd)
                 dismiss()
@@ -133,6 +132,7 @@ class RoadAddressSearchDialog : DialogFragment() {
     }
 
     companion object {
+        internal val TAG = RoadAddressSearchDialog::class.java.simpleName
         fun newInstance(): RoadAddressSearchDialog {
             return RoadAddressSearchDialog()
         }

@@ -15,4 +15,6 @@
     <color name="background_color">#FFD9D9D9</color>
     <color name="success_color">#FF8CC67B</color>
     <color name="error_color">#FFE74147</color>
+    <color name="functional_cosmetics_color">#e48d94</color>
+
 </resources>

@@ -30,7 +30,7 @@ class PhotoDialogFragment : DialogFragment() {
     ): View {
         _binding = FragmentPhotoDialogBinding.inflate(inflater, container, false)
         binding.closeIcon.setOnClickListener { dismiss() }
-        binding.zoomImageView.setImageBitmap(arguments?.getParcelable("bitmap"))
+        binding.zoomImageView.setImageBitmap(arguments?.getParcelable(IMAGE_BITMAP))
         return binding.root
     }
 
@@ -40,10 +40,13 @@ class PhotoDialogFragment : DialogFragment() {
     }
 
     companion object {
+        internal val TAG = PhotoDialogFragment::class.java.simpleName
+        const val IMAGE_BITMAP = "IMAGE_BITMAP"
+
         fun newInstance(bitmap: Bitmap): PhotoDialogFragment {
             val fragment = PhotoDialogFragment()
             val args = Bundle()
-            args.putParcelable("bitmap", bitmap)
+            args.putParcelable(IMAGE_BITMAP, bitmap)
             fragment.arguments = args
             return fragment
         }
