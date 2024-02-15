@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace("com.deepid.lgc")
+    namespace("com.deepid.deepscope")
     compileSdk(32)
 
     defaultConfig {
