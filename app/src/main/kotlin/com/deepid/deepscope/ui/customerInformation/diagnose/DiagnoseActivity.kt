@@ -1,11 +1,11 @@
-package com.deepid.lgc.ui.customerInformation.diagnose
+package com.deepid.deepscope.ui.customerInformation.diagnose
 
-import android.graphics.Bitmap
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.deepid.lgc.R
-import com.deepid.lgc.databinding.ActivityDiagnoseBinding
+import com.deepid.deepscope.databinding.ActivityDiagnoseBinding
+import com.deepid.deepscope.ui.main.MainActivity
 import java.io.File
 
 class DiagnoseActivity : AppCompatActivity() {
@@ -25,6 +25,14 @@ class DiagnoseActivity : AppCompatActivity() {
                     image.setImageURI(Uri.fromFile(imgFile))
                 }
             }
+        }
+
+        bindViews()
+    }
+
+    private fun bindViews() {
+        binding.btnBack.setOnClickListener {
+            startActivity(Intent(this@DiagnoseActivity, MainActivity::class.java))
         }
     }
 

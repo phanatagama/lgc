@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LGC</string>
+    <string name="app_name">DeepScope</string>
     <string name="upload_file">Upload File</string>
     <string name="menu_title">Title of Menu</string>
     <string name="menu_chip">Chip</string>
@@ -37,4 +37,6 @@
     <string name="john_doe">John Doe</string>
     <string name="medicines">MEDICINES</string>
     <string name="dermatology_clinic">Dermatology Clinic</string>
+    <string name="home">Home</string>
+    <string name="complete">Complete</string>
 </resources>
