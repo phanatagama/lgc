@@ -39,6 +39,7 @@
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="16sp"
+        android:textAllCaps="true"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -190,12 +191,12 @@
         app:layout_constraintTop_toBottomOf="@id/bottom_divider" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/disease"
+        android:id="@+id/diseaseTable"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="Skin Disease Care"
+        android:text="@string/skin_disease_care"
         android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -204,12 +205,12 @@
         app:layout_constraintTop_toTopOf="@id/container" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/esroban"
+        android:id="@+id/receipt_1"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="Esroban"
+        android:text="@string/esroban"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -217,12 +218,12 @@
         app:layout_constraintTop_toBottomOf="@id/container" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/esroban_total"
+        android:id="@+id/receipt_1_total"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="1"
+        android:text="@string/_1"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -238,15 +239,15 @@
         android:background="@color/background_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/esroban" />
+        app:layout_constraintTop_toBottomOf="@id/receipt_1" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/calcineurin"
+        android:id="@+id/receipt_2"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="Calcineurin Inhibitor"
+        android:text="@string/calcineurin_inhibitor"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -254,12 +255,12 @@
         app:layout_constraintTop_toBottomOf="@id/border_1" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/calcineurin_total"
+        android:id="@+id/receipt_2_total"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="1"
+        android:text="@string/_1"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -275,7 +276,7 @@
         android:background="@color/background_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/calcineurin" />
+        app:layout_constraintTop_toBottomOf="@id/receipt_2" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/description_1"
@@ -283,7 +284,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="Apply Esroban 3 times a day. "
+        android:text="@string/esroban_description_1"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@id/container"
@@ -295,7 +296,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:text="Take Calcineurin Inhibitor twice a day. "
+        android:text="@string/esroban_description_2"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@id/container"
