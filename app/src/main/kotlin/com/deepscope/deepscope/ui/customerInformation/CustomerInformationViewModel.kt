@@ -39,6 +39,18 @@ class CustomerInformationViewModel(
         }
     }
 
+    /**
+     * Insert customer information to database
+     * @param name customer name
+     * @param description customer description
+     * @param address customer address
+     * @param issueDateTime customer issue date
+     * @param birthDateTime customer birth date
+     * Step to insert
+     * 1. check if customer information is exist in database
+     * 2. if exist, update customer information
+     * 3. if not exist, insert customer information
+     */
     fun insertCustomerInformation(
         name: String,
         description: String,
@@ -70,23 +82,18 @@ class CustomerInformationViewModel(
                     )
                 }
             }
-            customerInformation.images.forEachIndexed { index, img ->
-                val type: String = when (img.type) {
-                    1 -> "raw/normal images"
-                    2 -> "uv/bluetooth images"
-                    else -> "type"
-                }
-                Log.d(
-                    "[DEBUGX]", "image $index" +
-                            "type :$type "
-                )
-
-            }
         }
     }
 
     fun addImage(bitmap: List<DataImage>) {
         dataImages.clear()
         dataImages.addAll(bitmap)
+    }
+
+    fun deleteImage(customerId:String, dataImage: DataImage) {
+        dataImages.remove(dataImage)
+        viewModelScope.launch {
+            dataImageProvider.deleteDataImage(customerId, dataImage)
+        }
     }
 }

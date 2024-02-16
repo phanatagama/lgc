@@ -344,9 +344,14 @@ class CustomerInformationActivity : AppCompatActivity() {
                 }
 
                 override fun onItemDeleteClickListener(view: View, dataImage: DataImage) {
-                    dataImage.copy(bitmap = null, path = null).let {
-                        rvAdapter.updateList(it)
+                    if (rvAdapter.parentType == 1){
+                        dataImage.copy(bitmap = null, path = null).let {
+                            rvAdapter.updateList(it)
+                        }
+                    }else{
+                        customerInformationViewModel.deleteImage(intent.getStringExtra(CUSTOMER_INFORMATION_ID)!!,dataImage)
                     }
+
                 }
             }
             ViewCompat.setNestedScrollingEnabled(rvPhoto, false)

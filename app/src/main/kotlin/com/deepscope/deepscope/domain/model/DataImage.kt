@@ -18,4 +18,5 @@ data class DataImage(
             path = path ?: ""
         )
     }
+
 }

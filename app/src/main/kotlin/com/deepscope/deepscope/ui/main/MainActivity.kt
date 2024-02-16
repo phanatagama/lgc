@@ -437,7 +437,6 @@ class MainActivity : AppCompatActivity() {
                 autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
                 autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,3)
                 startActivity(autoIntent)
-//                showScanner()
             }
             btnPrescription.setOnClickListener {
                 startActivity(Intent(this@MainActivity, SearchCustomerInformationActivity::class.java))

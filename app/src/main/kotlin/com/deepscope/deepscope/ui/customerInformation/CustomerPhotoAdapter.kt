@@ -70,15 +70,11 @@ class CustomerPhotoAdapter :
         val item = getItem(position)
         holder.bind(item)
         holder.binding.imageCard.setOnClickListener { listener?.onItemClickListener(it, item) }
-        if (parentType == 1) {
-            holder.binding.deleteIcon.setOnClickListener {
-                listener?.onItemDeleteClickListener(
-                    it,
-                    item
-                )
-            }
-        } else {
-            holder.hideDeleteIcon()
+        holder.binding.deleteIcon.setOnClickListener {
+            listener?.onItemDeleteClickListener(
+                it,
+                item
+            )
         }
     }
 

@@ -14,4 +14,10 @@ class DataImageProvider(private val dispatcher: CoroutineDispatcher = Dispatcher
             dataImageDao.insert(dataImage.map { it.mapToEntity(customerId) })
         }
     }
+
+    suspend fun deleteDataImage(customerId:String, dataImage: DataImage) {
+        withContext(dispatcher) {
+            dataImageDao.delete(dataImage.mapToEntity(customerId))
+        }
+    }
 }
