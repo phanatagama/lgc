@@ -248,12 +248,12 @@ class MainActivity : AppCompatActivity() {
                 if (!status) {
                     Toast.makeText(
                         this@MainActivity,
-                        "Init FaceSDK finished with error: " + if (e != null) e.message else "",
+                        getString(R.string.init_facesdk_finished_with_error) + if (e != null) e.message else "",
                         Toast.LENGTH_LONG
                     ).show()
                     return@init
                 }
-                Log.d(null, "FaceSDK init completed successfully")
+                Log.d(null, getString(R.string.facesdk_init_completed_successfully))
             }
         }
     }
@@ -265,7 +265,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun prepareDatabase() {
-        showDialog("preparing database")
+        showDialog(getString(R.string.preparing_database))
         DocumentReader.Instance()
             .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
                 this@MainActivity,
@@ -494,6 +494,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val TAG: String = "MainActivity"
+        internal val TAG: String = MainActivity::class.java.simpleName
     }
 }

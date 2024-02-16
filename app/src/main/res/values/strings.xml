@@ -57,5 +57,8 @@
     <string name="calcineurin_inhibitor">Calcineurin Inhibitor</string>
     <string name="melanon_cream">Melanon Cream</string>
     <string name="anti_wrinkle_cream">Anti-wrinkle Cream</string>
+    <string name="facesdk_init_completed_successfully">FaceSDK init completed successfully</string>
+    <string name="init_facesdk_finished_with_error">"Init FaceSDK finished with error: "</string>
+    <string name="preparing_database">preparing database</string>
 
 </resources>

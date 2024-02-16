@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_primary_variant"
+    android:paddingHorizontal="8dp"
     tools:context=".ui.customerInformation.diagnose.DiagnoseActivity">
     <View
         android:layout_width="0dp"
@@ -204,9 +205,9 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:text="@string/skin_disease_care"
+        android:fontFamily="@font/saira_semi_condensed_semibold"
         android:textColor="@color/white"
         android:textSize="15sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@id/container"
         app:layout_constraintStart_toStartOf="@id/container"
         app:layout_constraintBottom_toBottomOf="@id/container"
@@ -221,7 +222,6 @@
         android:text="@string/esroban"
         android:textColor="@color/black"
         android:textSize="13sp"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@id/container"
         app:layout_constraintTop_toBottomOf="@id/container" />
 
@@ -234,7 +234,6 @@
         android:text="@string/_1"
         android:textColor="@color/black"
         android:textSize="13sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@id/container"
         app:layout_constraintTop_toBottomOf="@id/container" />
 
@@ -258,7 +257,6 @@
         android:text="@string/calcineurin_inhibitor"
         android:textColor="@color/black"
         android:textSize="13sp"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@id/container"
         app:layout_constraintTop_toBottomOf="@id/border_1" />
 
@@ -271,7 +269,6 @@
         android:text="@string/_1"
         android:textColor="@color/black"
         android:textSize="13sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@id/container"
         app:layout_constraintTop_toBottomOf="@id/border_1" />
 
@@ -319,7 +316,7 @@
         android:layout_marginVertical="16dp"
         android:text="@string/complete"
         android:textAllCaps="false"
-        android:enabled="false"
+        android:backgroundTint="@color/disable_button_color"
         android:textColor="@color/white"
         android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="parent"
