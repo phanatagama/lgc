@@ -427,11 +427,10 @@ class MainActivity : AppCompatActivity() {
                 startActivity(visibleIntent)
             }
             btnInvisible.setOnClickListener {
-//                val invisibleIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
-//                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
-//                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,2)
-//                startActivity(invisibleIntent)
-                displayResults()
+                val invisibleIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
+                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
+                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,2)
+                startActivity(invisibleIntent)
             }
             btnAuto.setOnClickListener {
                 val autoIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
