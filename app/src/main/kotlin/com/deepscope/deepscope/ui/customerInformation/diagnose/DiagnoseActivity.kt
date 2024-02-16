@@ -46,7 +46,7 @@ class DiagnoseActivity : AppCompatActivity() {
             footDivider.setBackgroundResource(R.color.functional_cosmetics_color)
             container.setBackgroundResource(R.color.functional_cosmetics_color)
             btnBack.setBackgroundColor(Utils.getColorResource(R.color.functional_cosmetics_color, this@DiagnoseActivity))
-            subtitle.text = getString(R.string.functional_cosmetics)
+            subtitle.text = getString(R.string.skin_aging_diagnosis)
             diseaseTable.text = getString(R.string.skin_aging_care)
             description1.text = getString(R.string.melanon_cream_description_1)
             description2.text = getString(R.string.melanon_cream_description_2)
