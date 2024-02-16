@@ -36,7 +36,7 @@ class RecyclerAdapter(private val items: List<Base>) :
         class ItemMenuVH(private val binding: RvItemMenuBinding): VH(binding.root){
             override fun bind(base: Base) {
                 val itemMenu = base as ItemMenu
-                val color = getColorResource(if(itemMenu.isActive) R.color.secondary_color else R.color.background_color, context)
+                val color = getColorResource(if(itemMenu.isActive) R.color.color_primary else R.color.background_color, context)
                 with(binding){
                     menuTitleTv.text = itemMenu.title
                     menuIconTv.setImageDrawable(itemMenu.image)

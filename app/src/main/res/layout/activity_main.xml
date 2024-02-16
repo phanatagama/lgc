@@ -19,5 +19,4 @@
         app:enableEdgeToEdge="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

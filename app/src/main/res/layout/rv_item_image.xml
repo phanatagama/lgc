@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="160dp"
     android:layout_margin="8dp"
-    app:cardBackgroundColor="@color/primary_color"
+    app:cardBackgroundColor="@color/color_primary_variant"
     app:cardCornerRadius="8dp">
 
     <com.google.android.material.imageview.ShapeableImageView
