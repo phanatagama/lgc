@@ -114,7 +114,12 @@ class CustomerInformationActivity : AppCompatActivity() {
             if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 1) == 1) {
                 takePhoto()
             } else {
-                insertOpticalImage(documentResults)
+                if (documentResults == null) {
+                    showScanner()
+                } else {
+                    insertOpticalImage(documentResults)
+                }
+
             }
         } else {
             rvAdapter.parentType = 2
@@ -281,7 +286,7 @@ class CustomerInformationActivity : AppCompatActivity() {
     private fun goToDiagnoseActivity() {
         val intent = Intent(this@CustomerInformationActivity, DiagnoseActivity::class.java)
 
-        intent.putExtra(DiagnoseActivity.IMAGE_PATH,selectedImage.path )
+        intent.putExtra(DiagnoseActivity.IMAGE_PATH, selectedImage.path)
         intent.putExtra(DiagnoseActivity.NAME, binding.titleTv.text.toString())
         intent.putExtra(DiagnoseActivity.DETAIL, binding.detailTv.text.toString())
         intent.putExtra(DiagnoseActivity.ISSUE, binding.issueTv.text.toString())
@@ -314,7 +319,7 @@ class CustomerInformationActivity : AppCompatActivity() {
                 override fun onItemClickListener(view: View, dataImage: DataImage) {
                     selectedImage = dataImage
                     if (dataImage.bitmap != null || dataImage.path != null) {
-                        if(rvAdapter.parentType == 1){
+                        if (rvAdapter.parentType == 1) {
                             showImageDialog(
                                 dataImage.bitmap ?: getBitmap(
                                     Uri.fromFile(File(dataImage.path!!)),
@@ -348,16 +353,16 @@ class CustomerInformationActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayImage(isSingleView: Boolean){
-        with(binding){
-            if(isSingleView){
+    private fun displayImage(isSingleView: Boolean) {
+        with(binding) {
+            if (isSingleView) {
                 rvPhoto.visibility = View.GONE
                 btnSend.visibility = View.GONE
                 singleImage.visibility = View.VISIBLE
                 btnSendSingle.visibility = View.VISIBLE
                 btnCloseSingle.visibility = View.VISIBLE
 
-            }else{
+            } else {
                 rvPhoto.visibility = View.VISIBLE
                 btnSend.visibility = View.VISIBLE
                 singleImage.visibility = View.GONE
@@ -367,11 +372,10 @@ class CustomerInformationActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showImageDialog(bitmap: Bitmap) {
-        PhotoDialogFragment.newInstance(bitmap).show(supportFragmentManager, PhotoDialogFragment.TAG)
+        PhotoDialogFragment.newInstance(bitmap)
+            .show(supportFragmentManager, PhotoDialogFragment.TAG)
     }
-
 
     private fun insertOpticalImage(documentReaderResults: DocumentReaderResults?) {
         val uvImage = documentReaderResults?.getGraphicFieldImageByType(
@@ -406,7 +410,7 @@ class CustomerInformationActivity : AppCompatActivity() {
         } else {
             if (rawImage != null && uvImage != null && emptyField != null && emptyField2 != null) {
                 rvAdapter.updateList(
-                    emptyField.copy(bitmap = rawImage, type=1),
+                    emptyField.copy(bitmap = rawImage, type = 1),
                     emptyField2.copy(bitmap = uvImage, type = 2)
                 )
             }
@@ -422,17 +426,21 @@ class CustomerInformationActivity : AppCompatActivity() {
         if (action == DocReaderAction.COMPLETE
             || action == DocReaderAction.TIMEOUT
         ) {
+            Log.d("[DEBUGX]", "result: $results")
             if (results != null) {
                 documentResults = results
                 insertOpticalImage(results)
             } else {
-                Toast.makeText(this,
-                    getString(R.string.docreadersdk_has_been_failed_to_identify), Toast.LENGTH_LONG)
+                Toast.makeText(
+                    this,
+                    getString(R.string.docreadersdk_has_been_failed_to_identify), Toast.LENGTH_LONG
+                )
                     .show()
             }
         } else {
             if (action == DocReaderAction.CANCEL) {
-                Toast.makeText(this, getString(R.string.scanning_was_cancelled), Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.scanning_was_cancelled), Toast.LENGTH_LONG)
+                    .show()
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
             }
@@ -459,8 +467,14 @@ class CustomerInformationActivity : AppCompatActivity() {
     companion object {
         var documentResults: DocumentReaderResults? = null
         const val CUSTOMER_INFORMATION_TYPE = "CUSTOMER_INFORMATION_TYPE"
-        const val CUSTOMER_INFORMATION_ID = "CUSTOMER_INFORMATION_ID"
+
+        /**
+         * CUSTOMER_INFORMATION_FEATURE
+         * 1 -> feature-visible // the activity will be setup for normal camera
+         * 2 -> feature-invisible/auto // the activity will be setup for bluetooth camera
+         */
         const val CUSTOMER_INFORMATION_FEATURE = "CUSTOMER_INFORMATION_FEATURE"
+        const val CUSTOMER_INFORMATION_ID = "CUSTOMER_INFORMATION_ID"
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA

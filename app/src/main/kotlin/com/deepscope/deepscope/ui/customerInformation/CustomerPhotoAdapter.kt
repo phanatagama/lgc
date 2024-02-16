@@ -86,7 +86,7 @@ class CustomerPhotoAdapter :
         val newList = currentList.toMutableList().map {
             if (it.id == dataImage.id) {
                 Log.d("DEBUGX", "DEBUGX updateList: CHANGED")
-                it.copy(bitmap = dataImage.bitmap)
+                it.copy(bitmap = dataImage.bitmap, type = dataImage.type)
             } else {
                 it
             }

@@ -54,11 +54,11 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
     }
 
     protected fun handler(delay: Long): () -> Unit = lifecycleScope.debounce(delay) {
-        Toast.makeText(
-            this,
-            "Failed to connect to the torch device",
-            Toast.LENGTH_SHORT
-        ).show()
+//        Toast.makeText(
+//            this,
+//            "Failed to connect to the torch device",
+//            Toast.LENGTH_SHORT
+//        ).show()
         dismissDialog()
     }
 

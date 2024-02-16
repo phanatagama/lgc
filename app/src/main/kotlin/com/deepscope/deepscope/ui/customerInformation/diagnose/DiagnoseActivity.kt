@@ -22,7 +22,7 @@ class DiagnoseActivity : AppCompatActivity() {
                 detailTv.text = it.getString(DETAIL)
                 issueTv.text = it.getString(ISSUE)
                 birthDateTv.text = it.getString(BIRTH_DATE)
-                val type = it.getInt(IMAGE_TYPE)
+                val type = it.getInt(IMAGE_TYPE, 2)
                 if (type == 2) functionalCosmetics()
                 val imgFile = File(it.getString(IMAGE_PATH)!!)
                 if (imgFile.exists()) {
@@ -40,23 +40,22 @@ class DiagnoseActivity : AppCompatActivity() {
         }
     }
 
-    private fun functionalCosmetics(){
+    private fun functionalCosmetics() {
         with(binding){
             topDivider.setBackgroundResource(R.color.functional_cosmetics_color)
             footDivider.setBackgroundResource(R.color.functional_cosmetics_color)
             container.setBackgroundResource(R.color.functional_cosmetics_color)
-            btnBack.setBackgroundColor(Utils.getColorResource(R.color.functional_cosmetics_color, this@DiagnoseActivity))
+//            btnBack.setBackgroundColor(Utils.getColorResource(R.color.functional_cosmetics_color, this@DiagnoseActivity))
             subtitle.text = getString(R.string.skin_aging_diagnosis)
             diseaseTable.text = getString(R.string.skin_aging_care)
             description1.text = getString(R.string.melanon_cream_description_1)
             description2.text = getString(R.string.melanon_cream_description_2)
             receipt1.text = getString(R.string.melanon_cream)
             receipt2.text = getString(R.string.anti_wrinkle_cream)
-
         }
     }
     companion object{
-        const val TAG = "DiagnoseActivity"
+        internal val TAG = DiagnoseActivity::class.java.simpleName
         const val NAME = "USER_NAME"
         const val ISSUE = "ISSUE"
         const val BIRTH_DATE = "BIRTH_DATE"

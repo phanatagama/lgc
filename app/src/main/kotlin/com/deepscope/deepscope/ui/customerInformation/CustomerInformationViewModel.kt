@@ -1,5 +1,6 @@
 package com.deepscope.deepscope.ui.customerInformation
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -68,6 +69,18 @@ class CustomerInformationViewModel(
                         it
                     )
                 }
+            }
+            customerInformation.images.forEachIndexed { index, img ->
+                val type: String = when (img.type) {
+                    1 -> "raw/normal images"
+                    2 -> "uv/bluetooth images"
+                    else -> "type"
+                }
+                Log.d(
+                    "[DEBUGX]", "image $index" +
+                            "type :$type "
+                )
+
             }
         }
     }

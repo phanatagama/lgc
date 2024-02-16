@@ -162,14 +162,14 @@ class InputDeviceActivity : AppCompatActivity() {
         loadingDialog = builderDialog.show()
     }
 
-    private fun handler(delay: Long): () -> Unit = lifecycleScope.debounce(delay) {
-        Toast.makeText(
-            this,
-            "Failed to connect to the torch device",
-            Toast.LENGTH_SHORT
-        ).show()
-        dismissDialog()
-    }
+//    private fun handler(delay: Long): () -> Unit = lifecycleScope.debounce(delay) {
+//        Toast.makeText(
+//            this,
+//            "Failed to connect to the torch device",
+//            Toast.LENGTH_SHORT
+//        ).show()
+//        dismissDialog()
+//    }
 
     @Transient
     private val completion: IDocumentReaderCompletion =
@@ -286,7 +286,7 @@ class InputDeviceActivity : AppCompatActivity() {
             if (etDeviceName?.text != null) {
                 showDialog("Searching devices")
 //                handler.sendEmptyMessageDelayed(0, 7000)
-                handler(7000L).invoke()
+//                handler(7000L).invoke()
                 DocumentReader.Instance().functionality().edit()
                     .setUseAuthenticator(true)
                     .setBtDeviceName(etDeviceName?.text.toString()).apply()
@@ -377,7 +377,7 @@ class InputDeviceActivity : AppCompatActivity() {
 
             showDialog("Searching devices")
 //            handler.sendEmptyMessageDelayed(0, 7000)
-            handler(7000L).invoke()
+//            handler(7000L).invoke()
             bleManager.let {
                 it!!.addCallback(bleManagerCallbacks)
             }
@@ -387,11 +387,6 @@ class InputDeviceActivity : AppCompatActivity() {
             isBleServiceConnected = false
         }
     }
-//    private val handler = Handler { _: Message? ->
-//        Toast.makeText(this, "Failed to connect to the torch device", Toast.LENGTH_SHORT).show()
-//        dismissDialog()
-//        false
-//    }
 
 
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {
