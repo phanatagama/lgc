@@ -20,7 +20,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_image_logo" />
 
-    <!--  Start of Hidden Component -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/menu_rv"
         android:layout_width="0dp"
@@ -130,7 +129,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_connect" />
-    <!--   End of hidden component -->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_visible"
@@ -140,6 +138,7 @@
         android:enabled="false"
         tools:enabled="true"
         android:drawableEnd="@drawable/image_menu_visible"
+        android:drawableTint="@color/white"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
         android:text="@string/menu_visible"
@@ -160,7 +159,6 @@
         tools:enabled="true"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
-        android:drawableEnd="@drawable/image_menu_invisible"
         android:text="@string/menu_invisible"
         android:textAlignment="textStart"
         android:textAllCaps="false"
@@ -181,7 +179,6 @@
         android:paddingVertical="14dp"
         android:text="@string/menu_auto"
         android:textAlignment="textStart"
-        android:drawableEnd="@drawable/image_menu_auto"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="26sp"
@@ -198,8 +195,7 @@
         tools:enabled="true"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
-        android:text="@string/report"
-        android:drawableEnd="@drawable/image_menu_report"
+        android:text="@string/menu_prescription"
         android:textAlignment="textStart"
         android:textAllCaps="false"
         android:textColor="@color/white"
