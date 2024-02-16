@@ -18,7 +18,7 @@
     <string name="birth_date">BIRTH DATE</string>
     <string name="birth_date_value">11/11/23</string>
     <string name="address">ADDRESS</string>
-    <string name="address_value">"124-38 Garibong-dong, Guro-gu, Seoul"</string>
+    <string name="address_value">"124–38 Garibong-dong, Guro-gu, Seoul"</string>
     <string name="issue_date">ISSUE DATE</string>
     <string name="customer_detail">MALE, AGE: 30</string>
     <string name="customer_name">Customer Name…</string>
@@ -36,6 +36,7 @@
     <string name="regula_id_0326">Regula ID 0326</string>
     <string name="john_doe">John Doe</string>
     <string name="medicines">MEDICINES</string>
+    <string name="report">Report</string>
     <string name="functional_cosmetics">Functional Cosmetics</string>
     <string name="dermatology_clinic">Dermatology Clinic</string>
     <string name="complete">Complete</string>
@@ -44,7 +45,9 @@
     <string name="docreadersdk_has_been_failed_to_identify">DocReaderSDK has been failed to identify</string>
     <string name="scanning_was_cancelled">Scanning was cancelled</string>
     <string name="skin_disease_care">Skin Disease Care</string>
+    <string name="skin_disease_diagnosis">Skin Disease Diagnosis</string>
     <string name="skin_aging_care">Skin Aging Care</string>
+    <string name="skin_aging_diagnosis">Skin Aging Diagnosis</string>
     <string name="esroban_description_1">Apply Esroban 3 times a day.</string>
     <string name="esroban_description_2">Take Calcineurin Inhibitor twice a day.</string>
     <string name="melanon_cream_description_1">Apply Melanon Cream once a day before bedtime.</string>

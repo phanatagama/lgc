@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_color"
+    android:background="@color/color_primary_variant"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.main.MainActivity">
@@ -20,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_image_logo" />
 
+    <!--  Start of Hidden Component -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/menu_rv"
         android:layout_width="0dp"
@@ -129,12 +130,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_connect" />
+    <!--   End of hidden component -->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_visible"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_visible"
         android:enabled="false"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
@@ -145,13 +148,16 @@
         android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView" />
+        app:layout_constraintTop_toBottomOf="@id/imageView"
+        app:shapeAppearance="@style/ShapeAppearance.App.SmallComponent.Radius5"
+        tools:enabled="true" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_invisible"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_invisible"
         android:enabled="false"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
@@ -162,13 +168,16 @@
         android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_visible" />
+        app:layout_constraintTop_toBottomOf="@id/btn_visible"
+        app:shapeAppearance="@style/ShapeAppearance.App.SmallComponent.Radius5"
+        tools:enabled="true" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_auto"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_auto"
         android:enabled="false"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
@@ -179,24 +188,51 @@
         android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_invisible" />
+        app:layout_constraintTop_toBottomOf="@id/btn_invisible"
+        app:shapeAppearance="@style/ShapeAppearance.App.SmallComponent.Radius5"
+        tools:enabled="true" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_prescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="48dp"
+        android:drawableEnd="@drawable/image_menu_report"
         android:enabled="false"
         android:paddingHorizontal="24dp"
         android:paddingVertical="14dp"
-        android:text="@string/menu_prescription"
+        android:text="@string/report"
         android:textAlignment="textStart"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_auto" />
+        app:layout_constraintTop_toBottomOf="@id/btn_auto"
+        app:shapeAppearance="@style/ShapeAppearance.App.SmallComponent.Radius5"
+        tools:enabled="true" />
 
+    <View
+        android:id="@+id/imageView3"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="13dp"
+        android:background="@color/background_color"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        style="@style/Widget.App.BottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        app:itemIconTint="@color/background_color"
+        app:labelVisibilityMode="unlabeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_navigation_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

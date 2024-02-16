@@ -2,15 +2,15 @@
     <!-- Base application theme. -->
     <style name="Theme.lgc" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/secondary_color</item>
-        <item name="colorPrimaryVariant">@color/primary_color</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_200</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Background brand color-->
-        <item name="android:colorBackground">@color/primary_color</item>
+        <item name="android:colorBackground">@color/color_primary_variant</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:navigationBarColor">?attr/colorPrimaryVariant</item>

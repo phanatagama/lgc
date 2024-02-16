@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_color"
+    android:background="@color/color_primary_variant"
     tools:context=".ui.scanner.InputDeviceActivity">
 
     <LinearLayout
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/secondary_color"
+            android:backgroundTint="@color/color_primary"
             android:enabled="false"
             android:text="@string/connect"
             android:textColor="@color/white" />
