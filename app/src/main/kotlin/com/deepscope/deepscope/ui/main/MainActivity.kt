@@ -8,12 +8,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -22,6 +20,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.databinding.ActivityMainBinding
+import com.deepscope.deepscope.ui.BaseRegulaSdkActivity
 import com.deepscope.deepscope.ui.common.FaceCameraFragment
 import com.deepscope.deepscope.ui.common.RecyclerAdapter
 import com.deepscope.deepscope.ui.customerInformation.CustomerInformationActivity
@@ -31,22 +30,18 @@ import com.deepscope.deepscope.ui.scanner.InputDeviceActivity
 import com.deepscope.deepscope.ui.scanner.ScannerUiState
 import com.deepscope.deepscope.ui.scanner.ScannerViewModel
 import com.deepscope.deepscope.util.Base
-import com.deepscope.deepscope.util.Utils
 import com.deepscope.deepscope.util.Utils.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.deepscope.deepscope.util.Utils.getRealPathFromURI
 import com.deepscope.deepscope.util.Utils.setFunctionality
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
-import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.CaptureMode
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
-import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
@@ -57,12 +52,13 @@ import com.regula.facesdk.exception.InitException
 import com.regula.facesdk.model.results.FaceCaptureResponse
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 import java.io.File
 
 
-class MainActivity : AppCompatActivity() {
-    private var loadingDialog: AlertDialog? = null
-    private var currentScenario: String = Scenario.SCENARIO_CAPTURE
+class MainActivity : BaseRegulaSdkActivity() {
+    //    private var loadingDialog: AlertDialog? = null
+    override val currentScenario: String = Scenario.SCENARIO_CAPTURE
     private var isShowFaceRecognition = false
     private var isShowRfid = false
     private lateinit var binding: ActivityMainBinding
@@ -77,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
     private val scannerViewModel: ScannerViewModel by viewModel()
 
+    // pick image from gallery
     @Transient
     val imageBrowsingIntentLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -94,30 +91,29 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    Log.d(TAG, "[DEBUGX] Image Path: ${imageUris[0].path!!} ")
+                    Timber.d("[DEBUGX] Image Path: ${imageUris[0].path!!} ")
                     val realPath = getRealPathFromURI(imageUris[0], this)
                     scannerViewModel.uploadImage(File(realPath))
                 }
             }
         }
-    fun initializeReader() {
-        Log.d(TAG, "[DEBUGX] initializeReader")
-        val license = Utils.getLicense(this) ?: return
-        showDialog("Initializing")
-        DocumentReader.Instance()
-            .initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
-    }
+//    fun initializeReader() {
+//        Timber.d("[DEBUGX] initializeReader")
+//        val license = Utils.getLicense(this) ?: return
+//        showDialog("Initializing")
+//        DocumentReader.Instance()
+//            .initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
+//    }
 
 
     @Transient
-    private val completion = IDocumentReaderCompletion { action, results, error ->
+    override val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE
             || action == DocReaderAction.TIMEOUT
         ) {
             dismissDialog()
             if (results != null) {
-                Log.d(
-                    TAG,
+                Timber.d(
                     "[DEBUGX] DocReaderAction is Timeout: ${action == DocReaderAction.TIMEOUT} "
                 )
                 scannerViewModel.setDocumentReaderResults(results)
@@ -125,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                 CustomerInformationActivity.documentResults = results
             }
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
+                Timber.d("[DEBUGX] MULTIPAGEMODE: ")
                 if (results?.morePagesAvailable != 0) {
                     DocumentReader.Instance().startNewPage()
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -138,38 +134,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             if (results?.chipPage != 0 && isShowRfid) {
-                Log.d(TAG, "[DEBUGX] RFID IS PERFORMED: ")
-                DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
-                    override fun onChipDetected() {
-                        Log.d("Rfid", "Chip detected")
-                    }
-
-                    override fun onProgress(notification: DocumentReaderNotification) {
-//                        rfidProgress(notification.code, notification.value)
-                    }
-
-                    override fun onRetryReadChip(exception: DocReaderRfidException) {
-                        Log.d("Rfid", "Retry with error: " + exception.errorCode)
-                    }
-
-                    override fun onCompleted(
-                        rfidAction: Int,
-                        results_RFIDReader: DocumentReaderResults?,
-                        error: DocumentReaderException?
-                    ) {
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                            scannerViewModel.setDocumentReaderResults(results_RFIDReader ?: results)
-                            if (isShowFaceRecognition) {
-                                captureFace(results_RFIDReader ?: results)
-                            } else {
-                                displayResults()
-                            }
-                        }
-
-                    }
-                })
+                Timber.d("[DEBUGX] RFID IS PERFORMED: ")
+                startRfidReader(results)
             } else {
-                Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
+                Timber.d("[DEBUGX] NO RFID PERFORMED ")
                 /**
                  * perform @livenessFace or @captureFace then check similarity
                  */
@@ -198,7 +166,40 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private val faceCaptureCallback: FaceCaptureCallback
+
+    private fun startRfidReader(results: DocumentReaderResults?) {
+        DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
+            override fun onChipDetected() {
+                Timber.d("Rfid Chip detected")
+            }
+
+            override fun onProgress(notification: DocumentReaderNotification) {
+                //rfidProgress(notification.code, notification.value)
+            }
+
+            override fun onRetryReadChip(exception: DocReaderRfidException) {
+                Timber.d("Rfid Retry with error: " + exception.errorCode)
+            }
+
+            override fun onCompleted(
+                rfidAction: Int,
+                results_RFIDReader: DocumentReaderResults?,
+                error: DocumentReaderException?
+            ) {
+                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                    scannerViewModel.setDocumentReaderResults(results_RFIDReader ?: results)
+                    if (isShowFaceRecognition) {
+                        captureFace(results_RFIDReader ?: results)
+                    } else {
+                        displayResults()
+                    }
+                }
+
+            }
+        })
+    }
+
+    override val faceCaptureCallback: FaceCaptureCallback
         get() = FaceCaptureCallback { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -211,7 +212,8 @@ class MainActivity : AppCompatActivity() {
         prepareDatabase()
         setupFunctionality()
     }
-    private fun setupFunctionality() {
+
+    override fun setupFunctionality() {
         DocumentReader.Instance().processParams().timeout = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDetect = Double.MAX_VALUE
         DocumentReader.Instance().processParams().timeoutFromFirstDocType = Double.MAX_VALUE
@@ -228,12 +230,7 @@ class MainActivity : AppCompatActivity() {
             .apply()
     }
 
-    private fun dismissDialog() {
-        if (loadingDialog != null) {
-            loadingDialog!!.dismiss()
-        }
-    }
-    private fun showDialog(msg: String?) {
+    override fun showDialog(msg: String?) {
         dismissDialog()
         val builderDialog = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
@@ -242,7 +239,8 @@ class MainActivity : AppCompatActivity() {
         builderDialog.setCancelable(false)
         loadingDialog = builderDialog.show()
     }
-    private fun initFaceSDK() {
+
+    override fun initFaceSDK() {
         if (!FaceSDK.Instance().isInitialized) {
             FaceSDK.Instance().init(this) { status: Boolean, e: InitException? ->
                 if (!status) {
@@ -253,7 +251,7 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                     return@init
                 }
-                Log.d(null, getString(R.string.facesdk_init_completed_successfully))
+                Timber.d(getString(R.string.facesdk_init_completed_successfully))
             }
         }
     }
@@ -264,43 +262,43 @@ class MainActivity : AppCompatActivity() {
         setupFunctionality()
     }
 
-    private fun prepareDatabase() {
-        showDialog(getString(R.string.preparing_database))
-        DocumentReader.Instance()
-            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
-                this@MainActivity,
-                "FullAuth",
-                object : IDocumentReaderPrepareCompletion {
-                    override fun onPrepareProgressChanged(progress: Int) {
-                        if (loadingDialog != null)
-                            loadingDialog?.setTitle("Downloading database: $progress%")
-                    }
-                    override fun onPrepareCompleted(
-                        status: Boolean,
-                        error: DocumentReaderException?
-                    ) {
-                        if (status) {
-                            Log.d(TAG, "[DEBUGX] database onPreparedComplete then initializeReader")
-                            initializeReader()
-                        } else {
-                            dismissDialog()
-                            Toast.makeText(
-                                this@MainActivity,
-                                "Prepare DB failed:$error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                })
-    }
+//    override fun prepareDatabase() {
+//        showDialog(getString(R.string.preparing_database))
+//        DocumentReader.Instance()
+//            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
+//                this@MainActivity,
+//                "FullAuth",
+//                object : IDocumentReaderPrepareCompletion {
+//                    override fun onPrepareProgressChanged(progress: Int) {
+//                        if (loadingDialog != null)
+//                            loadingDialog?.setTitle("Downloading database: $progress%")
+//                    }
+//                    override fun onPrepareCompleted(
+//                        status: Boolean,
+//                        error: DocumentReaderException?
+//                    ) {
+//                        if (status) {
+//                            Timber.d( "[DEBUGX] database onPreparedComplete then initializeReader")
+//                            initializeReader()
+//                        } else {
+//                            dismissDialog()
+//                            Toast.makeText(
+//                                this@MainActivity,
+//                                "Prepare DB failed:$error",
+//                                Toast.LENGTH_LONG
+//                            ).show()
+//                        }
+//                    }
+//                })
+//    }
 
-    private fun showScanner() {
-        Log.d(TAG, "[DEBUGX] showScanner: currentscenario $currentScenario")
-        resetScannerResult()
-        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
-        DocumentReader.Instance()
-            .showScanner(this@MainActivity, scannerConfig, completion)
-    }
+//    private fun showScanner() {
+//        Timber.d( "[DEBUGX] showScanner: currentscenario $currentScenario")
+//        resetScannerResult()
+//        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
+//        DocumentReader.Instance()
+//            .showScanner(this@MainActivity, scannerConfig, completion)
+//    }
 
     private fun observe() {
         lifecycleScope.launch {
@@ -375,7 +373,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
-        val customerIntent =Intent(this, CustomerInformationActivity::class.java)
+        val customerIntent = Intent(this, CustomerInformationActivity::class.java)
         customerIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
         customerIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE, 2)
         startActivity(customerIntent)
@@ -422,37 +420,46 @@ class MainActivity : AppCompatActivity() {
                 recognizeImage()
             }
             btnVisible.setOnClickListener {
-                val visibleIntent = Intent(this@MainActivity, CustomerInformationActivity::class.java)
+                val visibleIntent =
+                    Intent(this@MainActivity, CustomerInformationActivity::class.java)
                 visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
                 startActivity(visibleIntent)
             }
             btnInvisible.setOnClickListener {
                 val invisibleIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
-                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
-                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,2)
+                invisibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
+                invisibleIntent.putExtra(
+                    CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,
+                    2
+                )
                 startActivity(invisibleIntent)
             }
             btnAuto.setOnClickListener {
                 val autoIntent = Intent(this@MainActivity, InputDeviceActivity::class.java)
-                autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE,1)
-                autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE,3)
+                autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 1)
+                autoIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_FEATURE, 3)
                 startActivity(autoIntent)
             }
             btnPrescription.setOnClickListener {
-                startActivity(Intent(this@MainActivity, SearchCustomerInformationActivity::class.java))
+                startActivity(
+                    Intent(
+                        this@MainActivity,
+                        SearchCustomerInformationActivity::class.java
+                    )
+                )
             }
         }
 
     }
 
-    private val initCompletion =
+    override val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
-                Log.d(TAG, "[DEBUGX] init DocumentReaderSDK is complete")
+                Timber.d("[DEBUGX] init DocumentReaderSDK is complete")
                 setButtonEnable()
             } else {
-                Log.e(TAG, "[DEBUGX] init DocumentReaderSDK is failed: $error ")
+                Timber.e("[DEBUGX] init DocumentReaderSDK is failed: $error ")
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }

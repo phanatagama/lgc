@@ -14,7 +14,6 @@ import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.OpenableColumns
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -25,8 +24,6 @@ import com.deepscope.deepscope.R
 import com.deepscope.deepscope.data.repository.local.entity.CustomerInformationEntity
 import com.deepscope.deepscope.domain.model.CustomerInformation
 import com.deepscope.deepscope.domain.model.TextFieldAttribute
-import com.deepscope.deepscope.ui.defaultscanner.DefaultScannerActivity
-import com.deepscope.deepscope.ui.main.ResultBottomSheet
 import com.deepscope.deepscope.util.Utils.getDrawable
 import com.deepscope.deepscope.util.Utils.resizeBitmap
 import com.regula.common.utils.CameraUtil
@@ -50,6 +47,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
+import timber.log.Timber
 import java.io.File
 import java.io.FileDescriptor
 import java.io.FileNotFoundException
@@ -214,7 +212,6 @@ object Utils {
         return null
     }
 
-
     fun getRealPathFromURI(uri: Uri, context: Context): String {
         val returnCursor = context.contentResolver.query(uri, null, null, null, null)
         val nameIndex = returnCursor!!.getColumnIndex(OpenableColumns.DISPLAY_NAME)
@@ -237,13 +234,13 @@ object Utils {
             while (inputStream.read(buffers).also { read = it } != -1) {
                 outputStream.write(buffers, 0, read)
             }
-            Log.e("File Size", "Size " + file.length())
+            Timber.e("File Size : Size " + file.length())
             inputStream.close()
             outputStream.close()
-            Log.e("File Path", "Path " + file.path)
-            Log.e("File Size", "Size " + file.length())
+            Timber.e("File Path : Path " + file.path)
+            Timber.e("File Size : Size " + file.length())
         } catch (e: Exception) {
-            Log.e("Exception", e.message!!)
+            Timber.e("Exception ${e.message!!}")
         }
         return file.path
     }
@@ -328,11 +325,11 @@ fun DocumentReaderResults.toParcelable(
     val attributes = mutableListOf<TextFieldAttribute>()
     this.textResult?.fields?.forEach {
         val name = it.getFieldName(context)
-        Log.d(DefaultScannerActivity.TAG, "[DEBUGX] fieldname ${it.getFieldName(context)} ")
+        Timber.d( "[DEBUGX] fieldname ${it.getFieldName(context)} ")
         for (value in it.values) {
-            Log.d(DefaultScannerActivity.TAG, "[DEBUGX] fieldtype ${value.field.fieldType} ")
-            Log.d(DefaultScannerActivity.TAG, "[DEBUGX] source ${value.sourceType} ")
-            Log.d(DefaultScannerActivity.TAG, "[DEBUGX] value ${value.value} ")
+            Timber.d( "[DEBUGX] fieldtype ${value.field.fieldType} ")
+            Timber.d( "[DEBUGX] source ${value.sourceType} ")
+            Timber.d( "[DEBUGX] value ${value.value} ")
             val valid = getValidity(value.field.validityList, value.sourceType)
             val item = TextFieldAttribute(
                 name!!,
@@ -376,14 +373,13 @@ fun DocumentReaderResults.toParcelable(
         eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
     )?.bitmap
     val documentName = if (this.documentType.isNotEmpty()) {
-        Log.d(ResultBottomSheet.TAG, "debugx document name ${this.documentType.first().name}")
-        Log.d(
-            ResultBottomSheet.TAG,
+        Timber.d( "debugx document name ${this.documentType.first().name}")
+        Timber.d(
+
             "debugx document documentid ${this.documentType.first().documentID}"
         )
-        Log.d(ResultBottomSheet.TAG, "debugx document dtypr ${this.documentType.first().dType}")
-        Log.d(
-            ResultBottomSheet.TAG,
+        Timber.d( "debugx document dtypr ${this.documentType.first().dType}")
+        Timber.d(
             "debugx document countty ${this.documentType.first().dCountryName}"
         )
         this.documentType.first().name

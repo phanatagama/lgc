@@ -4,17 +4,17 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.util.Log
 import androidx.core.content.getSystemService
+import com.deepscope.deepscope.R
 import okhttp3.Interceptor
 import okhttp3.Response
-
+import timber.log.Timber
 
 class NetworkInterceptor constructor(private val applicationContext: Context) :
     Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         if (!isConnected()) {
-            throw Exception("No internet connection")
+            throw Exception(applicationContext.getString(R.string.no_internet_connection))
         }
         val url = chain.request().url.toString()
         val newRequest = if (!url.contains("s3.ap-northeast-2.amazonaws.com")){
@@ -22,8 +22,8 @@ class NetworkInterceptor constructor(private val applicationContext: Context) :
         }else{
             chain.request().newBuilder().header("Content-Type", "image/jpeg") .build()
         }
-        Log.d("DEBUGX", "headers type: ${newRequest.headers["Content-Type"]}")
-        Log.d("DEBUGX", "headers length: ${newRequest.headers["Content-Length"]}")
+        Timber.d( "headers type: ${newRequest.headers["Content-Type"]}")
+        Timber.d( "headers length: ${newRequest.headers["Content-Length"]}")
         return chain.proceed(newRequest)
     }
 

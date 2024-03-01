@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +15,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.DialogFragment
 import com.deepscope.deepscope.databinding.FragmentRoadAddressSearchBinding
+import timber.log.Timber
 
 
 class RoadAddressSearchDialog : DialogFragment() {
@@ -53,15 +53,12 @@ class RoadAddressSearchDialog : DialogFragment() {
 
         //Controller 설정
 //        navController = NavHostFragment.findNavController(this)
-        init_webView()
+        initWebView()
         binding.buttonBack.setOnClickListener { dismiss() }
         return binding.root
     }
 
-
-
-
-    fun init_webView() {
+    private fun initWebView() {
         // WebView 설정
         webView = binding.daumWebview
 
@@ -100,13 +97,13 @@ class RoadAddressSearchDialog : DialogFragment() {
 
             // 페이지 로딩 시작시 호출
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-                Log.e("페이지 시작", url)
+                Timber.d("페이지 시작", url)
                 binding.webProgress.visibility = View.VISIBLE
             }
 
             override fun onPageFinished(view: WebView, url: String) {
                 binding.webProgress.visibility = View.GONE
-                Log.e("페이지 로딩", url)
+                Timber.d("페이지 로딩", url)
                 webView!!.loadUrl("javascript:sample2_execDaumPostcode();")
             }
         }

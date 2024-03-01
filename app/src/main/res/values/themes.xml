@@ -27,6 +27,7 @@
         <!--  Start of Custom Button-->
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
         <!--  End of Custom Button-->
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <!-- Start of Custom BottomNavigationStyle-->

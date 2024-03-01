@@ -2,7 +2,6 @@ package com.deepscope.deepscope.ui.scanner
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -25,6 +24,7 @@ import com.regula.facesdk.FaceSDK
 import com.regula.facesdk.configuration.FaceCaptureConfiguration
 import com.regula.facesdk.model.results.FaceCaptureResponse
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class SuccessfulInitActivity : AppCompatActivity() {
     private var uvImage: ImageView? = null
@@ -50,10 +50,6 @@ class SuccessfulInitActivity : AppCompatActivity() {
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
                     if (results != null) {
-                        Log.d(
-                            TAG,
-                            "[DEBUGX] DocReaderAction is Timeout: ${action == DocReaderAction.TIMEOUT} "
-                        )
                         scannerViewModel.setDocumentReaderResults(results)
                     }
                     showUvImage(results)
@@ -82,7 +78,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
                     } else {
                         captureFace()
                     }
-                    Log.d(
+                    Timber.d(
                         this@SuccessfulInitActivity.localClassName,
                         "completion raw result: " + results.rawResult
                     )
@@ -155,14 +151,14 @@ class SuccessfulInitActivity : AppCompatActivity() {
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
         )
 
-        Log.d(TAG, "UV Graphic Field: $uvDocumentReaderGraphicField")
+        Timber.d( "UV Graphic Field: $uvDocumentReaderGraphicField")
 
         if (uvDocumentReaderGraphicField != null && uvDocumentReaderGraphicField.bitmap != null) {
             val resizedBitmap = resizeBitmap(uvDocumentReaderGraphicField.bitmap)
-            Log.d(TAG, "Resized UV Bitmap: $resizedBitmap")
+            Timber.d( "Resized UV Bitmap: $resizedBitmap")
             uvImage?.setImageBitmap(resizedBitmap)
         } else {
-            Log.d(TAG, "UV Graphic Field or Bitmap is null")
+            Timber.d( "UV Graphic Field or Bitmap is null")
         }
     }
 

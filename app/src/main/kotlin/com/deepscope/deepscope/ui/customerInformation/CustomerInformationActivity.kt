@@ -1,6 +1,8 @@
 package com.deepscope.deepscope.ui.customerInformation
 
 import android.Manifest
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -13,14 +15,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.deepscope.deepscope.R
@@ -45,6 +48,7 @@ import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.results.DocumentReaderResults
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -96,7 +100,7 @@ class CustomerInformationActivity : AppCompatActivity() {
         if (cur != null && cur.moveToFirst()) {
             orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]))
         }
-        Log.d("tryOrientation", orientation.toString() + "")
+        Timber.d("tryOrientation: $orientation")
         val rotationMatrix = Matrix()
         rotationMatrix.setRotate(orientation.toFloat())
         cur?.close()
@@ -131,6 +135,48 @@ class CustomerInformationActivity : AppCompatActivity() {
                 customerInformationViewModel.getCustomerInformationById(customerInformationId)
             }
             observe()
+            startAnimation()
+        }
+    }
+
+    private fun startAnimation() {
+        val rvLayout = ObjectAnimator.ofFloat(binding.rvPhoto, "translationY", 60f, 0f).apply {
+            duration = 700
+        }
+        val tableLayoutTranslate = ObjectAnimator.ofFloat(binding.tableLayout, "translationY", 60f, 0f).apply {
+            duration = 500
+        }
+        val tableLayoutAlpha = ObjectAnimator.ofFloat(binding.tableLayout, "alpha", 0f, 1f).apply {
+            duration = 500
+        }
+        val titleTranslate = ObjectAnimator.ofFloat(binding.titleTv, "translationY", 60f, 0f).apply {
+            duration = 300
+        }
+        val titleAlpha = ObjectAnimator.ofFloat(binding.titleTv, "alpha", 0f, 1f).apply {
+            duration = 300
+        }
+        val detailTranslate = ObjectAnimator.ofFloat(binding.detailTv, "translationY", 60f, 0f).apply {
+            duration = 300
+        }
+        val detailAlpha = ObjectAnimator.ofFloat(binding.detailTv, "alpha", 0f, 1f).apply {
+            duration = 300
+        }
+
+        val tableLayoutAnimator = AnimatorSet().apply {
+            playTogether(tableLayoutAlpha,tableLayoutTranslate)
+        }
+
+        val titleAnimator = AnimatorSet().apply {
+            playTogether(titleAlpha,titleTranslate)
+        }
+
+        val detailAnimator = AnimatorSet().apply {
+            playTogether(detailAlpha,detailTranslate)
+        }
+        AnimatorSet().apply {
+            play(rvLayout).with(tableLayoutTranslate).with(tableLayoutAlpha).with(titleTranslate).with(titleAlpha).with(detailTranslate).with(detailAlpha)
+//            playSequentially(titleAnimator,detailAnimator,tableLayoutAnimator, rvLayout)
+            start()
         }
     }
 
@@ -285,14 +331,20 @@ class CustomerInformationActivity : AppCompatActivity() {
 
     private fun goToDiagnoseActivity() {
         val intent = Intent(this@CustomerInformationActivity, DiagnoseActivity::class.java)
-
         intent.putExtra(DiagnoseActivity.IMAGE_PATH, selectedImage.path)
         intent.putExtra(DiagnoseActivity.NAME, binding.titleTv.text.toString())
         intent.putExtra(DiagnoseActivity.DETAIL, binding.detailTv.text.toString())
         intent.putExtra(DiagnoseActivity.ISSUE, binding.issueTv.text.toString())
         intent.putExtra(DiagnoseActivity.BIRTH_DATE, binding.birthDateTv.text.toString())
         intent.putExtra(DiagnoseActivity.IMAGE_TYPE, selectedImage.type)
-        startActivity(intent)
+        val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            this,
+            Pair(binding.singleImage, getString(R.string.menu_image)),
+            Pair(binding.titleTv, getString(R.string.customer_name)),
+            Pair(binding.detailTv, getString(R.string.customer_detail))
+        )
+        // Move to the next activity with transition
+        startActivity(intent, optionsCompat.toBundle())
     }
 
     private fun disableEditText(editText: EditText) {
@@ -344,12 +396,16 @@ class CustomerInformationActivity : AppCompatActivity() {
                 }
 
                 override fun onItemDeleteClickListener(view: View, dataImage: DataImage) {
-                    if (rvAdapter.parentType == 1){
+                    if (rvAdapter.parentType == 1) {
                         dataImage.copy(bitmap = null, path = null).let {
                             rvAdapter.updateList(it)
                         }
-                    }else{
-                        customerInformationViewModel.deleteImage(intent.getStringExtra(CUSTOMER_INFORMATION_ID)!!,dataImage)
+                    } else {
+                        customerInformationViewModel.deleteImage(
+                            intent.getStringExtra(
+                                CUSTOMER_INFORMATION_ID
+                            )!!, dataImage
+                        )
                     }
 
                 }
@@ -431,7 +487,7 @@ class CustomerInformationActivity : AppCompatActivity() {
         if (action == DocReaderAction.COMPLETE
             || action == DocReaderAction.TIMEOUT
         ) {
-            Log.d("[DEBUGX]", "result: $results")
+            Timber.d("result: $results")
             if (results != null) {
                 documentResults = results
                 insertOpticalImage(results)
@@ -471,6 +527,12 @@ class CustomerInformationActivity : AppCompatActivity() {
 
     companion object {
         var documentResults: DocumentReaderResults? = null
+
+        /**
+         * CUSTOMER_INFORMATION_TYPE
+         * 1 -> new // the activity will be setup for new customer information (editable)
+         * 2 -> existing // the activity will be setup for existing customer (read only)
+         */
         const val CUSTOMER_INFORMATION_TYPE = "CUSTOMER_INFORMATION_TYPE"
 
         /**

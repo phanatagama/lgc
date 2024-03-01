@@ -58,7 +58,16 @@
     <string name="melanon_cream">Melanon Cream</string>
     <string name="anti_wrinkle_cream">Anti-wrinkle Cream</string>
     <string name="facesdk_init_completed_successfully">FaceSDK init completed successfully</string>
-    <string name="init_facesdk_finished_with_error">"Init FaceSDK finished with error: "</string>
+    <string name="init_facesdk_finished_with_error">"Init FaceSDK finished with error"</string>
     <string name="preparing_database">preparing database</string>
-
+    <string name="initializing">Initializing</string>
+    <string name="camera">Camera</string>
+    <string name="setting">Setting</string>
+    <string name="similarity">Similarity: %1$d\%</string>
+    <string name="similarity_none">Similarity: -</string>
+    <string name="valid">(Valid)</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="failed_to_connect_to_the_torch_device">Failed to connect to the torch device</string>
+    <string name="downloading_database">Downloading database: %1$d\%</string>
+    <string name="prepare_db_failed">Prepare DB failed:%1$s</string>
 </resources>

@@ -2,7 +2,6 @@ package com.deepscope.deepscope.ui.result
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -27,6 +26,7 @@ import com.regula.facesdk.model.results.FaceCaptureResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
 import com.regula.facesdk.request.MatchFacesRequest
+import timber.log.Timber
 
 class ScanResultActivity : AppCompatActivity() {
     private lateinit var binding: ActivityScanResultBinding
@@ -38,7 +38,7 @@ class ScanResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityScanResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        Log.d(TAG, "[DEBUGX] onCreate: $documentResults")
+        Timber.d("[DEBUGX] onCreate: $documentResults")
         initViews()
     }
 
@@ -126,10 +126,10 @@ class ScanResultActivity : AppCompatActivity() {
                 try {
                     if (split.matchedFaces.size > 0) {
                         val similarity = split.matchedFaces[0].similarity
-                        similarityTv.text =
-                            "Similarity: " + String.format("%.2f", similarity * 100) + "%"
+                        similarityTv.text = getString(R.string.similarity, similarity * 100)
+//                            "Similarity: " + String.format("%.2f", similarity * 100) + "%"
                         if (similarity > 0.8) {
-                            statusTv.text = "(Valid)"
+                            statusTv.text = getString(R.string.valid)
                             statusTv.setTextColor(
                                 ContextCompat.getColor(
                                     this@ScanResultActivity,
@@ -137,7 +137,7 @@ class ScanResultActivity : AppCompatActivity() {
                                 )
                             )
                         } else {
-                            statusTv.text = "(Not Valid)"
+                            statusTv.text = getString(R.string.not_valid)
                             statusTv.setTextColor(
                                 ContextCompat.getColor(
                                     this@ScanResultActivity,
@@ -156,7 +156,7 @@ class ScanResultActivity : AppCompatActivity() {
                         )
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "[DEBUGX] matchFaces: $e")
+                    Timber.e( "[DEBUGX] matchFaces: $e")
                 }
 //                btnScan.isEnabled = true
             }

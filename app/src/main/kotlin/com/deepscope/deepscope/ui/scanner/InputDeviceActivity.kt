@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -23,7 +22,6 @@ import com.deepscope.deepscope.util.PermissionUtil
 import com.deepscope.deepscope.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.deepscope.deepscope.util.Utils
 import com.deepscope.deepscope.util.Utils.setFunctionality
-import com.deepscope.deepscope.util.debounce
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.BleWrapperCallback
@@ -53,6 +51,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 
 class InputDeviceActivity : AppCompatActivity() {
@@ -75,7 +74,7 @@ class InputDeviceActivity : AppCompatActivity() {
     }
 
     private fun showScanner() {
-        Log.d(null, "DEBUGX showScanner: currentscenario $currentScenario")
+        Timber.d( "DEBUGX showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this@InputDeviceActivity, scannerConfig, completion)
@@ -106,7 +105,7 @@ class InputDeviceActivity : AppCompatActivity() {
                     ).show()
                     return@init
                 }
-                Log.d(null, "FaceSDK init completed successfully")
+                Timber.d( "FaceSDK init completed successfully")
             }
         }
     }
@@ -127,8 +126,7 @@ class InputDeviceActivity : AppCompatActivity() {
                         error: DocumentReaderException?
                     ) {
                         if (status) {
-                            Log.d(
-                                TAG,
+                            Timber.d(
                                 "[DEBUGX] database onPreparedComplete then initializeReader"
                             )
                             initializeReader()
@@ -183,7 +181,7 @@ class InputDeviceActivity : AppCompatActivity() {
                     CustomerInformationActivity.documentResults = results
                 }
                 if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                    Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
+                    Timber.d( "[DEBUGX] MULTIPAGEMODE: ")
                     if (results?.morePagesAvailable != 0) {
                         DocumentReader.Instance().startNewPage()
                         lifecycleScope.launch {
@@ -200,11 +198,11 @@ class InputDeviceActivity : AppCompatActivity() {
                     }
                 }
                 if (results?.chipPage != 0) {
-                    Log.d(TAG, "DEBUGX RFID IS PERFORMED: ")
+                    Timber.d( "DEBUGX RFID IS PERFORMED: ")
                     DocumentReader.Instance()
                         .startRFIDReader(this, object : IRfidReaderCompletion() {
                             override fun onChipDetected() {
-                                Log.d("Rfid", "Chip detected")
+                                Timber.d("Rfid Chip detected")
                             }
 
                             override fun onProgress(notification: DocumentReaderNotification) {
@@ -212,7 +210,7 @@ class InputDeviceActivity : AppCompatActivity() {
                             }
 
                             override fun onRetryReadChip(exception: DocReaderRfidException) {
-                                Log.d("Rfid", "Retry with error: " + exception.errorCode)
+                                Timber.d("Rfid", "Retry with error: " + exception.errorCode)
                             }
 
                             override fun onCompleted(
@@ -230,7 +228,7 @@ class InputDeviceActivity : AppCompatActivity() {
                             }
                         })
                 } else {
-                    Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
+                    Timber.d( "[DEBUGX] NO RFID PERFORMED ")
                     /**
                      * perform @livenessFace or @captureFace then check similarity
                      */
@@ -332,7 +330,7 @@ class InputDeviceActivity : AppCompatActivity() {
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
-                Log.d(TAG, "[DEBUGX] init reader DocumentSDK is complete")
+                Timber.d( "[DEBUGX] init reader DocumentSDK is complete")
                 btnConnect?.isEnabled = true
             } else {
                 Toast.makeText(this@InputDeviceActivity, "Init failed:$error", Toast.LENGTH_LONG)
@@ -345,7 +343,7 @@ class InputDeviceActivity : AppCompatActivity() {
         if (!bluetoothUtil.isBluetoothSettingsReady(this) || isBleServiceConnected) {
             return
         }
-        Log.d(TAG, "[DEBUGX] startBluetoothService")
+        Timber.d( "[DEBUGX] startBluetoothService")
         val bleIntent = Intent(this, RegulaBleService::class.java)
         startService(bleIntent)
         bindService(bleIntent, mBleConnection, 0)
@@ -353,13 +351,13 @@ class InputDeviceActivity : AppCompatActivity() {
 
     private val mBleConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            Log.d(TAG, "[DEBUGX] onServiceConnected")
+            Timber.d( "[DEBUGX] onServiceConnected")
             isBleServiceConnected = true
             val bleService = (service as RegulaBleService.LocalBinder).service
             bleManager = bleService.bleManager
 
             if (bleManager?.isConnected == true) {
-                Log.d(
+                Timber.d(
                     TAG,
                     "[DEBUGX] bleManager is connected, then intent to SuccessfulInitActivity"
                 )
@@ -373,7 +371,7 @@ class InputDeviceActivity : AppCompatActivity() {
                 showScanner()
                 return
             }
-            Log.d(TAG, "[DEBUGX] bleManager is not connected")
+            Timber.d( "[DEBUGX] bleManager is not connected")
 
             showDialog("Searching devices")
 //            handler.sendEmptyMessageDelayed(0, 7000)
@@ -426,7 +424,7 @@ class InputDeviceActivity : AppCompatActivity() {
                 grantResults,
                 permissionGrantedFunc = {
                     if (bluetoothUtil.isBluetoothSettingsReady(this)) {
-                        Log.d(
+                        Timber.d(
                             TAG,
                             "[DEBUGX] respondToPermissionRequest is Granted & BluetoothSettingReady"
                         )
@@ -450,7 +448,7 @@ class InputDeviceActivity : AppCompatActivity() {
         if (requestCode == BluetoothUtil.INTENT_REQUEST_ENABLE_BLUETOOTH or BluetoothUtil.INTENT_REQUEST_ENABLE_LOCATION)
             if (resultCode == RESULT_OK) {
                 if (bluetoothUtil.isBluetoothSettingsReady(this)) {
-                    Log.d(
+                    Timber.d(
                         TAG,
                         "[DEBUGX] onActivityResult BluetoothSettingReady is True, then initializeReader"
                     )

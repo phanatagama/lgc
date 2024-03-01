@@ -2,13 +2,11 @@ package com.deepscope.deepscope.ui.main.fragment
 
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.deepscope.deepscope.databinding.FragmentOverallBinding
-import com.deepscope.deepscope.ui.main.ResultBottomSheet
 import com.deepscope.deepscope.ui.scanner.ScannerViewModel
 import com.deepscope.deepscope.util.DocumentReaderResultsParcel
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -17,6 +15,7 @@ import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.results.DocumentReaderResults
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import timber.log.Timber
 
 
 class OverallFragment : Fragment() {
@@ -48,11 +47,12 @@ class OverallFragment : Fragment() {
     }
 
     private fun observe() {
-        scannerViewModel.documentReaderResultLiveData.observe(viewLifecycleOwner){
+        scannerViewModel.documentReaderResultLiveData.observe(viewLifecycleOwner) {
             initViews(it)
         }
     }
-    private fun initViews(results: DocumentReaderResults?){
+
+    private fun initViews(results: DocumentReaderResults?) {
         val birthFieldName =
             results?.getTextFieldByType(eVisualFieldType.FT_DATE_OF_BIRTH)
                 ?.getFieldName(requireActivity())
@@ -79,20 +79,16 @@ class OverallFragment : Fragment() {
                 eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
             )
         val documentName = if (results?.documentType?.isNotEmpty() == true) {
-            Log.d(
-                ResultBottomSheet.TAG,
+            Timber.d(
                 "debugx document name ${results.documentType.first()?.name}"
             )
-            Log.d(
-                ResultBottomSheet.TAG,
+            Timber.d(
                 "debugx document documentid ${results.documentType.first()?.documentID}"
             )
-            Log.d(
-                ResultBottomSheet.TAG,
+            Timber.d(
                 "debugx document dtypr ${results.documentType.first()?.dType}"
             )
-            Log.d(
-                ResultBottomSheet.TAG,
+            Timber.d(
                 "debugx document countty ${results.documentType.first()?.dCountryName}"
             )
             results.documentType.first()?.name
@@ -118,6 +114,7 @@ class OverallFragment : Fragment() {
 
     companion object {
         const val DOCUMENT = "DOCUMENT_READER_RESULT"
+
         @JvmStatic
         fun newInstance(documentReaderResults: Parcelable?) =
             OverallFragment().apply {

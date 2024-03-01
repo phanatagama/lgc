@@ -1,7 +1,6 @@
 package com.deepscope.deepscope.ui.customerInformation
 
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deepscope.deepscope.databinding.RvItemImageBinding
 import com.deepscope.deepscope.domain.model.DataImage
+import timber.log.Timber
 import java.io.File
 
 
@@ -81,7 +81,7 @@ class CustomerPhotoAdapter :
     fun updateList(dataImage: DataImage) {
         val newList = currentList.toMutableList().map {
             if (it.id == dataImage.id) {
-                Log.d("DEBUGX", "DEBUGX updateList: CHANGED")
+                Timber.d( "DEBUGX updateList: CHANGED")
                 it.copy(bitmap = dataImage.bitmap, type = dataImage.type)
             } else {
                 it

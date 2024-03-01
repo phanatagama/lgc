@@ -3,7 +3,6 @@ package com.deepscope.deepscope.ui.main
 import android.app.Dialog
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.databinding.LayoutResultBottomsheetBinding
 import com.deepscope.deepscope.ui.defaultscanner.DocumentFieldAdapter
-import com.deepscope.deepscope.ui.main.fragment.GraphicfieldFragment
 import com.deepscope.deepscope.ui.scanner.ScannerViewModel
 import com.deepscope.deepscope.util.DocumentReaderResultsParcel
 import com.deepscope.deepscope.util.Utils.getDrawable
@@ -41,6 +39,7 @@ import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
 import com.regula.facesdk.request.MatchFacesRequest
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import timber.log.Timber
 
 class ResultBottomSheet : DialogFragment() {
     private var _binding: LayoutResultBottomsheetBinding? = null
@@ -65,7 +64,7 @@ class ResultBottomSheet : DialogFragment() {
             val ft = manager.beginTransaction()
             val prev: Fragment? = manager.findFragmentByTag(TAG)
             if (prev != null) {
-                Log.d(TAG, "showFragment: remove prev...." + prev.javaClass.name)
+                Timber.d("showFragment: remove prev...." + prev.javaClass.name)
                 ft.remove(prev)
             }
             manager.executePendingTransactions()
@@ -85,14 +84,14 @@ class ResultBottomSheet : DialogFragment() {
     private fun observe() {
         scannerViewModel.documentReaderResultLiveData.observe(viewLifecycleOwner) {
             initViews(it)
-            Log.d(TAG, "[DEBUGX] observe: ${it == null}")
-            Log.d(TAG, "[DEBUGX] IT RAW RES: ${it?.rawResult}")
+            Timber.d( "[DEBUGX] observe: ${it == null}")
+            Timber.d( "[DEBUGX] IT RAW RES: ${it?.rawResult}")
         }
         scannerViewModel.faceCaptureResponse.observe(viewLifecycleOwner) {
             if (documentImage != null && it?.image?.bitmap != null) {
                 matchFaces(documentImage!!, it.image!!.bitmap)
             }
-            Log.d(TAG, "[DEBUGX] observe faceCaptureResponse: ${it == null}")
+            Timber.d( "[DEBUGX] observe faceCaptureResponse: ${it == null}")
         }
     }
 
@@ -106,10 +105,9 @@ class ResultBottomSheet : DialogFragment() {
                 try {
                     if (split.matchedFaces.size > 0) {
                         val similarity = split.matchedFaces[0].similarity
-                        similarityTv.text =
-                            "Similarity: " + String.format("%.2f", similarity * 100) + "%"
+                        similarityTv.text = getString(R.string.similarity, similarity * 100)
                         if (similarity > 0.8) {
-                            statusTv.text = "(Valid)"
+                            statusTv.text = getString(R.string.valid)
                             statusTv.setTextColor(
                                 ContextCompat.getColor(
                                     requireActivity(),
@@ -117,7 +115,7 @@ class ResultBottomSheet : DialogFragment() {
                                 )
                             )
                         } else {
-                            statusTv.text = "(Not Valid)"
+                            statusTv.text = getString(R.string.not_valid)
                             statusTv.setTextColor(
                                 ContextCompat.getColor(
                                     requireActivity(),
@@ -126,8 +124,8 @@ class ResultBottomSheet : DialogFragment() {
                             )
                         }
                     } else {
-                        similarityTv.text = "Similarity: 0%"
-                        statusTv.text = "(Not Valid)"
+                        similarityTv.text = getString(R.string.similarity_0)
+                        statusTv.text = getString(R.string.not_valid)
                         statusTv.setTextColor(
                             ContextCompat.getColor(
                                 requireActivity(),
@@ -136,7 +134,7 @@ class ResultBottomSheet : DialogFragment() {
                         )
                     }
                 } catch (e: Exception) {
-                    Log.e(GraphicfieldFragment.TAG, "[DEBUGX] matchFaces: $e")
+                    Timber.e( "[DEBUGX] matchFaces: $e")
                 }
 //                btnScan.isEnabled = true
             }
@@ -144,13 +142,13 @@ class ResultBottomSheet : DialogFragment() {
     }
 
     private fun initViews(results: DocumentReaderResults?) {
-        Log.d(TAG, "raw result ${results?.rawResult}")
+        Timber.d( "raw result ${results?.rawResult}")
         val statusDrawable = getDrawable(
             if (results?.status?.overallStatus == eCheckResult.CH_CHECK_OK) com.regula.documentreader.api.R.drawable.reg_ok else com.regula.documentreader.api.R.drawable.reg_fail,
             requireActivity()
         )
         val name = results?.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
-        Log.d(TAG, "[DEBUGX] name from bottom sheet $name ")
+        Timber.d( "[DEBUGX] name from bottom sheet $name ")
         val gender = results?.getTextFieldValueByType(eVisualFieldType.FT_SEX)
         val age = results?.getTextFieldValueByType(eVisualFieldType.FT_AGE)
         val ageFieldName =
@@ -173,10 +171,10 @@ class ResultBottomSheet : DialogFragment() {
                 eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
             )
         val documentName = if (results?.documentType?.isNotEmpty() == true) {
-            Log.d(TAG, "debugx document name ${results.documentType.first().name}")
-            Log.d(TAG, "debugx document documentid ${results.documentType.first().documentID}")
-            Log.d(TAG, "debugx document dtypr ${results.documentType.first().dType}")
-            Log.d(TAG, "debugx document countty ${results.documentType.first().dCountryName}")
+            Timber.d( "debugx document name ${results.documentType.first().name}")
+            Timber.d( "debugx document documentid ${results.documentType.first().documentID}")
+            Timber.d( "debugx document dtypr ${results.documentType.first().dType}")
+            Timber.d( "debugx document countty ${results.documentType.first().dCountryName}")
             results.documentType.first().name
         } else {
             "-"
@@ -223,16 +221,16 @@ class ResultBottomSheet : DialogFragment() {
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
         )
 
-        Log.d(TAG, "UV Graphic Field: $uvDocumentReaderGraphicField")
+        Timber.d( "UV Graphic Field: $uvDocumentReaderGraphicField")
 
         if (uvDocumentReaderGraphicField != null && uvDocumentReaderGraphicField.bitmap != null) {
             val resizedBitmap = resizeBitmap(uvDocumentReaderGraphicField.bitmap)
-            Log.d(TAG, "Resized UV Bitmap: $resizedBitmap")
+            Timber.d( "Resized UV Bitmap: $resizedBitmap")
             binding.uvImageIv.visibility = View.VISIBLE
             binding.uvImageIv.setImageBitmap(resizedBitmap)
             resizedBitmap!!.saveBitmap(requireActivity())
         } else {
-            Log.d(TAG, "UV Graphic Field or Bitmap is null")
+            Timber.d( "UV Graphic Field or Bitmap is null")
         }
     }
 

@@ -1,14 +1,11 @@
 package com.deepscope.deepscope.ui
 
-import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.ui.common.FaceCameraFragment
-import com.deepscope.deepscope.ui.scanner.InputDeviceActivity
 import com.deepscope.deepscope.util.Utils
 import com.deepscope.deepscope.util.debounce
 import com.regula.documentreader.api.DocumentReader
@@ -19,23 +16,20 @@ import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
-import com.regula.documentreader.api.params.Functionality
 import com.regula.facesdk.FaceSDK
 import com.regula.facesdk.callback.FaceCaptureCallback
 import com.regula.facesdk.configuration.FaceCaptureConfiguration
 import com.regula.facesdk.exception.InitException
+import timber.log.Timber
 
 abstract class BaseRegulaSdkActivity : AppCompatActivity() {
-    protected open var currentScenario: String = Scenario.SCENARIO_CAPTURE
+    abstract val initCompletion: IDocumentReaderInitCompletion
+    abstract val completion: IDocumentReaderCompletion
+    abstract val faceCaptureCallback: FaceCaptureCallback
+    protected open val currentScenario: String = Scenario.SCENARIO_CAPTURE
     protected var loadingDialog: AlertDialog? = null
+    abstract fun showDialog(msg: String?)
     abstract fun setupFunctionality()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initFaceSDK()
-        prepareDatabase()
-        Utils.setFunctionality(Functionality())
-        setupFunctionality()
-    }
 
     protected fun dismissDialog() {
         if (loadingDialog != null) {
@@ -43,27 +37,17 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
         }
     }
 
-    protected fun showDialog(msg: String?) {
-        dismissDialog()
-        val builderDialog = AlertDialog.Builder(this)
-        val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
-        builderDialog.setTitle(msg)
-        builderDialog.setView(dialogView)
-        builderDialog.setCancelable(false)
-        loadingDialog = builderDialog.show()
-    }
-
     protected fun handler(delay: Long): () -> Unit = lifecycleScope.debounce(delay) {
-//        Toast.makeText(
-//            this,
-//            "Failed to connect to the torch device",
-//            Toast.LENGTH_SHORT
-//        ).show()
+        Toast.makeText(
+            this,
+            getString(R.string.failed_to_connect_to_the_torch_device),
+            Toast.LENGTH_SHORT
+        ).show()
         dismissDialog()
     }
 
-    private fun prepareDatabase() {
-        showDialog("preparing database")
+    protected fun prepareDatabase() {
+        showDialog(getString(R.string.preparing_database))
         DocumentReader.Instance()
             .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
                 this,
@@ -71,7 +55,11 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
                 object : IDocumentReaderPrepareCompletion {
                     override fun onPrepareProgressChanged(progress: Int) {
                         if (loadingDialog != null)
-                            loadingDialog?.setTitle("Downloading database: $progress%")
+                            loadingDialog?.setTitle(
+                                getString(
+                                    R.string.downloading_database,
+                                    progress
+                                ))
                     }
 
                     override fun onPrepareCompleted(
@@ -79,8 +67,7 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
                         error: DocumentReaderException?
                     ) {
                         if (status) {
-                            Log.d(
-                                InputDeviceActivity.TAG,
+                            Timber.d(
                                 "[DEBUGX] database onPreparedComplete then initializeReader"
                             )
                             initializeReader()
@@ -88,7 +75,7 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
                             dismissDialog()
                             Toast.makeText(
                                 this@BaseRegulaSdkActivity,
-                                "Prepare DB failed:$error",
+                                getString(R.string.prepare_db_failed, error),
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -98,18 +85,14 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
 
     protected fun initializeReader() {
         val license = Utils.getLicense(this) ?: return
-        showDialog("Initializing")
+        showDialog(getString(R.string.initializing))
 
         DocumentReader.Instance()
             .initializeReader(this, DocReaderConfig(license), initCompletion)
     }
 
-    abstract val initCompletion: IDocumentReaderInitCompletion
-    abstract val completion: IDocumentReaderCompletion
-    abstract val faceCaptureCallback: FaceCaptureCallback
-
     protected open fun showScanner() {
-        Log.d(null, "DEBUGX showScanner: currentscenario $currentScenario")
+        Timber.d( "DEBUGX showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this, scannerConfig, completion)
@@ -135,12 +118,12 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
                 if (!status) {
                     Toast.makeText(
                         this,
-                        "Init FaceSDK finished with error: " + if (e != null) e.message else "",
+                        getString(R.string.init_facesdk_finished_with_error) + if (e != null) e.message else "",
                         Toast.LENGTH_LONG
                     ).show()
                     return@init
                 }
-                Log.d(null, "FaceSDK init completed successfully")
+                Timber.d( getString(R.string.facesdk_init_completed_successfully))
             }
         }
     }

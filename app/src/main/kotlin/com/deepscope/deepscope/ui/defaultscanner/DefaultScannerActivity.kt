@@ -4,14 +4,14 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.deepscope.deepscope.domain.model.TextFieldAttribute
+import com.deepscope.deepscope.R
 import com.deepscope.deepscope.databinding.ActivityDefaultScannerBinding
+import com.deepscope.deepscope.domain.model.TextFieldAttribute
 import com.deepscope.deepscope.ui.common.FaceCameraFragment
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
@@ -37,6 +37,7 @@ import com.regula.facesdk.model.results.LivenessResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
 import com.regula.facesdk.request.MatchFacesRequest
+import timber.log.Timber
 
 class DefaultScannerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDefaultScannerBinding
@@ -65,7 +66,7 @@ class DefaultScannerActivity : AppCompatActivity() {
     }
 
     private fun showScanner() {
-        Log.d(TAG, "[DEBUGX] showScanner: currentscenario $currentScenario")
+        Timber.d( "[DEBUGX] showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this@DefaultScannerActivity, scannerConfig, completion)
@@ -76,7 +77,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
                 ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
         if (documentImage != null) {
-            Log.d(TAG, "[DEBUGX] documentImage is not null")
+            Timber.d( "[DEBUGX] documentImage is not null")
             binding.documentIv.setImageBitmap(documentImage)
             return
         }
@@ -85,7 +86,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             binding.titleTv.text = name
             val image = it.bitmap
             binding.documentIv.setImageBitmap(image)
-            Log.d(TAG, "[DEBUGX] initResults: name = ${name} ")
+            Timber.d( "[DEBUGX] initResults: name = ${name} ")
         }
     }
 
@@ -99,11 +100,11 @@ class DefaultScannerActivity : AppCompatActivity() {
         val attributes = mutableListOf<TextFieldAttribute>()
         results.textResult?.fields?.forEach {
             val name = it.getFieldName(this)
-            Log.d(TAG, "[DEBUGX] fieldname ${it.getFieldName(this)} ")
+            Timber.d( "[DEBUGX] fieldname ${it.getFieldName(this)} ")
             for (value in it.values) {
-                Log.d(TAG, "[DEBUGX] fieldtype ${value.field.fieldType} ")
-                Log.d(TAG, "[DEBUGX] source ${value.sourceType} ")
-                Log.d(TAG, "[DEBUGX] value ${value.value} ")
+                Timber.d( "[DEBUGX] fieldtype ${value.field.fieldType} ")
+                Timber.d( "[DEBUGX] source ${value.sourceType} ")
+                Timber.d( "[DEBUGX] value ${value.value} ")
                 val valid = getValidity(value.field.validityList, value.sourceType)
                 val item = TextFieldAttribute(
                     name!!,
@@ -116,9 +117,9 @@ class DefaultScannerActivity : AppCompatActivity() {
                 attributes.add(item)
             }
         }
-        Log.d(TAG, "[DEBUGX] updateRecyclerViews")
+        Timber.d( "[DEBUGX] updateRecyclerViews")
         if(attributes.isNotEmpty()){
-            Log.d(TAG, "[DEBUGX] attribut is not empty")
+            Timber.d( "[DEBUGX] attribut is not empty")
             rvAdapter.submitList(attributes)
             hideRecyclerView(false)
         }
@@ -145,7 +146,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             || action == DocReaderAction.TIMEOUT
         ) {
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                Log.d(TAG, "[DEBUGX] MULTIPAGEMODE: ")
+                Timber.d( "[DEBUGX] MULTIPAGEMODE: ")
                 if (results?.morePagesAvailable != 0) {
                     DocumentReader.Instance().startNewPage()
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -158,10 +159,10 @@ class DefaultScannerActivity : AppCompatActivity() {
                 }
             }
             if (results?.chipPage != 0) {
-                Log.d(TAG, "[DEBUGX] RFID IS PERFORMED: ")
+                Timber.d( "[DEBUGX] RFID IS PERFORMED: ")
                 DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                     override fun onChipDetected() {
-                        Log.d("Rfid", "Chip detected")
+                        Timber.d("Rfid", "Chip detected")
                     }
 
                     override fun onProgress(notification: DocumentReaderNotification) {
@@ -169,20 +170,20 @@ class DefaultScannerActivity : AppCompatActivity() {
                     }
 
                     override fun onRetryReadChip(exception: DocReaderRfidException) {
-                        Log.d("Rfid", "Retry with error: " + exception.errorCode)
+                        Timber.d("Rfid", "Retry with error: " + exception.errorCode)
                     }
 
                     override fun onCompleted(
                         rfidAction: Int,
-                        results_RFIDReader: DocumentReaderResults?,
+                        resultsRFIDReader: DocumentReaderResults?,
                         error: DocumentReaderException?
                     ) {
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
-                            captureFace(results_RFIDReader!!)
+                            captureFace(resultsRFIDReader!!)
                     }
                 })
             } else {
-                Log.d(TAG, "[DEBUGX] NO RFID PERFORMED ")
+                Timber.d( "[DEBUGX] NO RFID PERFORMED ")
                 /**
                 * perform [livenessFace] or [captureface] then check similarity
                 */
@@ -276,10 +277,9 @@ class DefaultScannerActivity : AppCompatActivity() {
             with(binding) {
                 if (split.matchedFaces.size > 0) {
                     val similarity = split.matchedFaces[0].similarity
-                    similarityTv.text =
-                        "Similarity: " + String.format("%.2f", similarity * 100) + "%"
+                    similarityTv.text = getString(R.string.similarity, similarity * 100)
                     if (similarity > 0.8) {
-                        statusTv.text = "(Valid)"
+                        statusTv.text = getString(R.string.valid)
                         statusTv.setTextColor(
                             ContextCompat.getColor(
                                 this@DefaultScannerActivity,
@@ -288,7 +288,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                         )
 
                     } else {
-                        statusTv.text = "(Not Valid)"
+                        statusTv.text = getString(R.string.not_valid)
                         statusTv.setTextColor(
                             ContextCompat.getColor(
                                 this@DefaultScannerActivity,
@@ -297,8 +297,8 @@ class DefaultScannerActivity : AppCompatActivity() {
                         )
                     }
                 } else {
-                    similarityTv.text = "Similarity: 0%"
-                    statusTv.text = "(Not Valid)"
+                    similarityTv.text = getString(R.string.similarity_0)
+                    statusTv.text = getString(R.string.not_valid)
                     statusTv.setTextColor(
                         ContextCompat.getColor(
                             this@DefaultScannerActivity,
@@ -313,7 +313,7 @@ class DefaultScannerActivity : AppCompatActivity() {
 
     private fun resetViews() {
         with(binding) {
-            similarityTv.text = "Similarity: -"
+            similarityTv.text = getString(R.string.similarity_none)
             statusTv.text = ""
             documentIv.setImageBitmap(null)
             liveIv.setImageBitmap(null)

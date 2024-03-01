@@ -2,13 +2,13 @@ package com.deepscope.deepscope.ui.main.fragment
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.deepscope.deepscope.R
 import com.deepscope.deepscope.databinding.FragmentGraphicfieldBinding
 import com.deepscope.deepscope.ui.scanner.ScannerViewModel
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -21,6 +21,7 @@ import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
 import com.regula.facesdk.request.MatchFacesRequest
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import timber.log.Timber
 
 class GraphicfieldFragment : Fragment() {
     private var _binding: FragmentGraphicfieldBinding? = null
@@ -94,10 +95,9 @@ class GraphicfieldFragment : Fragment() {
                 try {
                     if (split.matchedFaces.size > 0) {
                         val similarity = split.matchedFaces[0].similarity
-                        similarityTv.text =
-                            "Similarity: " + String.format("%.2f", similarity * 100) + "%"
+                        similarityTv.text = getString(R.string.similarity, similarity * 100)
                         if (similarity > 0.8) {
-                            statusTv.text = "(Valid)"
+                            statusTv.text = getString(R.string.valid)
                             statusTv.setTextColor(
                                 ContextCompat.getColor(
                                     requireActivity(),
@@ -105,7 +105,7 @@ class GraphicfieldFragment : Fragment() {
                                 )
                             )
                         } else {
-                            statusTv.text = "(Not Valid)"
+                            statusTv.text = getString(R.string.not_valid)
                             statusTv.setTextColor(
                                 ContextCompat.getColor(
                                     requireActivity(),
@@ -114,8 +114,8 @@ class GraphicfieldFragment : Fragment() {
                             )
                         }
                     } else {
-                        similarityTv.text = "Similarity: 0%"
-                        statusTv.text = "(Not Valid)"
+                        similarityTv.text = getString(R.string.similarity_0)
+                        statusTv.text = getString(R.string.not_valid)
                         statusTv.setTextColor(
                             ContextCompat.getColor(
                                 requireActivity(),
@@ -123,8 +123,8 @@ class GraphicfieldFragment : Fragment() {
                             )
                         )
                     }
-                } catch (e: Exception){
-                    Log.e(TAG, "[DEBUGX] matchFaces: $e", )
+                } catch (e: Exception) {
+                    Timber.e( "[DEBUGX] matchFaces: $e", )
                 }
 //                btnScan.isEnabled = true
             }

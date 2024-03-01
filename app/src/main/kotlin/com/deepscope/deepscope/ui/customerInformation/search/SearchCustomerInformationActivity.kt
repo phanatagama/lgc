@@ -2,7 +2,6 @@ package com.deepscope.deepscope.ui.customerInformation.search
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class SearchCustomerInformationActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchCustomerInformationBinding
@@ -116,7 +116,7 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
             searchJob = coroutineScope.launch {
                 newText.let {
                     delay(debouncePeriod)
-                    Log.d(null, "onQueryTextChange: $newText")
+                    Timber.d("onQueryTextChange: $newText")
                     if (it.isEmpty()) {
                         searchCustomerInformationViewModel.getCustomerInformation()
                     } else {
