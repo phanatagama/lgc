@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.Settings
 
 class PermissionUtil {
-
     companion object {
         const val PERMISSIONS_BLE_ACCESS = 1
 

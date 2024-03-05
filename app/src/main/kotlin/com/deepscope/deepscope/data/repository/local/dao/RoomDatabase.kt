@@ -11,10 +11,8 @@ import com.deepscope.deepscope.data.common.DateConverter
 import com.deepscope.deepscope.data.repository.local.entity.CustomerInformationEntity
 import com.deepscope.deepscope.data.repository.local.entity.DataImageEntity
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.util.UUID
 
 
 // Annotates class to be a Room Database with a table (entity) of the T class
@@ -56,12 +54,6 @@ abstract class AppRoomDatabase : RoomDatabase() {
                     DB_NAME
                 ).addCallback(
                     object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-//                            GlobalScope.launch(Dispatchers.IO) {
-//                                initPrePopulateDefaultCustomerInformation(context)
-//                            }
-                        }
                     }
                 )
                     .addMigrations(MIGRATION_1_2)
@@ -76,7 +68,7 @@ abstract class AppRoomDatabase : RoomDatabase() {
         private suspend fun initPrePopulateDefaultCustomerInformation(context: Context) {
             val dateTime = LocalDateTime.now()
             val defaultCustomerInformation = CustomerInformationEntity(
-                id = CustomerInformationEntity.DEFAULT_ID,
+                id = UUID.randomUUID().toString(),
                 name = "Others",
                 description = "Others",
                 address = "Korea",

@@ -30,6 +30,7 @@
             android:id="@+id/menu_icon_tv"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:contentDescription="@string/document_image"
             app:layout_constraintBottom_toBottomOf="@+id/menu_title_tv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/menu_title_tv"

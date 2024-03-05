@@ -196,7 +196,7 @@
         tools:enabled="true" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_prescription"
+        android:id="@+id/btn_report"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="48dp"

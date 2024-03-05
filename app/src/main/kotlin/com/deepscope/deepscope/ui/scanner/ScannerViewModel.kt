@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.deepscope.deepscope.data.common.BaseResult
 import com.deepscope.deepscope.data.repository.MainRepository
 import com.deepscope.deepscope.data.repository.remote.dto.ImageUploadResponse
+import com.orhanobut.logger.Logger
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.model.results.FaceCaptureResponse
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.File
 
 class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel() {
@@ -26,7 +26,7 @@ class ScannerViewModel(private val mainRepository: MainRepository) : ViewModel()
     val faceCaptureResponse: LiveData<FaceCaptureResponse?> = _faceCaptureResponseLiveData
 
     fun setDocumentReaderResults(results: DocumentReaderResults?){
-        Timber.d( "[DEBUGX] setDocumentReaderResults: performed ")
+        Logger.d( "[DEBUGX] setDocumentReaderResults: performed ")
         _documentReaderResultLiveData.value = results
     }
 

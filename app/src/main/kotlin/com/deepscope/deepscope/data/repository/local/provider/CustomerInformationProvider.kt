@@ -1,7 +1,6 @@
 package com.deepscope.deepscope.data.repository.local.provider
 
 import com.deepscope.deepscope.data.repository.local.dao.CustomerInformationDao
-import com.deepscope.deepscope.data.repository.local.entity.CustomerInformationWithImages
 import com.deepscope.deepscope.domain.model.CustomerInformation
 import com.deepscope.deepscope.util.mapToModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,17 +22,23 @@ class CustomerInformationProvider(
     }
 
     fun getCustomerInformation(): Flow<List<CustomerInformation>> {
-        return customerInformationDao.get().filterNotNull().map { it.mapToModel() }
+        return customerInformationDao.get()
+            .filterNotNull()
+            .map { it.mapToModel() }
             .flowOn(dispatcher)
     }
 
     fun getCustomerInformation(name: String): Flow<List<CustomerInformation>> {
-        return customerInformationDao.get(name).filterNotNull().map { it.mapToModel() }
+        return customerInformationDao.get(name)
+            .filterNotNull()
+            .map { it.mapToModel() }
             .flowOn(dispatcher)
     }
 
-    fun getCustomerInformationById(id: String): Flow<CustomerInformationWithImages> {
-        return customerInformationDao.getById(id).filterNotNull()
+    fun getCustomerInformationById(id: String): Flow<CustomerInformation> {
+        return customerInformationDao.getById(id)
+            .filterNotNull()
+            .map { it.mapToModel() }
             .flowOn(dispatcher)
     }
 

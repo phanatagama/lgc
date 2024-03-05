@@ -5,7 +5,6 @@ import com.deepscope.deepscope.data.repository.local.dao.AppRoomDatabase
 import com.deepscope.deepscope.data.repository.local.provider.CustomerInformationProvider
 import com.deepscope.deepscope.data.repository.local.provider.DataImageProvider
 import com.deepscope.deepscope.data.repository.remote.MainNetwork
-import com.deepscope.deepscope.util.IdProviderImpl
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
@@ -25,7 +24,6 @@ val dataModule = module {
     single { AppRoomDatabase.getDatabase(androidContext()).dataImageDao() }
     single { CustomerInformationProvider(get(named("IODispatcher")), get()) }
     single { DataImageProvider(get(named("IODispatcher")), get()) }
-    single { IdProviderImpl() }
 }
 
 fun provideMainNetwork(retrofit: Retrofit): MainNetwork {

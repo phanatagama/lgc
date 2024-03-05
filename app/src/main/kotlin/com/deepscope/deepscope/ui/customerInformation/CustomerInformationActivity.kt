@@ -3,18 +3,14 @@ package com.deepscope.deepscope.ui.customerInformation
 import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
@@ -25,19 +21,21 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.data.common.toDate
+import com.deepscope.deepscope.data.common.toDateString
 import com.deepscope.deepscope.databinding.ActivityCustomerInformationBinding
 import com.deepscope.deepscope.domain.model.CustomerInformation
 import com.deepscope.deepscope.domain.model.DataImage
 import com.deepscope.deepscope.ui.customerInformation.daum.RoadAddressSearchDialog
 import com.deepscope.deepscope.ui.customerInformation.diagnose.DiagnoseActivity
-import com.deepscope.deepscope.util.IdProviderImpl
 import com.deepscope.deepscope.util.Utils.getBitmap
 import com.deepscope.deepscope.util.Utils.getImageUri
 import com.deepscope.deepscope.util.Utils.saveBitmap
 import com.deepscope.deepscope.util.Utils.uriToBitmap
+import com.deepscope.deepscope.util.launchIn
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
@@ -51,13 +49,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.io.File
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 
 
 class CustomerInformationActivity : AppCompatActivity() {
     private var uri: Uri? = null
-    private val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
     private var birthDate = LocalDateTime.now()
     private var issueDate = LocalDateTime.now()
     private val customerInformationViewModel: CustomerInformationViewModel by viewModel()
@@ -67,8 +63,14 @@ class CustomerInformationActivity : AppCompatActivity() {
         CustomerPhotoAdapter()
     }
     private val generateImagePlaceholder: List<DataImage> =
-        (1..10).map { DataImage(IdProviderImpl().generate()) }
+        (1..10).map { DataImage() }
     private var selectedImage: DataImage = generateImagePlaceholder.first()
+
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext, it
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
     private fun takePhoto() {
         // Request camera permissions
@@ -90,21 +92,32 @@ class CustomerInformationActivity : AppCompatActivity() {
             }
         }
 
-    @SuppressLint("Range")
-    fun rotateBitmap(input: Bitmap): Bitmap? {
-        val orientationColumn =
-            arrayOf(MediaStore.Images.Media.ORIENTATION)
-        val cur: Cursor? =
-            contentResolver.query(uri!!, orientationColumn, null, null, null)
-        var orientation = -1
-        if (cur != null && cur.moveToFirst()) {
-            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]))
+    private fun requestPermissions() {
+        requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        )
+        { permissions ->
+            // Handle Permission granted/rejected
+            var permissionGranted = true
+            permissions.entries.forEach {
+                if (it.key in REQUIRED_PERMISSIONS && !it.value)
+                    permissionGranted = false
+            }
+            if (!permissionGranted) {
+                showToast(getString(R.string.permission_request_denied))
+                finish()
+            } else {
+                takePhoto()
+            }
         }
-        Timber.d("tryOrientation: $orientation")
-        val rotationMatrix = Matrix()
-        rotationMatrix.setRotate(orientation.toFloat())
-        cur?.close()
-        return Bitmap.createBitmap(input, 0, 0, input.width, input.height, rotationMatrix, true)
+
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,29 +126,38 @@ class CustomerInformationActivity : AppCompatActivity() {
         setContentView(binding.root)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupRecyclerView()
-        if (intent.getIntExtra(CUSTOMER_INFORMATION_TYPE, 1) == 1) {
-            bindViews()
-            if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 1) == 1) {
-                takePhoto()
-            } else {
-                if (documentResults == null) {
-                    showScanner()
-                } else {
-                    insertOpticalImage(documentResults)
-                }
 
-            }
+        // Check if the activity is in new or read only mode
+        if (intent.getIntExtra(CUSTOMER_INFORMATION_TYPE, 1) == 1) {
+            setupCreateMode()
         } else {
-            rvAdapter.parentType = 2
-            binding.btnCloseSingle.setOnClickListener {
-                displayImage(false)
+            setupReadMode()
+        }
+    }
+
+    private fun setupReadMode() {
+        rvAdapter.parentType = 2
+        binding.btnCloseSingle.setOnClickListener {
+            displayImage(false)
+        }
+        val customerInformationId = intent.getStringExtra(CUSTOMER_INFORMATION_ID)
+        customerInformationId?.let {
+            customerInformationViewModel.getCustomerInformationById(customerInformationId)
+        }
+        observe()
+        startAnimation()
+    }
+
+    private fun setupCreateMode() {
+        bindViews()
+        if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 1) == 1) {
+            takePhoto()
+        } else {
+            documentResults?.let {
+                showScanner()
+            } ?: run {
+                insertOpticalImage(documentResults)
             }
-            val customerInformationId = intent.getStringExtra(CUSTOMER_INFORMATION_ID)
-            if (customerInformationId != null) {
-                customerInformationViewModel.getCustomerInformationById(customerInformationId)
-            }
-            observe()
-            startAnimation()
         }
     }
 
@@ -143,58 +165,57 @@ class CustomerInformationActivity : AppCompatActivity() {
         val rvLayout = ObjectAnimator.ofFloat(binding.rvPhoto, "translationY", 60f, 0f).apply {
             duration = 700
         }
-        val tableLayoutTranslate = ObjectAnimator.ofFloat(binding.tableLayout, "translationY", 60f, 0f).apply {
-            duration = 500
-        }
+        val tableLayoutTranslate =
+            ObjectAnimator.ofFloat(binding.tableLayout, "translationY", 60f, 0f).apply {
+                duration = 500
+            }
         val tableLayoutAlpha = ObjectAnimator.ofFloat(binding.tableLayout, "alpha", 0f, 1f).apply {
             duration = 500
         }
-        val titleTranslate = ObjectAnimator.ofFloat(binding.titleTv, "translationY", 60f, 0f).apply {
-            duration = 300
-        }
+        val titleTranslate =
+            ObjectAnimator.ofFloat(binding.titleTv, "translationY", 60f, 0f).apply {
+                duration = 300
+            }
         val titleAlpha = ObjectAnimator.ofFloat(binding.titleTv, "alpha", 0f, 1f).apply {
             duration = 300
         }
-        val detailTranslate = ObjectAnimator.ofFloat(binding.detailTv, "translationY", 60f, 0f).apply {
-            duration = 300
-        }
+        val detailTranslate =
+            ObjectAnimator.ofFloat(binding.detailTv, "translationY", 60f, 0f).apply {
+                duration = 300
+            }
         val detailAlpha = ObjectAnimator.ofFloat(binding.detailTv, "alpha", 0f, 1f).apply {
             duration = 300
         }
 
-        val tableLayoutAnimator = AnimatorSet().apply {
-            playTogether(tableLayoutAlpha,tableLayoutTranslate)
-        }
-
-        val titleAnimator = AnimatorSet().apply {
-            playTogether(titleAlpha,titleTranslate)
-        }
-
-        val detailAnimator = AnimatorSet().apply {
-            playTogether(detailAlpha,detailTranslate)
-        }
+//        val tableLayoutAnimator = AnimatorSet().apply {
+//            playTogether(tableLayoutAlpha, tableLayoutTranslate)
+//        }
+//
+//        val titleAnimator = AnimatorSet().apply {
+//            playTogether(titleAlpha, titleTranslate)
+//        }
+//
+//        val detailAnimator = AnimatorSet().apply {
+//            playTogether(detailAlpha, detailTranslate)
+//        }
         AnimatorSet().apply {
-            play(rvLayout).with(tableLayoutTranslate).with(tableLayoutAlpha).with(titleTranslate).with(titleAlpha).with(detailTranslate).with(detailAlpha)
+            play(rvLayout).with(tableLayoutTranslate).with(tableLayoutAlpha).with(titleTranslate)
+                .with(titleAlpha).with(detailTranslate).with(detailAlpha)
 //            playSequentially(titleAnimator,detailAnimator,tableLayoutAnimator, rvLayout)
             start()
         }
     }
 
+    private fun isPhotoEmpty(): Boolean {
+        return rvAdapter.currentList.all { it.bitmap == null }
+    }
+
     private fun saveCustomerInformation() {
         with(binding) {
-            if (!rvAdapter.currentList.any { it.bitmap != null }) {
-                Toast.makeText(
-                    this@CustomerInformationActivity,
-                    getString(R.string.there_is_no_photos),
-                    Toast.LENGTH_SHORT
-                ).show()
+            // check if there is no photo
+            if (isPhotoEmpty()) {
+                showToast(getString(R.string.there_is_no_photos))
                 return
-            } else {
-                Toast.makeText(
-                    this@CustomerInformationActivity,
-                    getString(R.string.complete),
-                    Toast.LENGTH_SHORT
-                ).show()
             }
             val title =
                 if (titleTv.text.isNullOrEmpty()) getString(R.string.john_doe) else titleTv.text.toString()
@@ -214,64 +235,22 @@ class CustomerInformationActivity : AppCompatActivity() {
                 })
             customerInformationViewModel.insertCustomerInformation(
                 title, detail, address, issue, birth
-            )
-            finish()
-        }
-
-    }
-
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            baseContext, it
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestPermissions() {
-        requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
-    }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        )
-        { permissions ->
-            // Handle Permission granted/rejected
-            var permissionGranted = true
-            permissions.entries.forEach {
-                if (it.key in REQUIRED_PERMISSIONS && !it.value)
-                    permissionGranted = false
-            }
-            if (!permissionGranted) {
-                Toast.makeText(
-                    baseContext,
-                    getString(R.string.permission_request_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
+            ).launchIn(lifecycleScope) {
+                showToast(
+                    getString(R.string.complete),
+                )
                 finish()
-            } else {
-                takePhoto()
             }
-        }
 
+        }
+    }
 
     private fun bindViews() {
         with(binding) {
-            issueTv.text = issueDate.format(formatter)
-            birthDateTv.text = birthDate.format(formatter)
+            issueTv.text = issueDate.toDateString()
+            birthDateTv.text = birthDate.toDateString()
             birthDateTv.setOnClickListener {
-                val datePickerDialog = DatePickerDialog(
-                    this@CustomerInformationActivity,
-                    { _, year, month, dayOfMonth ->
-                        val date = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0)
-                        birthDateTv.text = date.format(formatter)
-                        birthDate = date
-                    },
-                    birthDate.year,
-                    birthDate.monthValue - 1,
-                    birthDate.dayOfMonth
-                ).apply { datePicker.maxDate = Date().time }
-                datePickerDialog.show()
-                return@setOnClickListener
+                showDatePicker()
             }
             addressTv.setOnClickListener {
                 addressLookup()
@@ -285,15 +264,33 @@ class CustomerInformationActivity : AppCompatActivity() {
         }
     }
 
+    private fun showDatePicker() {
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                val date = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0)
+                binding.birthDateTv.text = date.toDateString()
+                birthDate = date
+            },
+            birthDate.year,
+            birthDate.monthValue - 1,
+            birthDate.dayOfMonth
+        ).apply { datePicker.maxDate = Date().time }
+        datePickerDialog.show()
+    }
+
+    /**
+     * Address lookup using Daum API
+     */
     private fun addressLookup() {
-        val dialog = RoadAddressSearchDialog.newInstance()
-        dialog.listener = object : RoadAddressSearchDialog.OnInputListener {
-            override fun sendInput(input: String?) {
-                input?.let {
-                    binding.addressTv.setText(it)
-                }
+        val webViewListener = RoadAddressSearchDialog.OnInputListener {
+            it?.let {
+                binding.addressTv.setText(it)
             }
         }
+        val dialog = RoadAddressSearchDialog.Builder()
+            .addListener(webViewListener)
+            .build()
         dialog.show(supportFragmentManager, RoadAddressSearchDialog.TAG)
     }
 
@@ -307,21 +304,26 @@ class CustomerInformationActivity : AppCompatActivity() {
         return super.onContextItemSelected(item)
     }
 
+    /**
+     * Bind views with customer information
+     * this function will be called when the activity is in read only mode
+     * customer information that will be displayed is from the database
+     */
     private fun bindViews(customerInformation: CustomerInformation) {
         with(binding) {
             rvAdapter.submitList(customerInformation.images)
             titleTv.setText(customerInformation.name)
             detailTv.setText(customerInformation.description)
             addressTv.setText(customerInformation.address)
-            issueTv.text = customerInformation.issueDate.format(formatter)
-            birthDateTv.text = customerInformation.birthDate.format(formatter)
+            issueTv.text = customerInformation.issueDate.toDateString()
+            birthDateTv.text = customerInformation.birthDate.toDateString()
             btnSend.text = getString(R.string.send_image)
             disableEditText(titleTv)
             disableEditText(detailTv)
             disableEditText(addressTv)
             btnSend.isEnabled = false
             btnSend.setOnClickListener {
-//                goToDiagnoseActivity()
+                // goToDiagnoseActivity()
             }
             btnSendSingle.setOnClickListener {
                 goToDiagnoseActivity()
@@ -347,6 +349,10 @@ class CustomerInformationActivity : AppCompatActivity() {
         startActivity(intent, optionsCompat.toBundle())
     }
 
+
+    /**
+     * Disable edit text when the activity is in read only mode
+     */
     private fun disableEditText(editText: EditText) {
         editText.isFocusable = false
         editText.isEnabled = false
@@ -384,7 +390,6 @@ class CustomerInformationActivity : AppCompatActivity() {
                             singleImage.setImageURI(Uri.fromFile(File(dataImage.path!!)))
                             displayImage(true)
                         }
-
                         return
                     }
 
@@ -414,38 +419,56 @@ class CustomerInformationActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayImage(isSingleView: Boolean) {
-        with(binding) {
-            if (isSingleView) {
-                rvPhoto.visibility = View.GONE
-                btnSend.visibility = View.GONE
-                singleImage.visibility = View.VISIBLE
-                btnSendSingle.visibility = View.VISIBLE
-                btnCloseSingle.visibility = View.VISIBLE
 
-            } else {
-                rvPhoto.visibility = View.VISIBLE
-                btnSend.visibility = View.VISIBLE
-                singleImage.visibility = View.GONE
-                btnSendSingle.visibility = View.GONE
-                btnCloseSingle.visibility = View.GONE
-            }
+    /**
+     * A function to hide recyclerview and show single image view
+     */
+    private fun displayImage(isSingleView: Boolean) {
+        val hideViewOnImageSelected = if (isSingleView) View.GONE else View.VISIBLE
+        val showViewOnImageSelected = if (isSingleView) View.VISIBLE else View.GONE
+        with(binding) {
+            rvPhoto.visibility = hideViewOnImageSelected
+            btnSend.visibility = hideViewOnImageSelected
+            singleImage.visibility = showViewOnImageSelected
+            btnSendSingle.visibility = showViewOnImageSelected
+            btnCloseSingle.visibility = showViewOnImageSelected
         }
     }
 
+    /**
+     * Show image dialog to zoom in the image
+     */
     private fun showImageDialog(bitmap: Bitmap) {
         PhotoDialogFragment.newInstance(bitmap)
             .show(supportFragmentManager, PhotoDialogFragment.TAG)
     }
 
     private fun insertOpticalImage(documentReaderResults: DocumentReaderResults?) {
-        val uvImage = documentReaderResults?.getGraphicFieldImageByType(
-            eGraphicFieldType.GF_DOCUMENT_IMAGE,
-            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
-            0,
-            eRPRM_Lights.RPRM_LIGHT_UV
-        )
-        val rawImage = documentReaderResults?.getGraphicFieldImageByType(
+        val uvImage = getUvImage(documentReaderResults)
+        val rawImage = getRawImage(documentReaderResults)
+
+        val emptySlot = getEmptySlot()
+        val emptyField = if (emptySlot.hasNext()) emptySlot.next() else null
+        val emptyField2 = if (emptySlot.hasNext()) emptySlot.next() else null
+        if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 2) == 2) {
+            uvImage?.let {
+                emptyField?.copy(bitmap = it, type = 2)?.also(rvAdapter::updateList)
+            }
+        } else {
+            if (rawImage != null && uvImage != null && emptyField != null && emptyField2 != null) {
+                rvAdapter.updateList(
+                    emptyField.copy(bitmap = rawImage, type = 1),
+                    emptyField2.copy(bitmap = uvImage, type = 2)
+                )
+            }
+        }
+    }
+
+    /**
+     * Extract raw image from document reader results
+     */
+    private fun getRawImage(documentReaderResults: DocumentReaderResults?) =
+        documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_PORTRAIT
         ) ?: documentReaderResults?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE
@@ -459,24 +482,16 @@ class CustomerInformationActivity : AppCompatActivity() {
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
         )
 
-        val emptySlot = getEmptySlot()
-        val emptyField = if (emptySlot.hasNext()) emptySlot.next() else null
-        val emptyField2 = if (emptySlot.hasNext()) emptySlot.next() else null
-        if (intent.getIntExtra(CUSTOMER_INFORMATION_FEATURE, 2) == 2) {
-            uvImage?.let {
-                if (emptyField != null) {
-                    rvAdapter.updateList(emptyField.copy(bitmap = it, type = 2))
-                }
-            }
-        } else {
-            if (rawImage != null && uvImage != null && emptyField != null && emptyField2 != null) {
-                rvAdapter.updateList(
-                    emptyField.copy(bitmap = rawImage, type = 1),
-                    emptyField2.copy(bitmap = uvImage, type = 2)
-                )
-            }
-        }
-    }
+    /**
+     * Extract uv image from document reader results
+     */
+    private fun getUvImage(documentReaderResults: DocumentReaderResults?) =
+        documentReaderResults?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            0,
+            eRPRM_Lights.RPRM_LIGHT_UV
+        )
 
     private fun getEmptySlot(): Iterator<DataImage> {
         return rvAdapter.currentList.filter { it.bitmap == null }.iterator()
@@ -488,22 +503,21 @@ class CustomerInformationActivity : AppCompatActivity() {
             || action == DocReaderAction.TIMEOUT
         ) {
             Timber.d("result: $results")
-            if (results != null) {
-                documentResults = results
-                insertOpticalImage(results)
-            } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.docreadersdk_has_been_failed_to_identify), Toast.LENGTH_LONG
+            results?.let {
+                documentResults = it
+                insertOpticalImage(it)
+            } ?: run {
+                showToast(
+                    getString(R.string.docreadersdk_has_been_failed_to_identify),
                 )
-                    .show()
             }
         } else {
             if (action == DocReaderAction.CANCEL) {
-                Toast.makeText(this, getString(R.string.scanning_was_cancelled), Toast.LENGTH_LONG)
-                    .show()
+                showToast(getString(R.string.scanning_was_cancelled))
             } else if (action == DocReaderAction.ERROR) {
-                Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
+                showToast("Error: $error")
+            } else {
+                showToast("Unknown action: $action")
             }
         }
     }
@@ -538,7 +552,8 @@ class CustomerInformationActivity : AppCompatActivity() {
         /**
          * CUSTOMER_INFORMATION_FEATURE
          * 1 -> feature-visible // the activity will be setup for normal camera
-         * 2 -> feature-invisible/auto // the activity will be setup for bluetooth camera
+         * 2 -> feature-invisible // the activity will be setup for bluetooth camera
+         * 3 -> feature-auto // the activity will be setup for auto camera
          */
         const val CUSTOMER_INFORMATION_FEATURE = "CUSTOMER_INFORMATION_FEATURE"
         const val CUSTOMER_INFORMATION_ID = "CUSTOMER_INFORMATION_ID"

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.ui.common.FaceCameraFragment
+import com.deepscope.deepscope.util.Empty
 import com.deepscope.deepscope.util.Utils
 import com.deepscope.deepscope.util.debounce
 import com.regula.documentreader.api.DocumentReader
@@ -38,12 +39,14 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
     }
 
     protected fun handler(delay: Long): () -> Unit = lifecycleScope.debounce(delay) {
-        Toast.makeText(
-            this,
+        showToast(
             getString(R.string.failed_to_connect_to_the_torch_device),
-            Toast.LENGTH_SHORT
-        ).show()
+        )
         dismissDialog()
+    }
+
+    protected fun showToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
     protected fun prepareDatabase() {
@@ -59,7 +62,8 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
                                 getString(
                                     R.string.downloading_database,
                                     progress
-                                ))
+                                )
+                            )
                     }
 
                     override fun onPrepareCompleted(
@@ -73,11 +77,9 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
                             initializeReader()
                         } else {
                             dismissDialog()
-                            Toast.makeText(
-                                this@BaseRegulaSdkActivity,
+                            showToast(
                                 getString(R.string.prepare_db_failed, error),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            )
                         }
                     }
                 })
@@ -92,7 +94,7 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
     }
 
     protected open fun showScanner() {
-        Timber.d( "DEBUGX showScanner: currentscenario $currentScenario")
+        Timber.d("DEBUGX showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this, scannerConfig, completion)
@@ -116,14 +118,12 @@ abstract class BaseRegulaSdkActivity : AppCompatActivity() {
         if (!FaceSDK.Instance().isInitialized) {
             FaceSDK.Instance().init(this) { status: Boolean, e: InitException? ->
                 if (!status) {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.init_facesdk_finished_with_error) + if (e != null) e.message else "",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    showToast(
+                        getString(R.string.init_facesdk_finished_with_error) + if (e != null) e.message else String.Empty,
+                    )
                     return@init
                 }
-                Timber.d( getString(R.string.facesdk_init_completed_successfully))
+                Timber.d(getString(R.string.facesdk_init_completed_successfully))
             }
         }
     }

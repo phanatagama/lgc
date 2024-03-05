@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_primary_variant"
+    android:paddingHorizontal="8dp"
+    tools:context=".ui.customerInformation.diagnose.DiagnoseFragment">
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        android:layout_margin="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="@string/report"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@color/black"
+        android:textSize="32sp"
+        android:fontFamily="@font/saira_semi_condensed_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/top_divider"
+        android:layout_width="156dp"
+        android:layout_height="3dp"
+        android:background="@color/color_primary"
+        app:layout_constraintEnd_toEndOf="@id/subtitle"
+        app:layout_constraintStart_toStartOf="@id/subtitle"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/skin_disease_diagnosis"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:textAllCaps="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_divider" />
+
+    <View
+        android:id="@+id/middle_divider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="32dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/name_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:transitionName="@string/customer_name"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/black"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toStartOf="@id/image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/middle_divider"
+        tools:text="@string/medicines" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/detail_tv"
+        android:layout_width="0dp"
+        android:transitionName="@string/customer_detail"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@id/image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name_tv"
+        tools:text="@string/medicines" />
+
+    <View
+        android:id="@+id/body_divider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toStartOf="@id/image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/detail_tv" />
+
+    <TableLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:shrinkColumns="*"
+        android:stretchColumns="*"
+        app:layout_constraintEnd_toStartOf="@id/image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/body_divider">
+
+        <TableRow
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/birth_date_title_tv"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:padding="3dip"
+                android:text="@string/birth_date"
+                android:textColor="@color/black"
+                android:textSize="10sp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/birth_date_tv"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:hint="@string/birth_date_value"
+                android:padding="3dip"
+                android:textColor="@color/black"
+                android:textColorHint="@color/facesdk_text_grey"
+                android:textSize="10sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="0dp"
+
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/issue_title_tv"
+                android:layout_width="0dp"
+                android:padding="3dip"
+                android:text="@string/issue_date"
+                android:textColor="@color/black"
+
+                android:textSize="10sp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/issue_tv"
+                android:layout_width="0dp"
+                android:hint="@string/birth_date_value"
+                android:padding="3dip"
+                android:textColor="@color/black"
+                android:textColorHint="@color/facesdk_text_grey"
+                android:textSize="10sp" />
+        </TableRow>
+
+
+    </TableLayout>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/image"
+        android:layout_width="136dp"
+        android:layout_height="136dp"
+        android:transitionName="@string/menu_image"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="9dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/menu_image"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/middle_divider"
+        tools:src="@tools:sample/avatars" />
+
+    <View
+        android:id="@+id/bottom_divider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image" />
+
+    <View
+        android:id="@+id/container"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="48dp"
+        android:background="@color/color_primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bottom_divider" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/diseaseTable"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:text="@string/skin_disease_care"
+        android:fontFamily="@font/saira_semi_condensed_semibold"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintStart_toStartOf="@id/container"
+        app:layout_constraintBottom_toBottomOf="@id/container"
+        app:layout_constraintTop_toTopOf="@id/container" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/receipt_1"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/esroban"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="@id/container"
+        app:layout_constraintTop_toBottomOf="@id/container" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/receipt_1_total"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/_1"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintTop_toBottomOf="@id/container" />
+
+    <View
+        android:id="@+id/border_1"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receipt_1" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/receipt_2"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/calcineurin_inhibitor"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="@id/container"
+        app:layout_constraintTop_toBottomOf="@id/border_1" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/receipt_2_total"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/_1"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintTop_toBottomOf="@id/border_1" />
+
+    <View
+        android:id="@+id/border_2"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receipt_2" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/description_1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/esroban_description_1"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintStart_toStartOf="@id/container"
+        app:layout_constraintTop_toBottomOf="@id/border_2" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/description_2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:text="@string/esroban_description_2"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintStart_toStartOf="@id/container"
+        app:layout_constraintTop_toBottomOf="@id/description_1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_back"
+        android:layout_width="176dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="16dp"
+        android:text="@string/complete"
+        android:textAllCaps="false"
+        android:backgroundTint="@color/disable_button_color"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/foot_divider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/color_primary"
+        app:layout_constraintBottom_toTopOf="@id/label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginHorizontal="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/label"
+        app:layout_constraintEnd_toStartOf="@id/label"
+        app:layout_constraintTop_toTopOf="@id/label"
+        app:srcCompat="@drawable/icon_clinic" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:text="@string/dermatology_clinic"
+        android:textAllCaps="true"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/btn_back"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

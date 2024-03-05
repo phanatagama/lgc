@@ -20,6 +20,8 @@ import com.deepscope.deepscope.databinding.LayoutResultBottomsheetBinding
 import com.deepscope.deepscope.ui.defaultscanner.DocumentFieldAdapter
 import com.deepscope.deepscope.ui.scanner.ScannerViewModel
 import com.deepscope.deepscope.util.DocumentReaderResultsParcel
+import com.deepscope.deepscope.util.Empty
+import com.deepscope.deepscope.util.Utils.getColorResource
 import com.deepscope.deepscope.util.Utils.getDrawable
 import com.deepscope.deepscope.util.Utils.resizeBitmap
 import com.deepscope.deepscope.util.Utils.saveBitmap
@@ -71,7 +73,7 @@ class ResultBottomSheet : DialogFragment() {
             ft.add(this, tag)
             ft.commitAllowingStateLoss()
         } catch (ignored: IllegalStateException) {
-
+            Timber.e("showFragment: $ignored")
         }
 
     }
@@ -109,17 +111,17 @@ class ResultBottomSheet : DialogFragment() {
                         if (similarity > 0.8) {
                             statusTv.text = getString(R.string.valid)
                             statusTv.setTextColor(
-                                ContextCompat.getColor(
+                                getColorResource(
+                                    com.regula.common.R.color.dark_green,
                                     requireActivity(),
-                                    com.regula.common.R.color.dark_green
                                 )
                             )
                         } else {
                             statusTv.text = getString(R.string.not_valid)
                             statusTv.setTextColor(
-                                ContextCompat.getColor(
+                                getColorResource(
+                                    com.regula.common.R.color.red,
                                     requireActivity(),
-                                    com.regula.common.R.color.red
                                 )
                             )
                         }
@@ -127,9 +129,9 @@ class ResultBottomSheet : DialogFragment() {
                         similarityTv.text = getString(R.string.similarity_0)
                         statusTv.text = getString(R.string.not_valid)
                         statusTv.setTextColor(
-                            ContextCompat.getColor(
+                            getColorResource(
+                                com.regula.common.R.color.red,
                                 requireActivity(),
-                                com.regula.common.R.color.red
                             )
                         )
                     }
@@ -188,7 +190,7 @@ class ResultBottomSheet : DialogFragment() {
 
         with(binding) {
             titleTv.text = name
-            detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else ""
+            detailTv.text = if (ageFieldName != null) "$gender, ${ageFieldName}: $age" else String.Empty
             birthDateTv.text = birth
             addressTv.text = address
             issueTv.text = expiry
@@ -224,7 +226,7 @@ class ResultBottomSheet : DialogFragment() {
         Timber.d( "UV Graphic Field: $uvDocumentReaderGraphicField")
 
         if (uvDocumentReaderGraphicField != null && uvDocumentReaderGraphicField.bitmap != null) {
-            val resizedBitmap = resizeBitmap(uvDocumentReaderGraphicField.bitmap)
+            val resizedBitmap = uvDocumentReaderGraphicField.bitmap.resizeBitmap()
             Timber.d( "Resized UV Bitmap: $resizedBitmap")
             binding.uvImageIv.visibility = View.VISIBLE
             binding.uvImageIv.setImageBitmap(resizedBitmap)
@@ -245,9 +247,9 @@ class ResultBottomSheet : DialogFragment() {
             val bottomSheetDialog = it as BottomSheetDialog
             val parentLayout =
                 bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-            parentLayout?.let { it ->
-                val behaviour = BottomSheetBehavior.from(it)
-                setupFullHeight(it)
+            parentLayout?.let { parent ->
+                val behaviour = BottomSheetBehavior.from(parent)
+                setupFullHeight(parent)
                 behaviour.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }

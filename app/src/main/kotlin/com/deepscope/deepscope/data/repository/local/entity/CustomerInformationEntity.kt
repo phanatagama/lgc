@@ -5,15 +5,16 @@ import androidx.room.Entity
 import androidx.room.Relation
 import com.deepscope.deepscope.domain.model.CustomerInformation
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity(tableName = "customer_information", primaryKeys = ["id"])
 data class CustomerInformationEntity(
-    val id: String = "0",
+    val id: String = UUID.randomUUID().toString(),
     val name: String,
     val description: String,
     val address: String,
-    val issueDate: LocalDateTime,
-    val birthDate: LocalDateTime
+    val issueDate: LocalDateTime = LocalDateTime.now(),
+    val birthDate: LocalDateTime = LocalDateTime.now(),
 ) {
     fun mapToModel(): CustomerInformation {
         return CustomerInformation(
@@ -25,10 +26,6 @@ data class CustomerInformationEntity(
             birthDate = birthDate
         )
     }
-
-    companion object {
-        const val DEFAULT_ID = "0"
-    }
 }
 
 data class CustomerInformationWithImages(
@@ -39,4 +36,10 @@ data class CustomerInformationWithImages(
         entityColumn = "customerId"
     )
     val images: List<DataImageEntity>
-)
+){
+    fun mapToModel(): CustomerInformation {
+        return customerInformation.mapToModel().copy(
+            images = images.map { it.mapToModel() }
+        )
+    }
+}

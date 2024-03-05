@@ -14,6 +14,7 @@ import com.deepscope.deepscope.ui.defaultscanner.DocumentFieldAdapter
 import com.deepscope.deepscope.util.DocumentReaderResultsParcel
 import com.deepscope.deepscope.util.Utils.saveBitmap
 import com.deepscope.deepscope.util.toParcelable
+import com.orhanobut.logger.Logger
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
@@ -38,7 +39,7 @@ class ScanResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityScanResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        Timber.d("[DEBUGX] onCreate: $documentResults")
+        Logger.d("[DEBUGX] onCreate: $documentResults")
         initViews()
     }
 
@@ -156,7 +157,7 @@ class ScanResultActivity : AppCompatActivity() {
                         )
                     }
                 } catch (e: Exception) {
-                    Timber.e( "[DEBUGX] matchFaces: $e")
+                    Timber.d( "[DEBUGX] matchFaces: $e")
                 }
 //                btnScan.isEnabled = true
             }

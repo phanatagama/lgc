@@ -33,6 +33,10 @@
         android:theme="@style/Theme.DeepScope"
         tools:targetApi="31">
         <activity
+            android:name=".ui.main.HomeActivity"
+            android:launchMode="singleTask"
+            android:exported="false" />
+        <activity
             android:name=".ui.customerInformation.diagnose.DiagnoseActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
@@ -73,13 +77,7 @@
             android:name=".ui.main.MainActivity"
             android:exported="false"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.scanner.SuccessfulInitActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.DeepScope" />
-
-        <!-- Provider for file sharing -->
+            android:screenOrientation="portrait" /> <!-- Provider for file sharing -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

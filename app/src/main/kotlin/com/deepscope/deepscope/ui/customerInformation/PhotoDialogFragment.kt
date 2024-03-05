@@ -40,7 +40,7 @@ class PhotoDialogFragment : DialogFragment() {
     }
 
     companion object {
-        internal val TAG = PhotoDialogFragment::class.java.simpleName
+        const val TAG = "PhotoDialogFragment"
         const val IMAGE_BITMAP = "IMAGE_BITMAP"
 
         fun newInstance(bitmap: Bitmap): PhotoDialogFragment {

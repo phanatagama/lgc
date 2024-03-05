@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainActivity">
-    <include
-        android:id="@+id/content_main"
-        layout="@layout/layout_content_main" />
+    android:background="@android:color/background_light"
+    tools:context="com.deepscope.deepscope.ui.main.MainActivity">
 
-    <include
-        android:id="@+id/layout_bottom_sheet"
-        layout="@layout/layout_result_bottomsheet"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="0dp"
-        app:enableEdgeToEdge="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+<androidx.fragment.app.FragmentContainerView
+    android:id="@+id/nav_host_fragment"
+    android:name="androidx.navigation.fragment.NavHostFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:defaultNavHost="true"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:navGraph="@navigation/main_nav_graph"
+    />
+</FrameLayout>
