@@ -37,7 +37,7 @@ import com.regula.facesdk.model.results.LivenessResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
 import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
 import com.regula.facesdk.request.MatchFacesRequest
-import timber.log.Timber
+import com.orhanobut.logger.Logger
 
 class DefaultScannerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDefaultScannerBinding
@@ -66,7 +66,7 @@ class DefaultScannerActivity : AppCompatActivity() {
     }
 
     private fun showScanner() {
-        Timber.d( "[DEBUGX] showScanner: currentscenario $currentScenario")
+        Logger.d( "[DEBUGX] showScanner: currentscenario $currentScenario")
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
         DocumentReader.Instance()
             .showScanner(this@DefaultScannerActivity, scannerConfig, completion)
@@ -77,7 +77,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
                 ?: results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
         if (documentImage != null) {
-            Timber.d( "[DEBUGX] documentImage is not null")
+            Logger.d( "[DEBUGX] documentImage is not null")
             binding.documentIv.setImageBitmap(documentImage)
             return
         }
@@ -86,7 +86,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             binding.titleTv.text = name
             val image = it.bitmap
             binding.documentIv.setImageBitmap(image)
-            Timber.d( "[DEBUGX] initResults: name = ${name} ")
+            Logger.d( "[DEBUGX] initResults: name = ${name} ")
         }
     }
 
@@ -100,11 +100,11 @@ class DefaultScannerActivity : AppCompatActivity() {
         val attributes = mutableListOf<TextFieldAttribute>()
         results.textResult?.fields?.forEach {
             val name = it.getFieldName(this)
-            Timber.d( "[DEBUGX] fieldname ${it.getFieldName(this)} ")
+            Logger.d( "[DEBUGX] fieldname ${it.getFieldName(this)} ")
             for (value in it.values) {
-                Timber.d( "[DEBUGX] fieldtype ${value.field.fieldType} ")
-                Timber.d( "[DEBUGX] source ${value.sourceType} ")
-                Timber.d( "[DEBUGX] value ${value.value} ")
+                Logger.d( "[DEBUGX] fieldtype ${value.field.fieldType} ")
+                Logger.d( "[DEBUGX] source ${value.sourceType} ")
+                Logger.d( "[DEBUGX] value ${value.value} ")
                 val valid = getValidity(value.field.validityList, value.sourceType)
                 val item = TextFieldAttribute(
                     name!!,
@@ -117,9 +117,9 @@ class DefaultScannerActivity : AppCompatActivity() {
                 attributes.add(item)
             }
         }
-        Timber.d( "[DEBUGX] updateRecyclerViews")
+        Logger.d( "[DEBUGX] updateRecyclerViews")
         if(attributes.isNotEmpty()){
-            Timber.d( "[DEBUGX] attribut is not empty")
+            Logger.d( "[DEBUGX] attribut is not empty")
             rvAdapter.submitList(attributes)
             hideRecyclerView(false)
         }
@@ -146,7 +146,7 @@ class DefaultScannerActivity : AppCompatActivity() {
             || action == DocReaderAction.TIMEOUT
         ) {
             if (DocumentReader.Instance().functionality().isManualMultipageMode) {
-                Timber.d( "[DEBUGX] MULTIPAGEMODE: ")
+                Logger.d( "[DEBUGX] MULTIPAGEMODE: ")
                 if (results?.morePagesAvailable != 0) {
                     DocumentReader.Instance().startNewPage()
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -159,10 +159,10 @@ class DefaultScannerActivity : AppCompatActivity() {
                 }
             }
             if (results?.chipPage != 0) {
-                Timber.d( "[DEBUGX] RFID IS PERFORMED: ")
+                Logger.d( "[DEBUGX] RFID IS PERFORMED: ")
                 DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                     override fun onChipDetected() {
-                        Timber.d("Rfid", "Chip detected")
+                        Logger.d("Rfid", "Chip detected")
                     }
 
                     override fun onProgress(notification: DocumentReaderNotification) {
@@ -170,7 +170,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                     }
 
                     override fun onRetryReadChip(exception: DocReaderRfidException) {
-                        Timber.d("Rfid", "Retry with error: " + exception.errorCode)
+                        Logger.d("Rfid", "Retry with error: " + exception.errorCode)
                     }
 
                     override fun onCompleted(
@@ -183,7 +183,7 @@ class DefaultScannerActivity : AppCompatActivity() {
                     }
                 })
             } else {
-                Timber.d( "[DEBUGX] NO RFID PERFORMED ")
+                Logger.d( "[DEBUGX] NO RFID PERFORMED ")
                 /**
                 * perform [livenessFace] or [captureface] then check similarity
                 */

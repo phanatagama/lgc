@@ -18,16 +18,16 @@ import com.deepscope.deepscope.databinding.FragmentRoadAddressSearchBinding
 import timber.log.Timber
 
 
-class RoadAddressSearchDialog : DialogFragment() {
+class RoadAddressSearchDialog(builder: Builder) : DialogFragment() {
     private var _binding: FragmentRoadAddressSearchBinding? = null
     private val binding get() = _binding!!
 
     //    var navController: NavController? = null
     var webView: WebView? = null
     var handler: Handler? = null
-    var listener: OnInputListener? = null
+    var listener: OnInputListener? = builder.listener
 
-    interface OnInputListener {
+    fun interface OnInputListener {
         fun sendInput(input: String?)
     }
 
@@ -128,10 +128,19 @@ class RoadAddressSearchDialog : DialogFragment() {
         }
     }
 
+    class Builder {
+        var listener: OnInputListener? = null
+        fun addListener(webViewListener: OnInputListener): Builder {
+            listener = webViewListener
+            return this
+        }
+
+        fun build(): RoadAddressSearchDialog {
+            return RoadAddressSearchDialog(this)
+        }
+    }
+
     companion object {
         internal val TAG = RoadAddressSearchDialog::class.java.simpleName
-        fun newInstance(): RoadAddressSearchDialog {
-            return RoadAddressSearchDialog()
-        }
     }
 }

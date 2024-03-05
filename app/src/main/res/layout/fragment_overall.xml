@@ -91,6 +91,7 @@
             android:layout_width="327dp"
             android:layout_height="243dp"
             app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="@string/document_image"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/document_tv"
             tools:src="@drawable/reg_nfc_full_id_big" />

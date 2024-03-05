@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress NavigationFile -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.deepscope.deepscope.ui.main.fragment.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_searchCustomerInformationFragment"
+            app:destination="@id/searchCustomerInformationFragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
+        <action
+            android:id="@+id/action_mainFragment_to_bleDeviceFragment"
+            app:destination="@id/bleDeviceFragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
+        <action
+            android:id="@+id/action_mainFragment_to_customerInformationFragment"
+            app:destination="@id/customerInformationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchCustomerInformationFragment"
+        android:name="com.deepscope.deepscope.ui.customerInformation.search.SearchCustomerInformationFragment"
+        android:label="fragment_search_customer_information"
+        tools:layout="@layout/fragment_search_customer_information" >
+        <action
+            android:id="@+id/action_searchCustomerInformationFragment_to_customerInformationFragment"
+            app:destination="@id/customerInformationFragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/bleDeviceFragment"
+        android:name="com.deepscope.deepscope.ui.bleDevice.BleDeviceFragment"
+        android:label="fragment_ble_device"
+        tools:layout="@layout/fragment_ble_device" >
+        <argument
+            android:name="customer_information_feature"
+            app:argType="integer"
+            android:defaultValue="2" />
+        <action
+            android:id="@+id/action_bleDeviceFragment_to_customerInformationFragment"
+            app:destination="@id/customerInformationFragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/customerInformationFragment"
+        android:name="com.deepscope.deepscope.ui.customerInformation.CustomerInformationFragment"
+        android:label="fragment_customer_information"
+        tools:layout="@layout/fragment_customer_information" >
+        <argument
+            android:name="customer_information_type"
+            app:argType="integer"
+            android:defaultValue="1" />
+        <argument
+            android:name="customer_information_feature"
+            app:argType="integer"
+            android:defaultValue="2" />
+        <argument
+            android:name="customer_information_id"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="null"
+            />
+        <action
+            android:id="@+id/action_customerInformationFragment_to_diagnoseFragment"
+            app:destination="@id/diagnoseFragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/diagnoseFragment"
+        android:name="com.deepscope.deepscope.ui.customerInformation.diagnose.DiagnoseFragment"
+        android:label="fragment_diagnose"
+        tools:layout="@layout/fragment_diagnose" >
+        <action
+            android:id="@+id/action_diagnoseFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="customer"
+            app:argType="com.deepscope.deepscope.domain.model.CustomerInformation" />
+    </fragment>
+</navigation>

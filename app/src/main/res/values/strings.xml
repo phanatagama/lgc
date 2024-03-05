@@ -63,11 +63,18 @@
     <string name="initializing">Initializing</string>
     <string name="camera">Camera</string>
     <string name="setting">Setting</string>
-    <string name="similarity">Similarity: %1$d\%</string>
+    <string name="similarity">Similarity: %1$d \\(%%)</string>
     <string name="similarity_none">Similarity: -</string>
     <string name="valid">(Valid)</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="failed_to_connect_to_the_torch_device">Failed to connect to the torch device</string>
-    <string name="downloading_database">Downloading database: %1$d\%</string>
+    <string name="downloading_database">Downloading database: %1$d </string>
     <string name="prepare_db_failed">Prepare DB failed:%1$s</string>
+    <string name="device_name">Device name</string>
+    <string name="searching_devices">Searching devices</string>
+    <string name="bluetooth_is_connected">Bluetooth is connected</string>
+    <string name="bluetooth_is_not_connected">Bluetooth is not connected</string>
+    <string name="uv_image_not_found">Failed to capture with UV</string>
+    <string name="face_captured_successfully">Face captured successfully</string>
+    <string name="document_image">Document Image</string>
 </resources>

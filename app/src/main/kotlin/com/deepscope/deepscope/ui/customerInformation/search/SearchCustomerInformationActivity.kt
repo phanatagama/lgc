@@ -15,6 +15,7 @@ import com.deepscope.deepscope.databinding.ActivitySearchCustomerInformationBind
 import com.deepscope.deepscope.databinding.RvItemCustomerInformationBinding
 import com.deepscope.deepscope.domain.model.CustomerInformation
 import com.deepscope.deepscope.ui.customerInformation.CustomerInformationActivity
+import com.deepscope.deepscope.util.Utils.DEBOUNCE_PERIOD
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,16 +31,25 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
                 view: RvItemCustomerInformationBinding,
                 customerInformation: CustomerInformation
             ) {
-                val visibleIntent = Intent(this@SearchCustomerInformationActivity, CustomerInformationActivity::class.java)
-                visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 2)
-                visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_ID, customerInformation.id)
-                startActivity(visibleIntent)
+                goToCustomerInformationActivity(customerInformation)
             }
 
             override fun onDeleteItem(customerInformation: CustomerInformation) {
                 searchCustomerInformationViewModel.deleteCustomerInformation(customerInformation)
             }
         }
+
+    private fun goToCustomerInformationActivity(customerInformation: CustomerInformation) {
+        val visibleIntent =
+            Intent(this@SearchCustomerInformationActivity, CustomerInformationActivity::class.java)
+        visibleIntent.putExtra(CustomerInformationActivity.CUSTOMER_INFORMATION_TYPE, 2)
+        visibleIntent.putExtra(
+            CustomerInformationActivity.CUSTOMER_INFORMATION_ID,
+            customerInformation.id
+        )
+        startActivity(visibleIntent)
+    }
+
     private val rvAdapter by lazy {
         CustomerInformationAdapter()
     }
@@ -65,21 +75,20 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
                     rvAdapter.submitList(it.customerInformation)
 
                     if (it.message != null) {
-                        Toast.makeText(
-                            this@SearchCustomerInformationActivity,
-                            it.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(it.message)
                         searchCustomerInformationViewModel.removeMessage()
                     }
                 }
         }
     }
 
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
-
 
     private fun bindViews() {
         with(binding) {
@@ -101,7 +110,7 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
 
     private val searchQueryListener = object :
         SearchView.OnQueryTextListener {
-        var debouncePeriod: Long = 500
+        var debouncePeriod: Long = DEBOUNCE_PERIOD
 
         private val coroutineScope = lifecycleScope
 
@@ -127,5 +136,9 @@ class SearchCustomerInformationActivity : AppCompatActivity() {
 
             return true
         }
+    }
+
+    companion object {
+        const val TAG: String = "SearchCustomerInformationActivity"
     }
 }

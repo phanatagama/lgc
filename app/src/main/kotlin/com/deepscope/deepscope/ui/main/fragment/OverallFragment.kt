@@ -80,16 +80,16 @@ class OverallFragment : Fragment() {
             )
         val documentName = if (results?.documentType?.isNotEmpty() == true) {
             Timber.d(
-                "debugx document name ${results.documentType.first()?.name}"
+                "document name ${results.documentType.first()?.name}"
             )
             Timber.d(
-                "debugx document documentid ${results.documentType.first()?.documentID}"
+                "document documentid ${results.documentType.first()?.documentID}"
             )
             Timber.d(
-                "debugx document dtypr ${results.documentType.first()?.dType}"
+                "document dtypr ${results.documentType.first()?.dType}"
             )
             Timber.d(
-                "debugx document countty ${results.documentType.first()?.dCountryName}"
+                "document countty ${results.documentType.first()?.dCountryName}"
             )
             results.documentType.first()?.name
         } else {

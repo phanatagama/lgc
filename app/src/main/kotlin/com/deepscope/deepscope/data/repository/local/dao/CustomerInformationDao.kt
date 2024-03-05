@@ -12,6 +12,7 @@ interface CustomerInformationDao : BaseDao<CustomerInformationEntity> {
     @Query("SELECT * FROM customer_information")
     fun get(): Flow<List<CustomerInformationEntity>>
 
+    @Transaction
     @Query("SELECT * FROM customer_information WHERE id = :id")
     fun getById(id: String): Flow<CustomerInformationWithImages>
 

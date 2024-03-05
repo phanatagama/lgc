@@ -1,6 +1,5 @@
 package com.deepscope.deepscope.ui.customerInformation
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,31 +8,35 @@ import com.deepscope.deepscope.data.repository.local.provider.CustomerInformatio
 import com.deepscope.deepscope.data.repository.local.provider.DataImageProvider
 import com.deepscope.deepscope.domain.model.CustomerInformation
 import com.deepscope.deepscope.domain.model.DataImage
-import com.deepscope.deepscope.util.IdProviderImpl
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDateTime
+import java.util.UUID
 
 class CustomerInformationViewModel(
-    private val idProvider: IdProviderImpl,
     private val customerInformationProvider: CustomerInformationProvider,
     private val dataImageProvider: DataImageProvider
 ) : ViewModel() {
     private var dataImages: MutableList<DataImage> = mutableListOf()
+
     private val _customerInformation = MutableLiveData<CustomerInformation>()
     val customerInformation: LiveData<CustomerInformation> = _customerInformation
+
 
     fun getCustomerInformationById(id: String) {
         viewModelScope.launch {
             customerInformationProvider.getCustomerInformationById(id).onStart {
                 // TODO: set state loading here
+                Timber.d("Start coroutine to getCustomerInformationById")
             }.catch {
                 // TODO: set state error here
+                Timber.e("Error:", it)
             }.collect {
-                _customerInformation.value = it.customerInformation.mapToModel()
-                    .copy(images = it.images.map { entity -> entity.mapToModel() })
+                _customerInformation.value = it
             }
 
         }
@@ -57,9 +60,9 @@ class CustomerInformationViewModel(
         address: String,
         issueDateTime: LocalDateTime,
         birthDateTime: LocalDateTime
-    ) {
+    ): Job {
         val customerInformation = CustomerInformation(
-            id = idProvider.generate(),
+            id = UUID.randomUUID().toString(),
             name = name,
             description = description,
             address = address,
@@ -68,19 +71,19 @@ class CustomerInformationViewModel(
             images = dataImages
         )
         _customerInformation.value = customerInformation
-        viewModelScope.launch {
+        return viewModelScope.launch {
             val dataSaved = customerInformationProvider.getCustomerInformation(name).first()
                 .filter { it.name == name && it.birthDate == birthDateTime }
             if (dataSaved.isEmpty()) {
+                Timber.d("Store New Customer Information")
                 customerInformationProvider.insertCustomerInformation(customerInformation)
-                dataImageProvider.insertDataImage(dataImages, customerInformation.id!!)
+                dataImageProvider.insertDataImage(dataImages, customerInformation.id)
             } else {
-                dataSaved.first().id?.let {
-                    dataImageProvider.insertDataImage(
-                        dataImages,
-                        it
-                    )
-                }
+                Timber.d("Update Customer Information (add image)")
+                dataImageProvider.insertDataImage(
+                    dataImages,
+                    dataSaved.first().id
+                )
             }
         }
     }
@@ -90,7 +93,7 @@ class CustomerInformationViewModel(
         dataImages.addAll(bitmap)
     }
 
-    fun deleteImage(customerId:String, dataImage: DataImage) {
+    fun deleteImage(customerId: String, dataImage: DataImage) {
         dataImages.remove(dataImage)
         viewModelScope.launch {
             dataImageProvider.deleteDataImage(customerId, dataImage)

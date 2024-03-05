@@ -53,7 +53,6 @@ class MainRepository(
                     emit(BaseResult.Success(FileUploadResponse(response.body())))
                 } else {
                     Timber.e(
-                        TAG,
                         "getUploadUrls: ${response.code()},${response.body()},${response}"
                     )
                     emit(BaseResult.Error(Failure(response.code(), response.message())))

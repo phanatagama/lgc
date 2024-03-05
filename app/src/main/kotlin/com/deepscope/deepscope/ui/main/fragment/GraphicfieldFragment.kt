@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.databinding.FragmentGraphicfieldBinding
 import com.deepscope.deepscope.ui.scanner.ScannerViewModel
+import com.deepscope.deepscope.util.Utils.getColorResource
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.facesdk.FaceSDK
@@ -99,17 +99,17 @@ class GraphicfieldFragment : Fragment() {
                         if (similarity > 0.8) {
                             statusTv.text = getString(R.string.valid)
                             statusTv.setTextColor(
-                                ContextCompat.getColor(
+                                getColorResource(
+                                    com.regula.common.R.color.dark_green,
                                     requireActivity(),
-                                    com.regula.common.R.color.dark_green
                                 )
                             )
                         } else {
                             statusTv.text = getString(R.string.not_valid)
                             statusTv.setTextColor(
-                                ContextCompat.getColor(
+                                getColorResource(
+                                    com.regula.common.R.color.red,
                                     requireActivity(),
-                                    com.regula.common.R.color.red
                                 )
                             )
                         }
@@ -117,9 +117,9 @@ class GraphicfieldFragment : Fragment() {
                         similarityTv.text = getString(R.string.similarity_0)
                         statusTv.text = getString(R.string.not_valid)
                         statusTv.setTextColor(
-                            ContextCompat.getColor(
+                            getColorResource(
+                                com.regula.common.R.color.red,
                                 requireActivity(),
-                                com.regula.common.R.color.red
                             )
                         )
                     }

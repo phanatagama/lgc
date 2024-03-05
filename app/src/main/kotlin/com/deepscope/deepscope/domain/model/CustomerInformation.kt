@@ -1,56 +1,32 @@
 package com.deepscope.deepscope.domain.model
 
+import android.os.Parcelable
 import com.deepscope.deepscope.data.repository.local.entity.CustomerInformationEntity
+import com.deepscope.deepscope.util.Empty
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
+import java.util.UUID
 
+@Parcelize
 data class CustomerInformation(
-    val name: String,
-    val description: String,
-    val address: String,
-    val issueDate: LocalDateTime,
-    val birthDate: LocalDateTime,
+    var id: String = UUID.randomUUID().toString(),
+    val name: String? = null,
+    val description: String? = null,
+    val address: String? = null,
+    val issueDate: LocalDateTime = LocalDateTime.now(),
+    val birthDate: LocalDateTime = LocalDateTime.now(),
     var images: List<DataImage> = emptyList(),
-) {
-    var id: String? = null
-
-    constructor(
-        id: String?,
-        name: String,
-        description: String,
-        address: String,
-        issueDate: LocalDateTime,
-        birthDate: LocalDateTime,
-        images: List<DataImage> = emptyList()
-    ) : this(name, description, address, issueDate, birthDate, images) {
-        this.id = id
-    }
-
+) : Parcelable {
     fun mapToEntity(): CustomerInformationEntity {
         return CustomerInformationEntity(
-            id = id ?: "0",
-            name = name,
-            description = description,
-            address = address,
+            id = id,
+            name = name ?: String.Empty,
+            description = description ?: String.Empty,
+            address = address ?: String.Empty,
             issueDate = issueDate,
             birthDate = birthDate
         )
     }
 }
 
-val generateCustomerInformation = listOf(
-    CustomerInformation(
-        "1",
-        "John",
-        "MALE, AGE: 23",
-        "Seoul",
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-    ), CustomerInformation(
-        "2",
-        "Doe",
-        "MALE, AGE: 23",
-        "Seoul",
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-    )
-)
+

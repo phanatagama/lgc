@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.parcelize")
     id("com.google.devtools.ksp")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -44,6 +45,9 @@ android {
     packagingOptions {
         resources.excludes.add("META-INF/*")
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin/'
+    }
 }
 
 dependencies {
@@ -55,6 +59,11 @@ dependencies {
     implementation("com.google.android.material:material:$material")
     implementation("androidx.constraintlayout:constraintlayout:$constraintlayout")
     implementation("androidx.viewpager2:viewpager2:$viewpager2")
+
+    // Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
+
 
     // Zoom Image View
     implementation("com.otaliastudios:zoomlayout:$zoom_image_view_version")

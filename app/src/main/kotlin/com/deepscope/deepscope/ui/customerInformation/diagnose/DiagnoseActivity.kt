@@ -2,12 +2,11 @@ package com.deepscope.deepscope.ui.customerInformation.diagnose
 
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.deepscope.deepscope.R
 import com.deepscope.deepscope.databinding.ActivityDiagnoseBinding
-import com.deepscope.deepscope.ui.main.MainActivity
-import com.deepscope.deepscope.util.Utils
+import com.deepscope.deepscope.ui.main.HomeActivity
 import java.io.File
 
 class DiagnoseActivity : AppCompatActivity() {
@@ -36,7 +35,7 @@ class DiagnoseActivity : AppCompatActivity() {
 
     private fun bindViews() {
         binding.btnBack.setOnClickListener {
-            startActivity(Intent(this@DiagnoseActivity, MainActivity::class.java))
+            startActivity(Intent(this@DiagnoseActivity, HomeActivity::class.java))
         }
     }
 

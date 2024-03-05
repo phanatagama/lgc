@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deepscope.deepscope.databinding.RvItemImageBinding
 import com.deepscope.deepscope.domain.model.DataImage
-import timber.log.Timber
+import com.orhanobut.logger.Logger
 import java.io.File
 
 
@@ -81,7 +81,7 @@ class CustomerPhotoAdapter :
     fun updateList(dataImage: DataImage) {
         val newList = currentList.toMutableList().map {
             if (it.id == dataImage.id) {
-                Timber.d( "DEBUGX updateList: CHANGED")
+                Logger.d( "DEBUGX updateList: CHANGED")
                 it.copy(bitmap = dataImage.bitmap, type = dataImage.type)
             } else {
                 it

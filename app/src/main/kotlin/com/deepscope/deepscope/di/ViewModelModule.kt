@@ -8,6 +8,6 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { ScannerViewModel(get()) }
-    viewModel { CustomerInformationViewModel(get(), get(), get()) }
+    viewModel { CustomerInformationViewModel(get(), get()) }
     viewModel { SearchCustomerInformationViewModel(get()) }
 }

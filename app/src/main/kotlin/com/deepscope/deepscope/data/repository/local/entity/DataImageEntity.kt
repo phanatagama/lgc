@@ -1,7 +1,9 @@
 package com.deepscope.deepscope.data.repository.local.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Relation
 import com.deepscope.deepscope.domain.model.DataImage
 
 
@@ -30,3 +32,13 @@ data class DataImageEntity(
         )
     }
 }
+
+data class DataImageWithCustomer(
+    @Embedded
+    val dataImage: DataImageEntity,
+    @Relation(
+        parentColumn = "customerId",
+        entityColumn = "id"
+    )
+    val customer: CustomerInformationEntity
+)
